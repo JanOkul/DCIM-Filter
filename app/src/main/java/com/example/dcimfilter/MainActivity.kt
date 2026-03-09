@@ -17,14 +17,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DCIMFilterTheme {
-                val navController = rememberNavController()
-                NavHost(
-                    navController = navController,
-                    startDestination = "home"
-                ) {
-                    composable("home") { MainScreen(navController) }
-                    composable("settings") { SettingsScreen(navController) }
-                }
+                MainScreen()
             }
         }
     }
