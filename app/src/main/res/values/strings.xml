@@ -4,6 +4,5 @@
     <string name="card1_body">Batch filter the DCIM file, for use after install or after pausing operation.</string>
     <string name="card1_button">Filter</string>
     <string name="card2_title">Settings</string>
-    
-    
+    <string name="settings_source_package_description">The app you want to filter out from DCIM. To find your package name, either search through your files, or search \'[APP NAME] package name android\'. This app was intended for TikTok, which is \'com.zhiliaoapp.musically\'. This name will be fixed, unless the app is reuploaded to the play store by the owner of the app.</string>
 </resources>

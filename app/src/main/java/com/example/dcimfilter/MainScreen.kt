@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Settings
@@ -19,12 +21,15 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +38,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.dcimfilter.settings.SettingsViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,59 +71,96 @@ fun MainBody(innerPadding: PaddingValues) {
 
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(stringResource(
-                    R.string.card1_title
-                ),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(stringResource(
-                    R.string.card1_body
-                ),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                FilledTonalButton(onClick = {}) {
-                    Text(stringResource(R.string.card1_button))
-                }
+        Filter()
+        Settings()
+    }
+}
+
+@Composable
+fun Filter() {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(stringResource(
+                R.string.card1_title
+            ),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(stringResource(
+                R.string.card1_body
+            ),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            FilledTonalButton(onClick = {}) {
+                Text(stringResource(R.string.card1_button))
             }
         }
+    }
+}
 
-        Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(stringResource(
-                    R.string.card2_title
-                ),
-                    style = MaterialTheme.typography.titleMedium
-                )
+@Composable
+fun Settings(viewModel: SettingsViewModel = viewModel()) {
+    val isOn by viewModel.isEnabled.collectAsState(initial = true)
+    val selectedPackage by viewModel.selectedPackage.collectAsState(initial = "")
 
-                SettingsComponent(
-                    "On/Off",
-                    "Toggle operation button."
-                ) {
-                    Switch(
-                        checked = checked,
-                        onCheckedChange = {
-                            checked = it
-                        },
-                        thumbContent = if (checked) {
-                            {
-                                Icon(
-                                    imageVector = Icons.Filled.Check,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(SwitchDefaults.IconSize),
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(stringResource(
+                R.string.card2_title
+            ),
+                style = MaterialTheme.typography.titleMedium
+            )
 
-                                    )
-                            }
-                        } else {
-                            null
+            SettingsComponent(
+                "On/Off",
+                "Toggle operation button"
+            ) {
+                Switch(
+                    checked = isOn,
+                    onCheckedChange = { viewModel.setIsEnabled(it) },
+                    thumbContent = if (isOn) {
+                        {
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                            )
                         }
+                    } else {
+                        null
+                    }
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                    Text("Source Package", style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        stringResource(R.string.settings_source_package_description),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+                    OutlinedTextField(
+                        value = selectedPackage,
+                        onValueChange = { viewModel.setSelectedPackage(it) },
+                        label = { Text("Package Name") }
                     )
                 }
+            }
+
+            SettingsComponent(
+                "Destination Folder",
+                "Where the filtered files are moved to"
+            ) {
+                //todo
             }
         }
     }
