@@ -1,5 +1,6 @@
 package com.example.dcimfilter.ui_components
 
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -22,10 +24,16 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,10 +53,20 @@ fun SettingsCard(viewModel: SettingsViewModel = viewModel()) {
     val isOn by viewModel.isEnabled.collectAsState(initial = true)
     val selectedPackage by viewModel.selectedPackage.collectAsState(initial = "")
     val destinationFolder by viewModel.destinationFolder.collectAsState(initial = "")
+    val context = LocalContext.current
+
 
     val destinationPickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()) { uri ->
-        viewModel.setDestinationFolder(uri.toString())
+        if (uri != null) {
+            viewModel.setDestinationFolder(uri.toString())
+        } else {
+            Toast.makeText(
+                context,
+                "No folder selected",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     SettingsContent(
@@ -141,6 +159,19 @@ private fun SourcePackageSetting(viewModel: SettingsViewModel, selectedPackage: 
     val subtitle = stringResource(R.string.settings_source_package_subtitle)
     val description = stringResource(R.string.settings_source_package_description)
     val buttonName = stringResource(R.string.settings_source_package_button_name)
+    val context = LocalContext.current
+    var draftPackage by rememberSaveable(selectedPackage) { mutableStateOf(selectedPackage) }
+
+    LaunchedEffect(isOn, selectedPackage) {
+        if (isOn && draftPackage != selectedPackage) {
+            draftPackage = selectedPackage
+            Toast.makeText(
+                context,
+                "Selected package not changed. Current package: $selectedPackage",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     SettingsComponent {
         Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
@@ -149,16 +180,32 @@ private fun SourcePackageSetting(viewModel: SettingsViewModel, selectedPackage: 
 
             Spacer(modifier = Modifier.size(8.dp))
 
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = selectedPackage,
-                enabled = !isOn, // If the filtering service is active, the text field should be disabled.
-                onValueChange = { viewModel.setSelectedPackage(it) },
-                singleLine = true,
-                label = {
-                    Text(buttonName)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+
+                OutlinedTextField(
+                    value = draftPackage,
+                    enabled = !isOn, // If the filtering service is active, the text field should be disabled.
+                    onValueChange = { draftPackage = it },
+                    singleLine = true,
+                    label = {
+                        Text(buttonName)
+                    }
+                )
+
+                Spacer(Modifier.size(8
+                    .dp))
+
+                FilledTonalIconButton(
+                    onClick = { viewModel.setSelectedPackage(draftPackage) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = draftPackage != selectedPackage && !isOn
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Confirm selection"
+                    )
                 }
-            )
+            }
         }
     }
 }
