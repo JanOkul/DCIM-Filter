@@ -1,9 +1,5 @@
 package com.example.dcimfilter
 
-import android.content.Context
-import android.media.MediaScannerConnection
-import android.provider.MediaStore
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.dcimfilter.ui_components.FilterCard
+import com.example.dcimfilter.ui_components.SettingsCard
 
 
 /**
@@ -64,29 +62,7 @@ fun MainBody(innerPadding: PaddingValues) {
     }
 }
 
-/**
- *  The filter card UI to be displayed in the main screen.
- */
-@Composable
-fun FilterCard() {
-    val subtitle = stringResource(R.string.batch_filter_subtitle)
-    val description = stringResource(R.string.batch_filter_description)
-    val buttonName = stringResource(R.string.batch_filter_button_name)
 
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(subtitle, style = MaterialTheme.typography.titleMedium)
-            Text(description, style = MaterialTheme.typography.bodyMedium)
-
-            Spacer(Modifier.size(8.dp))
-
-            // todo
-            FilledTonalButton(onClick = {}) {
-                Text(buttonName)
-            }
-        }
-    }
-}
 
 
 

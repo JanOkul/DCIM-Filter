@@ -8,14 +8,14 @@
     <string name="settings_title">Settings</string>
 
     <string name="settings_on_off_subtitle">On/Off</string>
-    <string name="settings_on_off_description">Toggle operation button</string>
+    <string name="settings_on_off_description">Turn the automatic filtering on and off.</string>
 
     <string name="settings_source_package_subtitle">Source Package</string>
     <string name="settings_source_package_description">The app you want to filter out from DCIM. To find the target package name, either search through your files, or search \'[APP NAME] package name android\'. This app was intended for TikTok, which is \'com.zhiliaoapp.musically\'. This package name should never change, unless the app is reuploaded to the play store by the owner of the app.</string>
     <string name="settings_source_package_button_name">Select Package"</string>
 
     <string name="settings_destination_subtitle">Destination Folder</string>
-    <string name="settings_destination_description">The destination folder of where filtered files are moved to</string>
+    <string name="settings_destination_description">The destination folder of where filtered files are moved to.</string>
     <string name="settings_destination_button_name">Select Folder</string>
     <string name="settings_current_destination_uri">Current Folder:</string>
 </resources>

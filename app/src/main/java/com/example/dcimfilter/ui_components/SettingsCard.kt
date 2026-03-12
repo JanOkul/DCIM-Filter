@@ -1,9 +1,7 @@
-package com.example.dcimfilter
+package com.example.dcimfilter.ui_components
 
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
@@ -32,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.dcimfilter.R
 import com.example.dcimfilter.settings.SettingsViewModel
 
 val subtitleStyle = Typography().titleSmall
@@ -71,7 +69,7 @@ fun SettingsCard(viewModel: SettingsViewModel = viewModel()) {
  *  @param destinationPickerLauncher The activity result launcher for the destination picker.
  */
 @Composable
-fun SettingsContent(
+private fun SettingsContent(
     viewModel: SettingsViewModel,
     isOn: Boolean,
     selectedPackage: String,
@@ -82,11 +80,14 @@ fun SettingsContent(
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(
+                title,
+//                modifier = Modifier.padding(start = 8.dp),
+                style = MaterialTheme.typography.titleMedium)
 
             IsOnSetting(viewModel, isOn)
-            SourcePackageSetting(viewModel, selectedPackage)
-            DestinationFolderSetting(destinationFolder, destinationPickerLauncher)
+            SourcePackageSetting(viewModel, selectedPackage, isOn)
+            DestinationFolderSetting(destinationFolder, destinationPickerLauncher, isOn)
         }
     }
 }
@@ -97,7 +98,7 @@ fun SettingsContent(
  *  @param isOn The current state of the switch.
  */
 @Composable
-fun IsOnSetting(viewModel: SettingsViewModel, isOn: Boolean) {
+private fun IsOnSetting(viewModel: SettingsViewModel, isOn: Boolean) {
     val subtitle = stringResource(R.string.settings_on_off_subtitle)
     val description = stringResource(R.string.settings_on_off_description)
 
@@ -133,9 +134,10 @@ fun IsOnSetting(viewModel: SettingsViewModel, isOn: Boolean) {
  *  The settings UI for the source package picker.
  *  @param viewModel The view model for the settings.
  *  @param selectedPackage The current selected package (to be displayed to user).
+ *  @param isOn If the filtering service is active.
  */
 @Composable
-fun SourcePackageSetting(viewModel: SettingsViewModel, selectedPackage: String) {
+private fun SourcePackageSetting(viewModel: SettingsViewModel, selectedPackage: String, isOn: Boolean) {
     val subtitle = stringResource(R.string.settings_source_package_subtitle)
     val description = stringResource(R.string.settings_source_package_description)
     val buttonName = stringResource(R.string.settings_source_package_button_name)
@@ -150,7 +152,9 @@ fun SourcePackageSetting(viewModel: SettingsViewModel, selectedPackage: String) 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = selectedPackage,
+                enabled = !isOn, // If the filtering service is active, the text field should be disabled.
                 onValueChange = { viewModel.setSelectedPackage(it) },
+                singleLine = true,
                 label = {
                     Text(buttonName)
                 }
@@ -163,40 +167,43 @@ fun SourcePackageSetting(viewModel: SettingsViewModel, selectedPackage: String) 
  *  The settings UI for the destination picker.
  *  @param destinationFolder The current destination folder (to be displayed to user).
  *  @param destinationPickerLauncher The activity result launcher for the destination picker.
+ *  @param isOn If the filtering service is active.
  */
 @Composable
-fun DestinationFolderSetting(destinationFolder: String, destinationPickerLauncher: () -> Unit) {
+private fun DestinationFolderSetting(
+    destinationFolder: String,
+    destinationPickerLauncher: () -> Unit,
+    isOn: Boolean
+) {
     val subtitle = stringResource(R.string.settings_destination_subtitle)
     val description = stringResource(R.string.settings_destination_description)
     val buttonName = stringResource(R.string.settings_destination_button_name)
     val currentDestination = stringResource(R.string.settings_current_destination_uri)
 
-    val currentFolderModifier = Modifier
-        .border(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.secondary,
-            shape = RoundedCornerShape(4.dp)
-        ).padding(8.dp).fillMaxWidth()
-
-
     SettingsComponent {
-        Column(Modifier.weight(1f).padding(end = 16.dp)) {
+        Column(/*Modifier.weight(1f).padding(end = 16.dp))*/) {
             Text(subtitle, style = subtitleStyle)
             Text(description, style = descriptionStyle)
 
             Spacer(modifier = Modifier.size(8.dp))
 
-            Text(currentDestination, style = MaterialTheme.typography.titleSmall)
-            Spacer(Modifier.size(4.dp))
-            Text(
-                text = destinationFolder,
-                modifier = currentFolderModifier,
-                style = descriptionStyle
+            OutlinedTextField(
+                value = destinationFolder,
+                onValueChange = {},
+                readOnly = true,
+                enabled = !isOn,
+                label = { Text(currentDestination) }
             )
-        }
 
-        FilledTonalButton(onClick = { destinationPickerLauncher() }) {
-            Text(buttonName)
+            Spacer(modifier = Modifier.size(8.dp))
+
+            FilledTonalButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { destinationPickerLauncher() },
+                enabled = !isOn // If the filtering service is active, the button should be disabled.
+            ) {
+                Text(buttonName)
+            }
         }
     }
 }
@@ -206,9 +213,9 @@ fun DestinationFolderSetting(destinationFolder: String, destinationPickerLaunche
  *  @param composable The composable UI element that will be within a setting.
  */
 @Composable
-fun SettingsComponent(composable: @Composable RowScope.() -> Unit) {
+private fun SettingsComponent(composable: @Composable RowScope.() -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         composable()
