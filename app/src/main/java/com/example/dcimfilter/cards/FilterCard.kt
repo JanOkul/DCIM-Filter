@@ -1,4 +1,4 @@
-package com.example.dcimfilter.ui_components
+package com.example.dcimfilter.cards
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
