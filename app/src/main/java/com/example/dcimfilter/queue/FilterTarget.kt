@@ -2,6 +2,7 @@ package com.example.dcimfilter.queue
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.File
 
 /**
  *  A single entry of a file that needs to be relocated by the filtering service.
@@ -13,6 +14,6 @@ import androidx.room.PrimaryKey
 data class FilterTarget(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val fileLocation: String,
-    val to: String
+    val file: String,
+//    val to: String
 )

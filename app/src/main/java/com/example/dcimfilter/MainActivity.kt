@@ -18,6 +18,7 @@ import com.example.dcimfilter.ui.theme.DCIMFilterTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.dcimfilter.workers.FileScannerService
 import java.net.URI
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +41,8 @@ class MainActivity : ComponentActivity() {
                 Manifest.permission.READ_MEDIA_VIDEO
             )
         )
+
+        startService(Intent(this, FileScannerService::class.java))
 
         enableEdgeToEdge()
         setContent {
