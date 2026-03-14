@@ -18,4 +18,10 @@
     <string name="settings_destination_description">The destination folder of where filtered files are moved to.</string>
     <string name="settings_destination_button_name">Select Folder</string>
     <string name="settings_current_destination_uri">Current Folder:</string>
+
+
+    <string name="notification_channel_id">FOREGROUND_SERVICE_CHANNEL</string>
+    <string name="notification_channel_name">DCIM Filter</string>
+    <string name="foreground_notification_text">Watching DCIM folder</string>
+    <string name="foreground_notification_title">DCIM Filter</string>
 </resources>

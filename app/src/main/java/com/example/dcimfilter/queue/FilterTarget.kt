@@ -1,6 +1,7 @@
 package com.example.dcimfilter.queue
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.io.File
 
@@ -10,10 +11,10 @@ import java.io.File
  *  @param fileLocation The current location of the file.
  *  @param to Where the file is going to be moved to.
  */
-@Entity
+@Entity(indices = [Index(value = ["file"], unique = true)])
 data class FilterTarget(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val file: String,
-//    val to: String
+
 )

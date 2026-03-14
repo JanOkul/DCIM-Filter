@@ -3,6 +3,7 @@ package com.example.dcimfilter.queue
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 /**
@@ -14,7 +15,7 @@ interface FilterDao {
     /**
      *  Used to insert a new entry into the queue.
      */
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertFilterTarget(filterTarget: FilterTarget)
 
     /**
