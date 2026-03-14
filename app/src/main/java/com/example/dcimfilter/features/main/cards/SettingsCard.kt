@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -36,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.dcimfilter.R
 import com.example.dcimfilter.settings.SettingsViewModel
 
@@ -48,7 +48,7 @@ val descriptionStyle = Typography().bodySmall
  *  @param viewModel The view model to be passed to each setting that needs it.
  */
 @Composable
-fun SettingsCard(viewModel: SettingsViewModel = viewModel()) {
+fun SettingsCard(viewModel: SettingsViewModel = viewModel(), navController: NavController) {
     val isOn by viewModel.isEnabled.collectAsState(initial = true)
     val selectedPackage by viewModel.selectedPackage.collectAsState(initial = "")
     val destinationFolder by viewModel.destinationFolder.collectAsState(initial = "")
@@ -70,6 +70,7 @@ fun SettingsCard(viewModel: SettingsViewModel = viewModel()) {
 
     SettingsContent(
         viewModel,
+        navController,
         isOn,
         selectedPackage,
         destinationFolder,
@@ -88,6 +89,7 @@ fun SettingsCard(viewModel: SettingsViewModel = viewModel()) {
 @Composable
 private fun SettingsContent(
     viewModel: SettingsViewModel,
+    navController: NavController,
     isOn: Boolean,
     selectedPackage: String,
     destinationFolder: String,
@@ -103,7 +105,7 @@ private fun SettingsContent(
                 style = MaterialTheme.typography.titleMedium)
 
             IsOnSetting(viewModel, isOn)
-            SourcePackageSetting(viewModel, selectedPackage, isOn)
+            SourcePackageSetting(viewModel, navController,selectedPackage, isOn)
             DestinationFolderSetting(destinationFolder, destinationPickerLauncher, isOn)
         }
     }
@@ -154,7 +156,7 @@ private fun IsOnSetting(viewModel: SettingsViewModel, isOn: Boolean) {
  *  @param isOn If the filtering service is active.
  */
 @Composable
-private fun SourcePackageSetting(viewModel: SettingsViewModel, selectedPackage: String, isOn: Boolean) {
+private fun SourcePackageSetting(viewModel: SettingsViewModel, navController: NavController, selectedPackage: String, isOn: Boolean) {
     val subtitle = stringResource(R.string.settings_source_package_subtitle)
     val description = stringResource(R.string.settings_source_package_description)
     val buttonName = stringResource(R.string.settings_source_package_button_name)
@@ -179,32 +181,24 @@ private fun SourcePackageSetting(viewModel: SettingsViewModel, selectedPackage: 
 
             Spacer(modifier = Modifier.size(8.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = selectedPackage,
+                onValueChange = {},
+                readOnly = true,
+                enabled = !isOn,
+                label = { Text(selectedPackage) }
+            )
 
-                OutlinedTextField(
-                    value = draftPackage,
-                    enabled = !isOn, // If the filtering service is active, the text field should be disabled.
-                    onValueChange = { draftPackage = it },
-                    singleLine = true,
-                    label = {
-                        Text(buttonName)
-                    }
-                )
+            Spacer(modifier = Modifier.size(8.dp))
 
-                Spacer(Modifier.size(8
-                    .dp))
-
-                FilledTonalIconButton(
-                    onClick = { viewModel.setSelectedPackage(draftPackage) },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = draftPackage != selectedPackage && !isOn
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Confirm selection"
-                    )
-                }
+            FilledTonalButton (
+                onClick = { navController.navigate("package_select") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isOn
+            ) {
+                Text(buttonName)
             }
+
         }
     }
 }

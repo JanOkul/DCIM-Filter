@@ -1,4 +1,5 @@
 [versions]
+accompanistDrawablepainter = "0.37.3"
 agp = "9.1.0"
 coreKtx = "1.17.0"
 datastorePreferences = "1.2.0"
@@ -13,6 +14,7 @@ navigationCompose = "2.9.7"
 roomRuntime = "2.8.4"
 
 [libraries]
+accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }

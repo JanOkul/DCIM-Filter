@@ -12,7 +12,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.dcimfilter.features.main.MainScreen
+import com.example.dcimfilter.features.package_select.PackageSelectScreen
 import com.example.dcimfilter.ui.theme.DCIMFilterTheme
 import com.example.dcimfilter.workers.FileScannerService
 
@@ -55,7 +59,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DCIMFilterTheme {
-                MainScreen()
+                val navController = rememberNavController()
+                NavHost(navController = navController, startDestination = "main") {
+                    composable("main") { MainScreen(navController) }
+                    composable("package_select" ){ PackageSelectScreen(navController) }
+                }
             }
         }
     }

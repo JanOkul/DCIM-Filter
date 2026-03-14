@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.dcimfilter.R
 import com.example.dcimfilter.features.main.cards.FilterCard
 import com.example.dcimfilter.features.main.cards.SettingsCard
@@ -24,7 +25,7 @@ import com.example.dcimfilter.features.main.cards.SettingsCard
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavController) {
     val appName = stringResource(R.string.app_name)
 
     Scaffold(
@@ -35,7 +36,7 @@ fun MainScreen() {
             )
         }
     ) { innerPadding ->
-        MainBody(innerPadding)
+        MainBody(innerPadding, navController)
     }
 }
 
@@ -44,7 +45,7 @@ fun MainScreen() {
  *  @param innerPadding The padding values for the content
  */
 @Composable
-fun MainBody(innerPadding: PaddingValues) {
+fun MainBody(innerPadding: PaddingValues, navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -54,7 +55,7 @@ fun MainBody(innerPadding: PaddingValues) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         FilterCard()
-        SettingsCard()
+        SettingsCard(navController = navController)
     }
 }
 
