@@ -14,7 +14,6 @@ import android.util.Log
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import com.example.dcimfilter.R
-import com.example.dcimfilter.dataStore
 import com.example.dcimfilter.queue.FilterDB
 import com.example.dcimfilter.queue.FilterTarget
 import kotlinx.coroutines.CoroutineScope
