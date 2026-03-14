@@ -12,7 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.res.stringResource
+import com.example.dcimfilter.features.main.MainScreen
 import com.example.dcimfilter.ui.theme.DCIMFilterTheme
 import com.example.dcimfilter.workers.FileScannerService
 

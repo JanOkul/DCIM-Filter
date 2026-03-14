@@ -1,4 +1,4 @@
-package com.example.dcimfilter.cards
+package com.example.dcimfilter.features.main.cards
 
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult

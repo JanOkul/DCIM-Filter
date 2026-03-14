@@ -1,4 +1,4 @@
-package com.example.dcimfilter
+package com.example.dcimfilter.features.main
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,8 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.dcimfilter.cards.FilterCard
-import com.example.dcimfilter.cards.SettingsCard
+import com.example.dcimfilter.R
+import com.example.dcimfilter.features.main.cards.FilterCard
+import com.example.dcimfilter.features.main.cards.SettingsCard
 
 
 /**
