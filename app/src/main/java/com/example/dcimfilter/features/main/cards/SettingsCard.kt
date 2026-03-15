@@ -1,5 +1,6 @@
 package com.example.dcimfilter.features.main.cards
 
+import android.provider.DocumentsContract
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -58,7 +59,14 @@ fun SettingsCard(viewModel: SettingsViewModel = viewModel(), navController: NavC
     val destinationPickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
-            viewModel.setDestinationFolder(uri.toString())
+            val docId = DocumentsContract.getTreeDocumentId(uri)
+            val relPath = if (docId.contains(":")) {
+                docId.substringAfter(":") + "/"
+            } else {
+                docId + "/"
+            }
+
+            viewModel.setDestinationFolder(relPath)
         } else {
             Toast.makeText(
                 context,

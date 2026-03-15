@@ -1,31 +1,31 @@
-package com.example.dcimfilter.workers
+package com.example.dcimfilter.background_processing.services
 
 
 import android.app.Service
-import android.content.ContentResolver
 import android.content.Intent
 import android.os.Environment
 import android.os.FileObserver
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
+import androidx.work.Constraints
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.dcimfilter.R
+import com.example.dcimfilter.background_processing.workers.SingleFileMoverWorker
 import com.example.dcimfilter.queue.FilterDB
 import com.example.dcimfilter.queue.FilterTarget
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.File
 
 const val TAG = "FileScannerService"
+
+private data class QueryResult(val owner: String, val id: Long, val mimeType: String)
+
 class FileScannerService : Service() {
     private var selectedPackage: String? = "com.ss.android.ugc.trill"
     private val dcimPath = File(
@@ -35,8 +35,7 @@ class FileScannerService : Service() {
     private var fileObserver: FileObserver? = null
     private val dao by lazy { FilterDB.getInstance(this).filterDao }
     private val scope = CoroutineScope(Dispatchers.IO)
-    private val handler = Handler(Looper.getMainLooper())
-    private val debounceMap = mutableMapOf<String, Runnable>()
+    private val path = "DCIM/Camera/"
 
     init {
         Log.d(TAG, "DCIM  ${dcimPath}")
@@ -47,19 +46,18 @@ class FileScannerService : Service() {
         val title = getString(R.string.foreground_notification_title)
         val text = getString(R.string.foreground_notification_text)
 
-        val builder = NotificationCompat.Builder(this, channelId)
+        val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle(title)
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .build()
 
-        startForeground(1, builder)
+        startForeground(1, notification)
         Log.d(TAG, "Started foreground service")
 
         fileObserver = DcimObserver(dcimPath, this::enqueueFile)
         fileObserver?.startWatching()
         Log.d(TAG, "Started file observer")
-
 
 
         return START_STICKY
@@ -70,46 +68,51 @@ class FileScannerService : Service() {
     private fun enqueueFile(path: String?) {
         if (path == null) return
 
-        if (debounceMap.containsKey(path)) {
-            Log.d(TAG, "Ignoring duplicate event for: $path")
-            return
-        }
+        val result = getFileInfo(path)
+        val owner = result?.owner ?: return
+        val id = result.id
+        val mimeType = result.mimeType
 
         // Check if file owner is source app.
-        if (getOwner(path) != selectedPackage) {
-            Log.d(TAG, "Package owner is not selected package")
+        if (owner != selectedPackage) {
+            Log.d(TAG, "The owner of $path is not the source app, owner: $result")
             return
         }
 
-        val cleanupTask = Runnable {
-            debounceMap.remove(path)
-            Log.d(TAG, "$path expired")
-        }
+        val entry = FilterTarget(
+            uriId = id,
+            mimeType = mimeType,
+            name = path
+        )
 
         scope.launch {
-            dao.insertFilterTarget(FilterTarget(file = path))
+            dao.insertFilterTarget(entry)
             Log.d(TAG, "Enqueued: $path")
         }
 
-        debounceMap[path] = cleanupTask
-        handler.postDelayed(cleanupTask, 500)
+        val manager = WorkManager.getInstance(applicationContext)
+        val work = OneTimeWorkRequestBuilder<SingleFileMoverWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiresBatteryNotLow(true)
+                    .setRequiresStorageNotLow(true)
+                    .build()
+            )
+            .build()
+
+        manager.enqueue(work)
     }
 
-    private fun getOwner(displayName: String): String? {
-        val path = "DCIM/Camera/"
+    private fun getFileInfo(displayName: String): QueryResult? {
+
 
         val projection = arrayOf(
             MediaStore.MediaColumns.OWNER_PACKAGE_NAME,
-            MediaStore.MediaColumns.DISPLAY_NAME,
-            MediaStore.MediaColumns.RELATIVE_PATH
+            MediaStore.MediaColumns._ID,
+            MediaStore.MediaColumns.MIME_TYPE
         )
-
-        val selection =
-            "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.RELATIVE_PATH} = ?"
-
+        val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.RELATIVE_PATH} = ?"
         val selectionArgs = arrayOf(displayName, path)
-
-
 
         val cursor = contentResolver.query(
             MediaStore.Files.getContentUri("external"),
@@ -121,13 +124,19 @@ class FileScannerService : Service() {
 
         Log.d(TAG, "Cursor length: ${cursor?.count}")
         cursor?.use {
-            val ownerIndex =
-                it.getColumnIndexOrThrow(MediaStore.MediaColumns.OWNER_PACKAGE_NAME)
+            val ownerIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.OWNER_PACKAGE_NAME)
+            val idIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+            val mimetypeIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
 
-            while (it.moveToNext()) {
-                val owner = it.getString(ownerIndex)
-                Log.d(TAG, "Owner=$owner")
-                return owner
+            if (it.moveToFirst()) {
+                val result = QueryResult(
+                    it.getString(ownerIndex),
+                    it.getLong(idIndex),
+                    it.getString(mimetypeIndex)
+                )
+
+                Log.d(TAG, "Query result: $result")
+                return result
             }
         }
 

@@ -4,8 +4,12 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,7 +22,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.dcimfilter.features.main.MainScreen
 import com.example.dcimfilter.features.package_select.PackageSelectScreen
 import com.example.dcimfilter.ui.theme.DCIMFilterTheme
-import com.example.dcimfilter.workers.FileScannerService
+import com.example.dcimfilter.background_processing.services.FileScannerService
+import androidx.core.net.toUri
 
 class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
@@ -44,14 +49,24 @@ class MainActivity : ComponentActivity() {
 
         requestPermissionLauncher.launch(
             arrayOf(
-                Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_AUDIO,
-                Manifest.permission.READ_MEDIA_VIDEO,
                 Manifest.permission.POST_NOTIFICATIONS,
-                Manifest.permission.FOREGROUND_SERVICE,
-                Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC
+                Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE
             )
         )
+
+        if (!Environment.isExternalStorageManager()) {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+            intent.data = Uri.fromParts("package", packageName, null)
+            startActivity(intent)
+        }
+
+
+        if (!MediaStore.canManageMedia(this)) {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                data = "package:${packageName}".toUri()
+            }
+            startActivity(intent)
+        }
 
         createNotificationChannel()
         startForegroundService(Intent(this, FileScannerService::class.java))

@@ -1,6 +1,5 @@
-package com.example.dcimfilter.workers
+package com.example.dcimfilter.background_processing.services
 
-import android.os.Environment
 import android.os.FileObserver
 import android.util.Log
 import java.io.File

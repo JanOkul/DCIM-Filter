@@ -22,7 +22,7 @@ interface FilterDao {
      *  Used to get the first entry in the queue.
      */
     @Query("SELECT * FROM FilterTarget ORDER BY id ASC LIMIT 1")
-    suspend fun peekFilterTarget(): FilterTarget
+    suspend fun peekFilterTarget(): FilterTarget?
 
     /**
      *  Used to delete an entry in the queue (must use the peek method to get the entry first).
