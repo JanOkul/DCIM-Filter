@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.map
 class SettingsRepository(private val context: Context) {
 
     val isEnabled: Flow<Boolean> = context.dataStore.data
-        .map { it[PreferencesKeys.IS_ENABLED] ?: true }
+        .map { it[PreferencesKeys.IS_ENABLED] ?: false }
 
     val selectedPackage: Flow<String> = context.dataStore.data
         .map { it[PreferencesKeys.SELECTED_PACKAGE] ?: "" }

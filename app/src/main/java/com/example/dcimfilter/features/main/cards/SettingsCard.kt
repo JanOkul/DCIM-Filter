@@ -1,9 +1,7 @@
 package com.example.dcimfilter.features.main.cards
 
-import android.provider.DocumentsContract
+import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,10 +38,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dcimfilter.R
 import com.example.dcimfilter.settings.SettingsViewModel
+import kotlinx.coroutines.delay
 
 val subtitleStyle = Typography().titleSmall
 val descriptionStyle = Typography().bodySmall
-
+const val TAG = "Settings"
 
 /**
  *  The setting card to be displayed in the main screen.
@@ -53,36 +53,13 @@ fun SettingsCard(viewModel: SettingsViewModel = viewModel(), navController: NavC
     val isOn by viewModel.isEnabled.collectAsState(initial = true)
     val selectedPackage by viewModel.selectedPackage.collectAsState(initial = "")
     val destinationFolder by viewModel.destinationFolder.collectAsState(initial = "")
-    val context = LocalContext.current
-
-
-    val destinationPickerLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocumentTree()) { uri ->
-        if (uri != null) {
-            val docId = DocumentsContract.getTreeDocumentId(uri)
-            val relPath = if (docId.contains(":")) {
-                docId.substringAfter(":") + "/"
-            } else {
-                docId + "/"
-            }
-
-            viewModel.setDestinationFolder(relPath)
-        } else {
-            Toast.makeText(
-                context,
-                "No folder selected",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
 
     SettingsContent(
         viewModel,
         navController,
         isOn,
         selectedPackage,
-        destinationFolder,
-        { destinationPickerLauncher.launch(null) }
+        destinationFolder
     )
 }
 
@@ -92,7 +69,6 @@ fun SettingsCard(viewModel: SettingsViewModel = viewModel(), navController: NavC
  *  @param isOn The current state of the on/off switch.
  *  @param selectedPackage The current selected package (to be displayed to user).
  *  @param destinationFolder The current destination folder (to be displayed to user).
- *  @param destinationPickerLauncher The activity result launcher for the destination picker.
  */
 @Composable
 private fun SettingsContent(
@@ -100,8 +76,7 @@ private fun SettingsContent(
     navController: NavController,
     isOn: Boolean,
     selectedPackage: String,
-    destinationFolder: String,
-    destinationPickerLauncher: () -> Unit
+    destinationFolder: String
 ) {
     val title = stringResource(R.string.settings_title)
 
@@ -114,7 +89,7 @@ private fun SettingsContent(
 
             IsOnSetting(viewModel, isOn)
             SourcePackageSetting(viewModel, navController,selectedPackage, isOn)
-            DestinationFolderSetting(destinationFolder, destinationPickerLauncher, isOn)
+            DestinationFolderSetting(viewModel, destinationFolder, isOn)
         }
     }
 }
@@ -213,51 +188,46 @@ private fun SourcePackageSetting(viewModel: SettingsViewModel, navController: Na
 
 /**
  *  The settings UI for the destination picker.
+ *  @param viewModel The view model for the settings.
  *  @param destinationFolder The current destination folder (to be displayed to user).
- *  @param destinationPickerLauncher The activity result launcher for the destination picker.
  *  @param isOn If the filtering service is active.
  */
 @Composable
 private fun DestinationFolderSetting(
+    viewModel: SettingsViewModel,
     destinationFolder: String,
-    destinationPickerLauncher: () -> Unit,
     isOn: Boolean
 ) {
     val subtitle = stringResource(R.string.settings_destination_subtitle)
     val description = stringResource(R.string.settings_destination_description)
-    val buttonName = stringResource(R.string.settings_destination_button_name)
     val currentDestination = stringResource(R.string.settings_current_destination_uri)
+    var text by remember(destinationFolder) { mutableStateOf(destinationFolder) }
+
+    LaunchedEffect(text) {
+        delay(500)
+        viewModel.setDestinationFolder(text)
+        Log.d(TAG, "Setting destination folder to $text")
+    }
 
     SettingsComponent {
-        Column(/*Modifier.weight(1f).padding(end = 16.dp))*/) {
+        Column {
             Text(subtitle, style = subtitleStyle)
             Text(description, style = descriptionStyle)
 
             Spacer(modifier = Modifier.size(8.dp))
 
             OutlinedTextField(
-                value = destinationFolder,
-                onValueChange = {},
-                readOnly = true,
+                value = text,
+                onValueChange = { text = it },
                 enabled = !isOn,
                 label = { Text(currentDestination) }
             )
-
-            Spacer(modifier = Modifier.size(8.dp))
-
-            FilledTonalButton(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { destinationPickerLauncher() },
-                enabled = !isOn // If the filtering service is active, the button should be disabled.
-            ) {
-                Text(buttonName)
-            }
         }
     }
 }
 
 /**
- *  A standardised container for each setting in the application.
+ *  A standardized container for each setting in the application.
  *  @param composable The composable UI element that will be within a setting.
  */
 @Composable

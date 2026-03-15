@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -41,6 +42,8 @@ import com.example.dcimfilter.settings.SettingsViewModel
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+val TAG = "Settings"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -141,6 +144,7 @@ fun AppItem(
         Modifier.padding(8.dp)
             .clickable( onClick = {
                     viewModel.setSelectedPackage(packageName)
+                    Log.d(TAG, "Selected package: $packageName")
                     navController.popBackStack()
                 }
             )

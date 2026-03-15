@@ -3,7 +3,6 @@ package com.example.dcimfilter.queue
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.io.File
 
 // todo update this
 /**

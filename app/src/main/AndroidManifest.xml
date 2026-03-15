@@ -25,7 +25,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DCIMFilter">
 
-        <service android:name=".background_processing.services.FileScannerService" android:foregroundServiceType="specialUse" />
+        <service
+            android:name=".background_processing.services.FileScannerService"
+            android:foregroundServiceType="specialUse"
+            tools:targetApi="34"/>
 
         <activity
             android:name=".MainActivity"

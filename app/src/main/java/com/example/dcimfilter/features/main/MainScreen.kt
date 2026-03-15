@@ -1,19 +1,35 @@
 package com.example.dcimfilter.features.main
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.os.Environment
+import android.provider.MediaStore
+import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import com.example.dcimfilter.R
 import com.example.dcimfilter.features.main.cards.FilterCard
@@ -27,6 +43,35 @@ import com.example.dcimfilter.features.main.cards.SettingsCard
 @Composable
 fun MainScreen(navController: NavController) {
     val appName = stringResource(R.string.app_name)
+    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (!Environment.isExternalStorageManager()) {
+            showDialog = true
+        }
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { (context as? Activity)?.finish() },
+            title = { Text(stringResource(R.string.permission_rationale_title)) },
+            text = { Text(stringResource(R.string.permission_rationale_description)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    context.startActivity(Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                        data = "package:${context.packageName}".toUri()
+                    })
+                    showDialog = false
+                }) { Text(stringResource(R.string.permission_rationale_ok)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { (context as? Activity)?.finish() }) {
+                    Text(stringResource(R.string.permission_rationale_cancel))
+                }
+            }
+        )
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -36,7 +81,14 @@ fun MainScreen(navController: NavController) {
             )
         }
     ) { innerPadding ->
-        MainBody(innerPadding, navController)
+        if (Environment.isExternalStorageManager()) {
+            MainBody(innerPadding, navController)
+        } else {
+            // todo make nicer
+            Card() {
+                Text("Please restart app and enable full storage access")
+            }
+        }
     }
 }
 
@@ -60,43 +112,6 @@ fun MainBody(innerPadding: PaddingValues, navController: NavController) {
 }
 
 
-
-
-
-
-// IMPORTANT FOR FILTERING - DO NOT DELETE
-//fun createAndScanTestFile(context: Context) {
-//    val downloads = android.os.Environment.getExternalStoragePublicDirectory(
-//        android.os.Environment.DIRECTORY_DOWNLOADS
-//    )
-//    val testFile = java.io.File(downloads, "test_fresh.jpg")
-//    testFile.writeText("fake image content") // just to create it
-//
-//    MediaScannerConnection.scanFile(
-//        context,
-//        arrayOf(testFile.absolutePath),
-//        arrayOf("image/jpeg")
-//    ) { path, uri ->
-//        Log.d("MediaStoreTest", "Fresh file scanned: $path -> $uri")
-//    }
-//}
-//
-//fun debugAllImages(context: Context) {
-//    val projection = arrayOf(
-//        MediaStore.MediaColumns.DISPLAY_NAME,
-//        MediaStore.MediaColumns.OWNER_PACKAGE_NAME
-//    )
-//
-//    context.contentResolver.query(
-//        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, // Camera roll, DCIM etc
-//        projection, null, null, null
-//    )?.use { cursor ->
-//        Log.d("MediaStoreTest", "Total images found: ${cursor.count}")
-//        while (cursor.moveToNext()) {
-//            Log.d("MediaStoreTest", "File: ${cursor.getString(0)} | Owner: ${cursor.getString(1)}")
-//        }
-//    }
-//}
 
 
 

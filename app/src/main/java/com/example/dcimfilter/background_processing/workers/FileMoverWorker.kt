@@ -4,11 +4,13 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.provider.MediaStore
-import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.dcimfilter.queue.FilterDB
 
+/**
+ * Implements common functionality used by all file mover workers.
+ */
 abstract class FileMoverWorker(
     context: Context,
     params: WorkerParameters
@@ -20,11 +22,6 @@ abstract class FileMoverWorker(
 
         val resolver =  applicationContext.contentResolver
         val mimeType = nextEntry.mimeType
-
-        Log.d(TAG, "${MediaStore.canManageMedia(applicationContext)}")
-        Log.d(TAG, "uri=${nextEntry.uriId}")
-        Log.d(TAG, "mimeType=$mimeType")
-
 
         val base = when {
             mimeType.startsWith("video/") -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
