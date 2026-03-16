@@ -1,4 +1,4 @@
-package com.example.dcimfilter.queue
+package com.example.dcimfilter.room
 
 import android.content.Context
 import androidx.room.Database

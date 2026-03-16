@@ -1,4 +1,4 @@
-package com.example.dcimfilter.features.main
+package com.example.dcimfilter.ui.components
 
 import android.content.Context
 import android.os.Environment

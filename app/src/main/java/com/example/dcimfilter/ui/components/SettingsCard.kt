@@ -1,4 +1,4 @@
-package com.example.dcimfilter.features.main.cards
+package com.example.dcimfilter.ui.components
 
 import android.content.Context
 import android.content.Intent
@@ -36,11 +36,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startForegroundService
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dcimfilter.R
-import com.example.dcimfilter.background_processing.services.FileScannerService
+import com.example.dcimfilter.filtering.scanners.FileScannerService
 import com.example.dcimfilter.settings.SettingsViewModel
 import kotlinx.coroutines.delay
 

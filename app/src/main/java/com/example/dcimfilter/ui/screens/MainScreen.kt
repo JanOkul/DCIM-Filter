@@ -1,4 +1,4 @@
-package com.example.dcimfilter.features.main
+package com.example.dcimfilter.ui.screens
 
 import android.app.Activity
 import android.content.Context
@@ -31,9 +31,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavController
 import com.example.dcimfilter.R
-import com.example.dcimfilter.features.main.cards.FilterCard
-import com.example.dcimfilter.features.main.cards.NoStorageAccessCard
-import com.example.dcimfilter.features.main.cards.SettingsCard
+import com.example.dcimfilter.ui.components.FilterCard
+import com.example.dcimfilter.ui.components.NoStorageAccessCard
+import com.example.dcimfilter.ui.components.SettingsCard
+import com.example.dcimfilter.ui.components.hasAllFileAccess
+import com.example.dcimfilter.ui.components.hasUnrestrictedBattery
 
 
 /**
@@ -68,6 +70,7 @@ fun MainScreen(navController: NavController) {
     if (!unrestrictedBattery) {
         PowerOptimisationDialog(context) {
             unrestrictedBattery = it
+            unrestrictedBattery
         }
     }
 

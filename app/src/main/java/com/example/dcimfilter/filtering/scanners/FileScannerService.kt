@@ -1,4 +1,4 @@
-package com.example.dcimfilter.background_processing.services
+package com.example.dcimfilter.filtering.scanners
 
 
 import android.app.Notification
@@ -16,10 +16,10 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.dcimfilter.R
-import com.example.dcimfilter.background_processing.workers.SingleFileMoverWorker
-import com.example.dcimfilter.features.main.hasAllFileAccess
-import com.example.dcimfilter.queue.FilterDB
-import com.example.dcimfilter.queue.FilterTarget
+import com.example.dcimfilter.filtering.workers.SingleFileMoverWorker
+import com.example.dcimfilter.room.FilterDB
+import com.example.dcimfilter.room.FilterTarget
+import com.example.dcimfilter.ui.components.hasAllFileAccess
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel

@@ -1,4 +1,4 @@
-package com.example.dcimfilter.background_processing.workers
+package com.example.dcimfilter.filtering.workers
 
 import android.content.Context
 import android.util.Log

@@ -1,4 +1,4 @@
-package com.example.dcimfilter.features.package_select
+package com.example.dcimfilter.ui.screens
 
 import android.content.Context
 import android.content.Intent

@@ -3,31 +3,19 @@ package com.example.dcimfilter
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
-import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material3.AlertDialog
-import androidx.core.net.toUri
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.dcimfilter.background_processing.services.FileScannerService
-import com.example.dcimfilter.features.main.MainScreen
-import com.example.dcimfilter.features.package_select.PackageSelectScreen
+import com.example.dcimfilter.ui.screens.MainScreen
+import com.example.dcimfilter.ui.screens.PackageSelectScreen
 import com.example.dcimfilter.ui.theme.DCIMFilterTheme
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class MainActivity : ComponentActivity () {
     private val requestPermissionLauncher = registerForActivityResult(

@@ -1,12 +1,15 @@
-package com.example.dcimfilter.features.main.cards
+package com.example.dcimfilter.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,8 +37,24 @@ fun FilterCard() {
                 Spacer(Modifier.size(8.dp))
 
                 // todo
-                FilledTonalButton(onClick = {}) {
-                    Text(buttonName)
+                Row(
+                ) {
+                    FilledTonalButton(onClick = {}) {
+                        Text(buttonName)
+                    }
+
+                    Spacer(Modifier.size(16.dp))
+
+                    Column(
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+
+                        Text("hi")
+                        LinearProgressIndicator(
+                            progress = { 0.0F },
+
+                            )
+                    }
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.example.dcimfilter.background_processing.workers
+package com.example.dcimfilter.filtering.workers
 
 import android.content.ContentUris
 import android.content.ContentValues
@@ -9,7 +9,7 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.example.dcimfilter.queue.FilterDB
+import com.example.dcimfilter.room.FilterDB
 
 private const val TAG = "FileMoverWorker"
 

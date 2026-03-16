@@ -1,4 +1,4 @@
-package com.example.dcimfilter.background_processing.services
+package com.example.dcimfilter.filtering.scanners
 
 import android.os.FileObserver
 import android.util.Log
