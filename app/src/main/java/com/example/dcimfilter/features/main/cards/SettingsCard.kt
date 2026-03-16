@@ -84,7 +84,6 @@ private fun SettingsContent(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 title,
-//                modifier = Modifier.padding(start = 8.dp),
                 style = MaterialTheme.typography.titleMedium)
 
             IsOnSetting(viewModel, isOn)

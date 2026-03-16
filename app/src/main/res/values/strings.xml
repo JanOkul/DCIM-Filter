@@ -25,8 +25,10 @@
     <string name="foreground_notification_text">Watching DCIM folder</string>
     <string name="foreground_notification_title">DCIM Filter</string>
 
-    <string name="permission_rationale_title">Storage Access Required</string>
-    <string name="permission_rationale_description">DCIM Filter needs full access to your files to gain permission to filter out your files without your input.</string>
-    <string name="permission_rationale_cancel">Cancel</string>
-    <string name="permission_rationale_ok">Settings</string>
+    <string name="permission_storage_title">Storage Access Required</string>
+    <string name="permission_storage_description">DCIM Filter needs full access to your files to gain permission to filter out your files without your input.</string>
+    <string name="permission_battery_title">Disable Battery Optimisation</string>
+    <string name="permission_battery_description">DCIM Filter needs battery optimisation disabled to work effectively.</string>
+    <string name="permission_cancel">Cancel</string>
+    <string name="permission_ok">Settings</string>
 </resources>

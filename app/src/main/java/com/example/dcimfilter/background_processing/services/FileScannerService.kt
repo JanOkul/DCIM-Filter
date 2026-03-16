@@ -68,6 +68,8 @@ class FileScannerService : Service() {
     private fun enqueueFile(path: String?) {
         if (path == null) return
 
+        //todo add check of storage permission, if no permission then stop service
+
         val result = getFileInfo(path)
         val owner = result?.owner ?: return
         val id = result.id
@@ -89,6 +91,8 @@ class FileScannerService : Service() {
             dao.insertFilterTarget(entry)
             Log.d(TAG, "Enqueued: $path")
         }
+
+
 
         val manager = WorkManager.getInstance(applicationContext)
         val work = OneTimeWorkRequestBuilder<SingleFileMoverWorker>()

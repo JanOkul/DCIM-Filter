@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
-import android.provider.MediaStore
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -20,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,9 +27,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavController
 import com.example.dcimfilter.R
 import com.example.dcimfilter.features.main.cards.FilterCard
+import com.example.dcimfilter.features.main.cards.NoStorageAccessCard
 import com.example.dcimfilter.features.main.cards.SettingsCard
 
 
@@ -44,34 +44,34 @@ import com.example.dcimfilter.features.main.cards.SettingsCard
 fun MainScreen(navController: NavController) {
     val appName = stringResource(R.string.app_name)
     val context = LocalContext.current
-    var showDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        if (!Environment.isExternalStorageManager()) {
-            showDialog = true
+    var allFileAccess by remember { mutableStateOf(
+        hasAllFileAccess()
+    ) }
+
+    var unrestrictedBattery by remember { mutableStateOf(
+        hasUnrestrictedBattery(context)
+    ) }
+
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        allFileAccess = hasAllFileAccess()
+        unrestrictedBattery = hasUnrestrictedBattery(context)
+    }
+
+
+
+    if (!allFileAccess) {
+        StoragePermissionDialog(context)
+    }
+
+    if (!unrestrictedBattery) {
+        PowerOptimisationDialog(context) {
+            unrestrictedBattery = it
+            unrestrictedBattery // To remove unread assignment warning
         }
     }
 
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { (context as? Activity)?.finish() },
-            title = { Text(stringResource(R.string.permission_rationale_title)) },
-            text = { Text(stringResource(R.string.permission_rationale_description)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    context.startActivity(Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                        data = "package:${context.packageName}".toUri()
-                    })
-                    showDialog = false
-                }) { Text(stringResource(R.string.permission_rationale_ok)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { (context as? Activity)?.finish() }) {
-                    Text(stringResource(R.string.permission_rationale_cancel))
-                }
-            }
-        )
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -84,10 +84,8 @@ fun MainScreen(navController: NavController) {
         if (Environment.isExternalStorageManager()) {
             MainBody(innerPadding, navController)
         } else {
-            // todo make nicer
-            Card() {
-                Text("Please restart app and enable full storage access")
-            }
+            NoStorageAccessCard(innerPadding)
+
         }
     }
 }
@@ -111,6 +109,45 @@ fun MainBody(innerPadding: PaddingValues, navController: NavController) {
     }
 }
 
+@Composable
+fun PowerOptimisationDialog(context: Context, changeDialogState: (Boolean) -> Unit) {
+    AlertDialog(
+        onDismissRequest = { changeDialogState(false) },
+        title = { Text(stringResource(R.string.permission_battery_title)) },
+        text = { Text(stringResource(R.string.permission_battery_description)) },
+        confirmButton = {
+            TextButton(onClick = {
+                context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+            }) { Text(stringResource(R.string.permission_ok)) }
+        },
+        dismissButton = {
+            TextButton(onClick = { changeDialogState(false) }) {
+                Text(stringResource(R.string.permission_cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun StoragePermissionDialog(context: Context) {
+    AlertDialog(
+        onDismissRequest = { (context as? Activity)?.finish() },
+        title = { Text(stringResource(R.string.permission_storage_title)) },
+        text = { Text(stringResource(R.string.permission_storage_description)) },
+        confirmButton = {
+            TextButton(onClick = {
+                context.startActivity(Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                    data = "package:${context.packageName}".toUri()
+                })
+            }) { Text(stringResource(R.string.permission_ok)) }
+        },
+        dismissButton = {
+            TextButton(onClick = { (context as? Activity)?.finish() }) {
+                Text(stringResource(R.string.permission_cancel))
+            }
+        }
+    )
+}
 
 
 
