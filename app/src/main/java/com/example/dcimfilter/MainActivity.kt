@@ -57,7 +57,6 @@ class MainActivity : ComponentActivity () {
         )
 
         createNotificationChannel()
-        startForegroundService(Intent(this, FileScannerService::class.java))
 
         enableEdgeToEdge()
         setContent {

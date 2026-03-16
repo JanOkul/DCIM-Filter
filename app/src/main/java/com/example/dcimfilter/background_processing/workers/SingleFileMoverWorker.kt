@@ -6,7 +6,7 @@ import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-const val TAG = "SingleFileMoverWorker"
+private const val TAG = "SingleFileMoverWorker"
 
 
 class SingleFileMoverWorker(context: Context, params: WorkerParameters): FileMoverWorker(context, params) {
