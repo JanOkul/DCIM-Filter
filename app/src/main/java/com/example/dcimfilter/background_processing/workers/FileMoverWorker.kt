@@ -4,6 +4,7 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import androidx.work.CoroutineWorker
@@ -22,7 +23,7 @@ abstract class FileMoverWorker(
     private val dao by lazy { FilterDB.getInstance(applicationContext).filterDao }
 
     suspend fun moveFile(): Result {
-        val nextEntry = dao.peekFilterTarget() ?: return Result.failure()
+        val nextEntry = dao.claimNext() ?: return Result.success()
         val resolver =  applicationContext.contentResolver
         val mimeType = nextEntry.mimeType
 
@@ -37,12 +38,8 @@ abstract class FileMoverWorker(
             put(MediaStore.MediaColumns.RELATIVE_PATH, convertMimeToDir(mimeType, nextEntry.destinationFolder))
         }
 
-//        MediaStore.createWriteRequest(resolver, listOf(uri)).send()
-
         resolver.update(uri, contentValues, null, null)
         Log.d(TAG, "Moved file: $uri")
-        dao.deleteFilterTarget(nextEntry)
-        Log.d(TAG, "Deleted Room entry: $nextEntry")
         return Result.success()
     }
 
@@ -58,7 +55,7 @@ abstract class FileMoverWorker(
         return when {
             mimeType.startsWith("video/") -> "Movies/$destinationFolder"
             mimeType.startsWith("image/") -> "Pictures/$destinationFolder"
-            else -> "DCIM/Camera"
+            else -> "${Environment.DIRECTORY_DCIM}/Camera"
         }
     }
 }

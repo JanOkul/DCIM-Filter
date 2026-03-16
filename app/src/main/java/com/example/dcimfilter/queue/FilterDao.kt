@@ -20,6 +20,13 @@ interface FilterDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertFilterTarget(filterTarget: FilterTarget)
 
+    @Transaction
+    suspend fun claimNext(): FilterTarget? {
+        val entry = peekFilterTarget() ?: return null
+        deleteFilterTarget(entry)
+        return entry
+    }
+
     /**
      *  Used to get the first entry in the queue.
      */
