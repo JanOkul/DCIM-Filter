@@ -144,6 +144,7 @@ fun AppItem(
         Modifier.padding(8.dp)
             .clickable( onClick = {
                     viewModel.setSelectedPackage(packageName)
+                    viewModel.setDestinationFolder(label)
                     Log.d(TAG, "Selected package: $packageName")
                     navController.popBackStack()
                 }

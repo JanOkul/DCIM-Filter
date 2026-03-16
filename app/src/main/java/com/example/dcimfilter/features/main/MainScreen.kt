@@ -68,7 +68,6 @@ fun MainScreen(navController: NavController) {
     if (!unrestrictedBattery) {
         PowerOptimisationDialog(context) {
             unrestrictedBattery = it
-            unrestrictedBattery // To remove unread assignment warning
         }
     }
 
@@ -112,7 +111,7 @@ fun MainBody(innerPadding: PaddingValues, navController: NavController) {
 @Composable
 fun PowerOptimisationDialog(context: Context, changeDialogState: (Boolean) -> Unit) {
     AlertDialog(
-        onDismissRequest = { changeDialogState(false) },
+        onDismissRequest = { changeDialogState(true) },
         title = { Text(stringResource(R.string.permission_battery_title)) },
         text = { Text(stringResource(R.string.permission_battery_description)) },
         confirmButton = {
@@ -121,7 +120,7 @@ fun PowerOptimisationDialog(context: Context, changeDialogState: (Boolean) -> Un
             }) { Text(stringResource(R.string.permission_ok)) }
         },
         dismissButton = {
-            TextButton(onClick = { changeDialogState(false) }) {
+            TextButton(onClick = { changeDialogState(true) }) {
                 Text(stringResource(R.string.permission_cancel))
             }
         }

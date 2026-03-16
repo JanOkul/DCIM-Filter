@@ -1,5 +1,7 @@
 package com.example.dcimfilter.features.main.cards
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -34,9 +36,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startForegroundService
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dcimfilter.R
+import com.example.dcimfilter.background_processing.services.FileScannerService
 import com.example.dcimfilter.settings.SettingsViewModel
 import kotlinx.coroutines.delay
 
@@ -50,11 +54,25 @@ const val TAG = "Settings"
  */
 @Composable
 fun SettingsCard(viewModel: SettingsViewModel = viewModel(), navController: NavController) {
-    val isOn by viewModel.isEnabled.collectAsState(initial = true)
+    val isOn by viewModel.isEnabled.collectAsState(initial = false)
     val selectedPackage by viewModel.selectedPackage.collectAsState(initial = "")
     val destinationFolder by viewModel.destinationFolder.collectAsState(initial = "")
+    val context = LocalContext.current
+
+    if (isOn) {
+        context.startForegroundService(
+            Intent(LocalContext.current, FileScannerService::class.java)
+                .putExtra("selectedPackage", selectedPackage)
+                .putExtra("destinationFolder", destinationFolder)
+        )
+    } else {
+        context.stopService(
+            Intent(context, FileScannerService::class.java)
+        )
+    }
 
     SettingsContent(
+        context,
         viewModel,
         navController,
         isOn,
@@ -72,6 +90,7 @@ fun SettingsCard(viewModel: SettingsViewModel = viewModel(), navController: NavC
  */
 @Composable
 private fun SettingsContent(
+    context: Context,
     viewModel: SettingsViewModel,
     navController: NavController,
     isOn: Boolean,
@@ -80,13 +99,14 @@ private fun SettingsContent(
 ) {
     val title = stringResource(R.string.settings_title)
 
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 title,
                 style = MaterialTheme.typography.titleMedium)
 
-            IsOnSetting(viewModel, isOn)
+            IsOnSetting(context, viewModel, isOn, selectedPackage, destinationFolder)
             SourcePackageSetting(viewModel, navController,selectedPackage, isOn)
             DestinationFolderSetting(viewModel, destinationFolder, isOn)
         }
@@ -99,14 +119,30 @@ private fun SettingsContent(
  *  @param isOn The current state of the switch.
  */
 @Composable
-private fun IsOnSetting(viewModel: SettingsViewModel, isOn: Boolean) {
+private fun IsOnSetting(
+    context: Context,
+    viewModel: SettingsViewModel,
+    isOn: Boolean,
+    sourcePackage: String,
+    destinationFolder: String
+) {
     val subtitle = stringResource(R.string.settings_on_off_subtitle)
     val description = stringResource(R.string.settings_on_off_description)
 
     val switch = @Composable {
         Switch(
             checked = isOn,
-            onCheckedChange = { viewModel.setIsEnabled(it) },
+            onCheckedChange = {
+                if (sourcePackage == "" || destinationFolder == "") {
+                    Toast.makeText(
+                        context,
+                        "Please select a source package and destination folder",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@Switch
+                }
+                viewModel.setIsEnabled(it)
+             },
             thumbContent = if (isOn) {
                 {
                     Icon(
