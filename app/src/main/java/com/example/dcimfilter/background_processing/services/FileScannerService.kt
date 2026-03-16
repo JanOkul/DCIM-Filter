@@ -1,8 +1,10 @@
 package com.example.dcimfilter.background_processing.services
 
 
+import android.app.Notification
 import android.app.Service
 import android.content.Intent
+import android.database.Cursor
 import android.os.Environment
 import android.os.FileObserver
 import android.os.IBinder
@@ -10,10 +12,12 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.dcimfilter.R
 import com.example.dcimfilter.background_processing.workers.SingleFileMoverWorker
+import com.example.dcimfilter.features.main.hasAllFileAccess
 import com.example.dcimfilter.queue.FilterDB
 import com.example.dcimfilter.queue.FilterTarget
 import kotlinx.coroutines.CoroutineScope
@@ -22,101 +26,107 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.File
 
-const val TAG = "FileScannerService"
+private const val TAG = "FileScannerService"
 
 private data class QueryResult(val owner: String, val id: Long, val mimeType: String)
 
 class FileScannerService : Service() {
-    private var selectedPackage: String? = "com.ss.android.ugc.trill"
-    private val dcimPath = File(
+    private val dao by lazy { FilterDB.getInstance(this).filterDao }
+    private val scope = CoroutineScope(Dispatchers.IO)
+    private val relativePath = "${Environment.DIRECTORY_DCIM}/Camera/"
+    private val dcimFile = File(
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
         "Camera"
     )
-    private var fileObserver: FileObserver? = null
-    private val dao by lazy { FilterDB.getInstance(this).filterDao }
-    private val scope = CoroutineScope(Dispatchers.IO)
-    private val path = "DCIM/Camera/"
+    private var fileObserver: FileObserver? = DcimObserver(dcimFile, this::enqueueFile)
 
-    init {
-        Log.d(TAG, "DCIM  ${dcimPath}")
-    }
+    private lateinit var selectedPackage: String
+    private lateinit var destinationFolder: String
 
+    /**
+     * Retrieves user settings, starts file observer and foreground service.
+     */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val channelId = getString(R.string.notification_channel_id)
-        val title = getString(R.string.foreground_notification_title)
-        val text = getString(R.string.foreground_notification_text)
+        // Get selected package setting, if null stop service.
+        selectedPackage = intent?.getStringExtra("selectedPackage") ?: run {
+            stopSelf()
+            Log.d(TAG, "Selected Package is null, stopping service")
+            return START_NOT_STICKY
+        }
 
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle(title)
-            .setContentText(text)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .build()
+        // Get destination folder setting, if null stop service.
+        destinationFolder = intent.getStringExtra("destinationFolder") ?: run {
+            stopSelf()
+            Log.d(TAG, "Destination Folder is null, stopping service")
+            return START_NOT_STICKY
+        }
 
-        startForeground(1, notification)
+        Log.d(TAG, "Selected Package: $selectedPackage")
+        Log.d(TAG, "Destination Folder: $destinationFolder")
+
+        startForeground(1, buildNotification())
         Log.d(TAG, "Started foreground service")
 
-        fileObserver = DcimObserver(dcimPath, this::enqueueFile)
         fileObserver?.startWatching()
         Log.d(TAG, "Started file observer")
-
-
         return START_STICKY
     }
 
+    override fun onDestroy() {
+        fileObserver?.stopWatching()
+        scope.cancel()
 
-    // todo Add Mediastore app checking and also make sure to make absolute path rather than relative
+        Log.d(TAG, "Stopped file observer")
+        Log.d(TAG, "Stopping foreground service")
+        super.onDestroy()
+    }
+
+    /**
+     *  Enqueue a single file to the Room for processing
+     */
     private fun enqueueFile(path: String?) {
         if (path == null) return
 
-        //todo add check of storage permission, if no permission then stop service
-
-        val result = getFileInfo(path)
-        val owner = result?.owner ?: return
-        val id = result.id
-        val mimeType = result.mimeType
-
-        // Check if file owner is source app.
-        if (owner != selectedPackage) {
-            Log.d(TAG, "The owner of $path is not the source app, owner: $result")
+        // If file access is turned off while service is running, errors will occur.
+        if (!hasAllFileAccess()) {
+            Log.d(TAG, "No storage permission, stopping service")
+            stopSelf()
             return
         }
 
-        val entry = FilterTarget(
-            uriId = id,
-            mimeType = mimeType,
-            name = path
-        )
+        val fileInfo = getFileInfo(path) ?: return
+        // Check if file owner is source app.
+        if (fileInfo.owner != selectedPackage) {
+            Log.d(TAG, "The owner of $path is not the source app, owner: $fileInfo")
+            return
+        }
 
+        // Insert into Room queue.
         scope.launch {
-            dao.insertFilterTarget(entry)
+            dao.insertFilterTarget(FilterTarget(
+                uriId = fileInfo.id,
+                mimeType = fileInfo.mimeType,
+                name = path,
+                destinationFolder = destinationFolder
+            ))
             Log.d(TAG, "Enqueued: $path")
         }
 
-
-
-        val manager = WorkManager.getInstance(applicationContext)
-        val work = OneTimeWorkRequestBuilder<SingleFileMoverWorker>()
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiresBatteryNotLow(true)
-                    .setRequiresStorageNotLow(true)
-                    .build()
-            )
-            .build()
-
-        manager.enqueue(work)
+        createWork()
     }
 
+    /**
+     *  Retrieves information from MediaStore about the file created and observed by DCIMObserver.
+     *  @param displayName Name of the file observed by DCIMObserver.
+     */
     private fun getFileInfo(displayName: String): QueryResult? {
-
-
         val projection = arrayOf(
             MediaStore.MediaColumns.OWNER_PACKAGE_NAME,
             MediaStore.MediaColumns._ID,
             MediaStore.MediaColumns.MIME_TYPE
         )
         val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.RELATIVE_PATH} = ?"
-        val selectionArgs = arrayOf(displayName, path)
+        val selectionArgs = arrayOf(displayName, relativePath)
 
         val cursor = contentResolver.query(
             MediaStore.Files.getContentUri("external"),
@@ -127,6 +137,13 @@ class FileScannerService : Service() {
         )
 
         Log.d(TAG, "Cursor length: ${cursor?.count}")
+        return extractResult(cursor)
+    }
+
+    /**
+     * Extracts the projection into a QueryResults object from a MediaStore query.
+     */
+    private fun extractResult(cursor: Cursor?): QueryResult? {
         cursor?.use {
             val ownerIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.OWNER_PACKAGE_NAME)
             val idIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
@@ -147,10 +164,40 @@ class FileScannerService : Service() {
         return null
     }
 
-    override fun onDestroy() {
-        fileObserver?.stopWatching()
-        scope.cancel()
-        super.onDestroy()
+    /**
+     *  Builds notification so that the service is considered a foreground service.
+     */
+    private fun buildNotification(): Notification {
+        val channelId = getString(R.string.notification_channel_id)
+        val title = getString(R.string.foreground_notification_title)
+        val text = getString(R.string.foreground_notification_text)
+
+        return NotificationCompat.Builder(this, channelId)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .build()
+    }
+
+    /**
+     * Creates a work request to process a single file in the Room queue.
+     */
+    private fun createWork() {
+        val manager = WorkManager.getInstance(applicationContext)
+        val work = OneTimeWorkRequestBuilder<SingleFileMoverWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiresBatteryNotLow(true)
+                    .setRequiresStorageNotLow(true)
+                    .build()
+            )
+            .build()
+
+        manager.enqueueUniqueWork(
+            "single_file_move",
+            ExistingWorkPolicy.APPEND,
+            work
+        )
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 
 /**
  *  The interface for the Room database.
@@ -15,18 +16,21 @@ interface FilterDao {
     /**
      *  Used to insert a new entry into the queue.
      */
+    @Transaction
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertFilterTarget(filterTarget: FilterTarget)
 
     /**
      *  Used to get the first entry in the queue.
      */
+    @Transaction
     @Query("SELECT * FROM FilterTarget ORDER BY id ASC LIMIT 1")
     suspend fun peekFilterTarget(): FilterTarget?
 
     /**
      *  Used to delete an entry in the queue (must use the peek method to get the entry first).
      */
+    @Transaction
     @Delete
     suspend fun deleteFilterTarget(filterTarget: FilterTarget)
 }
