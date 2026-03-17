@@ -26,9 +26,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.File
 
-private const val TAG = "FileScannerService"
+private const val TAG = "SingleScannerService"
 
-private data class QueryResult(val owner: String, val id: Long, val mimeType: String)
+
 
 class FileScannerService : Service() {
     private val dao by lazy { FilterDB.getInstance(this).filterDao }
@@ -106,13 +106,11 @@ class FileScannerService : Service() {
             dao.insertFilterTarget(FilterTarget(
                 uriId = fileInfo.id,
                 mimeType = fileInfo.mimeType,
-                name = path,
                 destinationFolder = destinationFolder
             ))
             Log.d(TAG, "Enqueued: $path")
+            createWork()
         }
-
-        createWork()
     }
 
     /**
@@ -125,6 +123,9 @@ class FileScannerService : Service() {
             MediaStore.MediaColumns._ID,
             MediaStore.MediaColumns.MIME_TYPE
         )
+
+        // No need to query owner, as null check is still required and also allows for an explicit
+        // check that the file is not owned by selected package.
         val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.RELATIVE_PATH} = ?"
         val selectionArgs = arrayOf(displayName, relativePath)
 
@@ -156,6 +157,7 @@ class FileScannerService : Service() {
                     it.getString(mimetypeIndex)
                 )
 
+                Log.d(TAG, "Owner length: ${it.getString(ownerIndex).length}")
                 Log.d(TAG, "Query result: $result")
                 return result
             }

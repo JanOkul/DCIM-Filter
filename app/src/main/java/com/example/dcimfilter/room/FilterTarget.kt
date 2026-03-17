@@ -17,7 +17,6 @@ data class FilterTarget(
     val id: Long = 0,
     val uriId: Long,
     val mimeType: String,
-    val name: String,
     // User settings
     val destinationFolder: String // Name of subfolder
 )

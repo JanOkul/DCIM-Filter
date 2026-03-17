@@ -52,10 +52,14 @@ const val TAG = "Settings"
  *  @param viewModel The view model to be passed to each setting that needs it.
  */
 @Composable
-fun SettingsCard(viewModel: SettingsViewModel = viewModel(), navController: NavController) {
-    val isOn by viewModel.isEnabled.collectAsState(initial = false)
-    val selectedPackage by viewModel.selectedPackage.collectAsState(initial = "")
-    val destinationFolder by viewModel.destinationFolder.collectAsState(initial = "")
+fun SettingsCard(
+    viewModel: SettingsViewModel,
+    navController: NavController,
+    isOn: Boolean,
+    selectedPackage: String,
+    destinationFolder: String
+) {
+
     val context = LocalContext.current
 
     if (isOn) {

@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,8 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dcimfilter.R
+import com.example.dcimfilter.settings.SettingsViewModel
 import com.example.dcimfilter.ui.components.FilterCard
 import com.example.dcimfilter.ui.components.NoStorageAccessCard
 import com.example.dcimfilter.ui.components.SettingsCard
@@ -45,6 +48,10 @@ import com.example.dcimfilter.ui.components.hasUnrestrictedBattery
 @Composable
 fun MainScreen(navController: NavController) {
     val appName = stringResource(R.string.app_name)
+    val viewModel: SettingsViewModel = viewModel()
+    val isOn by viewModel.isEnabled.collectAsState(initial = false)
+    val selectedPackage by viewModel.selectedPackage.collectAsState(initial = "")
+    val destinationFolder by viewModel.destinationFolder.collectAsState(initial = "")
     val context = LocalContext.current
 
     var allFileAccess by remember { mutableStateOf(
@@ -84,7 +91,7 @@ fun MainScreen(navController: NavController) {
         }
     ) { innerPadding ->
         if (Environment.isExternalStorageManager()) {
-            MainBody(innerPadding, navController)
+            MainBody(innerPadding, navController, context, viewModel, isOn, selectedPackage, destinationFolder)
         } else {
             NoStorageAccessCard(innerPadding)
 
@@ -97,7 +104,15 @@ fun MainScreen(navController: NavController) {
  *  @param innerPadding The padding values for the content
  */
 @Composable
-fun MainBody(innerPadding: PaddingValues, navController: NavController) {
+fun MainBody(
+    innerPadding: PaddingValues,
+    navController: NavController,
+    context: Context,
+    viewModel: SettingsViewModel,
+    isOn: Boolean,
+    selectedPackage: String,
+    destinationFolder: String
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -106,8 +121,8 @@ fun MainBody(innerPadding: PaddingValues, navController: NavController) {
 
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        FilterCard()
-        SettingsCard(navController = navController)
+        FilterCard(context, selectedPackage, destinationFolder)
+        SettingsCard(viewModel, navController, isOn, selectedPackage, destinationFolder)
     }
 }
 
