@@ -20,10 +20,10 @@ abstract class FileMoverWorker(
     context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
-    private val dao by lazy { FilterDB.getInstance(applicationContext).filterDao }
+    protected val dao by lazy { FilterDB.getInstance(applicationContext).filterDao }
 
-    suspend fun moveFile(): Result {
-        val nextEntry = dao.claimNext() ?: return Result.success()
+    suspend fun moveFile() {
+        val nextEntry = dao.claimNext() ?: return
         val resolver =  applicationContext.contentResolver
         val mimeType = nextEntry.mimeType
 
@@ -40,7 +40,6 @@ abstract class FileMoverWorker(
 
         resolver.update(uri, contentValues, null, null)
         Log.d(TAG, "Moved file: $uri")
-        return Result.success()
     }
 
     private fun convertMimeToBaseUri(mimeType: String): Uri {

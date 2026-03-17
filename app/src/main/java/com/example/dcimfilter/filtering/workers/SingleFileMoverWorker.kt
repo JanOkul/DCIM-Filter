@@ -12,14 +12,10 @@ private const val TAG = "SingleFileMoverWorker"
 class SingleFileMoverWorker(context: Context, params: WorkerParameters): FileMoverWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        var result: Result = Result.failure()
-
         withContext(Dispatchers.IO) {
-            result = moveFile()
+            moveFile()
         }
-
-        Log.d(TAG, "Result: $result")
-        return result
+        return Result.success()
     }
 }
 

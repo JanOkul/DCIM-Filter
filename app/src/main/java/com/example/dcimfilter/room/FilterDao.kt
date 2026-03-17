@@ -40,4 +40,8 @@ interface FilterDao {
     @Transaction
     @Delete
     suspend fun deleteFilterTarget(filterTarget: FilterTarget)
+
+    @Transaction
+    @Query("SELECT COUNT(*) FROM FilterTarget")
+    suspend fun getCount(): Int
 }
