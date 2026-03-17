@@ -4,6 +4,7 @@ package com.example.dcimfilter.filtering.scanners
 import android.app.Notification
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.database.Cursor
 import android.os.Environment
 import android.os.FileObserver
@@ -47,8 +48,13 @@ class FileScannerService : Service() {
      * Retrieves user settings, starts file observer and foreground service.
      */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent == null) {
+            // Already running, nothing to reinitialise
+            return START_STICKY
+        }
+
         // Get selected package setting, if null stop service.
-        selectedPackage = intent?.getStringExtra("selectedPackage") ?: run {
+        selectedPackage = intent.getStringExtra("selectedPackage") ?: run {
             stopSelf()
             Log.d(TAG, "Selected Package is null, stopping service")
             return START_NOT_STICKY
@@ -64,7 +70,7 @@ class FileScannerService : Service() {
         Log.d(TAG, "Selected Package: $selectedPackage")
         Log.d(TAG, "Destination Folder: $destinationFolder")
 
-        startForeground(1, buildNotification())
+        startForeground(1, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         Log.d(TAG, "Started foreground service")
 
         fileObserver?.startWatching()
@@ -178,6 +184,10 @@ class FileScannerService : Service() {
             .setContentTitle(title)
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setOngoing(true)
+            .setSilent(true)
             .build()
     }
 
