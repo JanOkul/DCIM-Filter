@@ -39,6 +39,7 @@ class BatchScanner(
             )
         }
 
+        Log.d(TAG, "Starting work")
         createWork()
     }
 
@@ -116,7 +117,7 @@ class BatchScanner(
 
         workManager.enqueueUniqueWork(
             "batch_file_move",
-            ExistingWorkPolicy.APPEND,
+            ExistingWorkPolicy.REPLACE,
             work
         )
     }

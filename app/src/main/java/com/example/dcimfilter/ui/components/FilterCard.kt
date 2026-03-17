@@ -14,10 +14,13 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.work.WorkManager
 import com.example.dcimfilter.R
 import com.example.dcimfilter.filtering.scanners.BatchScanner
 import com.example.dcimfilter.filtering.workers.BatchFileMoverWorker
@@ -33,6 +36,13 @@ fun FilterCard(context: Context, selectedPackage: String, destinationFolder: Str
     val subtitle = stringResource(R.string.batch_filter_subtitle)
     val description = stringResource(R.string.batch_filter_description)
     val buttonName = stringResource(R.string.batch_filter_button_name)
+    val workInfo by WorkManager.getInstance(context)
+        .getWorkInfosForUniqueWorkLiveData("batch_file_move")
+        .observeAsState()
+    val progressBarMessage = workInfo?.firstOrNull()?.progress?.getString("progress_message") ?: ""
+    val progressBarFloat =workInfo?.firstOrNull()?.progress?.getFloat("progress_float", defaultValue = 0.0f) ?: 0.0f
+
+
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -62,9 +72,9 @@ fun FilterCard(context: Context, selectedPackage: String, destinationFolder: Str
                         verticalArrangement = Arrangement.Bottom
                     ) {
 
-                        Text("hi")
+                        Text(progressBarMessage)
                         LinearProgressIndicator(
-                            progress = { 0.0F },
+                            progress = { progressBarFloat },
 
                             )
                     }
