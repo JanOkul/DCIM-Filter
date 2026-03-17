@@ -69,8 +69,6 @@ fun PackageSelectScreen(navController: NavController, viewModel: SettingsViewMod
         }
     }
 
-
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -166,7 +164,7 @@ fun AppItem(
         Column(Modifier.padding(start = 8.dp, end = 8.dp)) {
             Text(item.label, style = MaterialTheme.typography.titleSmall)
             Text(item.packageName, style = MaterialTheme.typography.bodySmall)
-            Text(item.version ?: "N/A", style = MaterialTheme.typography.bodySmall)
+            Text(item.version ?: "", style = MaterialTheme.typography.bodySmall)
         }
     }
 }

@@ -121,7 +121,7 @@ fun MainBody(
 
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        FilterCard(context, selectedPackage, destinationFolder)
+        FilterCard(context, viewModel, selectedPackage, destinationFolder)
         SettingsCard(viewModel, navController, isOn, selectedPackage, destinationFolder)
     }
 }
