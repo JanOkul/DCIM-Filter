@@ -36,6 +36,7 @@ import com.example.dcimfilter.R
 import com.example.dcimfilter.settings.SettingsViewModel
 import com.example.dcimfilter.ui.components.FilterCard
 import com.example.dcimfilter.ui.components.NoStorageAccessCard
+import com.example.dcimfilter.ui.components.PrimaryAppBar
 import com.example.dcimfilter.ui.components.SettingsCard
 import com.example.dcimfilter.ui.components.hasAllFileAccess
 import com.example.dcimfilter.ui.components.hasUnrestrictedBattery
@@ -47,7 +48,6 @@ import com.example.dcimfilter.ui.components.hasUnrestrictedBattery
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavController) {
-    val appName = stringResource(R.string.app_name)
     val viewModel: SettingsViewModel = viewModel()
     val isOn by viewModel.isEnabled.collectAsState(initial = false)
     val selectedPackage by viewModel.selectedPackage.collectAsState(initial = "")
@@ -84,11 +84,7 @@ fun MainScreen(navController: NavController) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = { Text(appName, style = MaterialTheme.typography.titleLarge) }
-            )
-        }
+        topBar = { PrimaryAppBar(navController) }
     ) { innerPadding ->
         if (Environment.isExternalStorageManager()) {
             MainBody(innerPadding, navController, context, viewModel, isOn, selectedPackage, destinationFolder)

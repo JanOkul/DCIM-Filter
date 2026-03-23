@@ -8,18 +8,16 @@ import android.util.Log
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import com.example.dcimfilter.filtering.workers.BatchFileMoverWorker
-import com.example.dcimfilter.filtering.workers.SingleFileMoverWorker
 import com.example.dcimfilter.room.FilterDB
-import com.example.dcimfilter.room.FilterTarget
+import com.example.dcimfilter.room.queue.FilterTarget
 
 private const val TAG = "BatchScanner"
 class BatchScanner(
     private val context: Context,
     private val owner: String,
-    private val destinationFolder: String
+    private val destinationFolder: String,
 ) {
     val dao by lazy { FilterDB.getInstance(context).filterDao }
     private val relativePath = "${Environment.DIRECTORY_DCIM}/Camera/"
@@ -32,6 +30,7 @@ class BatchScanner(
         files.forEach {
             dao.insertFilterTarget(
                 FilterTarget(
+                    name = it.name,
                     uriId = it.id,
                     mimeType = it.mimeType,
                     destinationFolder = destinationFolder
@@ -53,7 +52,8 @@ class BatchScanner(
         val projection = arrayOf(
             MediaStore.MediaColumns._ID,
             MediaStore.MediaColumns.MIME_TYPE,
-            MediaStore.MediaColumns.OWNER_PACKAGE_NAME
+            MediaStore.MediaColumns.OWNER_PACKAGE_NAME,
+            MediaStore.MediaColumns.DISPLAY_NAME
         )
         val selection =
             "${MediaStore.MediaColumns.RELATIVE_PATH} = ?"
@@ -84,6 +84,7 @@ class BatchScanner(
             val idIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
             val mimetypeIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
             val ownerIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.OWNER_PACKAGE_NAME)
+            val nameIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
 
 
             while (it.moveToNext()) {
@@ -95,7 +96,8 @@ class BatchScanner(
                 val result = QueryResult(
                     owner,
                     it.getLong(idIndex),
-                    it.getString(mimetypeIndex)
+                    it.getString(mimetypeIndex),
+                    it.getString(nameIndex)
                 )
                 Log.d(TAG, "Query result: $result")
                 results.add(result)

@@ -19,7 +19,7 @@ import androidx.work.WorkManager
 import com.example.dcimfilter.R
 import com.example.dcimfilter.filtering.workers.SingleFileMoverWorker
 import com.example.dcimfilter.room.FilterDB
-import com.example.dcimfilter.room.FilterTarget
+import com.example.dcimfilter.room.queue.FilterTarget
 import com.example.dcimfilter.ui.components.hasAllFileAccess
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -90,8 +90,8 @@ class FileScannerService : Service() {
     /**
      *  Enqueue a single file to the Room for processing
      */
-    private fun enqueueFile(path: String?) {
-        if (path == null) return
+    private fun enqueueFile(name: String?) {
+        if (name == null) return
 
         // If file access is turned off while service is running, errors will occur.
         if (!hasAllFileAccess()) {
@@ -100,21 +100,22 @@ class FileScannerService : Service() {
             return
         }
 
-        val fileInfo = getFileInfo(path) ?: return
+        val fileInfo = getFileInfo(name) ?: return
         // Check if file owner is source app.
         if (fileInfo.owner != selectedPackage) {
-            Log.d(TAG, "The owner of $path is not the source app, owner: $fileInfo")
+            Log.d(TAG, "The owner of $name is not the source app, owner: $fileInfo")
             return
         }
 
         // Insert into Room queue.
         scope.launch {
             dao.insertFilterTarget(FilterTarget(
+                name = name,
                 uriId = fileInfo.id,
                 mimeType = fileInfo.mimeType,
                 destinationFolder = destinationFolder
             ))
-            Log.d(TAG, "Enqueued: $path")
+            Log.d(TAG, "Enqueued: $name")
             createWork()
         }
     }
@@ -155,12 +156,14 @@ class FileScannerService : Service() {
             val ownerIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.OWNER_PACKAGE_NAME)
             val idIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
             val mimetypeIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
+            val nameIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
 
             if (it.moveToFirst()) {
                 val result = QueryResult(
                     it.getString(ownerIndex),
                     it.getLong(idIndex),
-                    it.getString(mimetypeIndex)
+                    it.getString(mimetypeIndex),
+                    it.getString(nameIndex)
                 )
 
                 Log.d(TAG, "Owner length: ${it.getString(ownerIndex).length}")

@@ -1,4 +1,4 @@
-package com.example.dcimfilter.room
+package com.example.dcimfilter.room.queue
 
 import androidx.room.Entity
 import androidx.room.Index
@@ -15,6 +15,7 @@ import androidx.room.PrimaryKey
 data class FilterTarget(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val name: String,
     val uriId: Long,
     val mimeType: String,
     // User settings

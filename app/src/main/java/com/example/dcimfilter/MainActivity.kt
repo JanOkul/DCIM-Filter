@@ -13,6 +13,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.dcimfilter.room.history.History
+import com.example.dcimfilter.ui.screens.HistoryScreen
 import com.example.dcimfilter.ui.screens.MainScreen
 import com.example.dcimfilter.ui.screens.PackageSelectScreen
 import com.example.dcimfilter.ui.theme.DCIMFilterTheme
@@ -56,6 +58,7 @@ class MainActivity : ComponentActivity () {
                 NavHost(navController = navController, startDestination = "main") {
                     composable("main") { MainScreen(navController) }
                     composable("package_select" ){ PackageSelectScreen(navController) }
+                    composable("history") { HistoryScreen(navController) }
                 }
             }
         }

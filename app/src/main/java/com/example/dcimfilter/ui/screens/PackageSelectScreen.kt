@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dcimfilter.R
 import com.example.dcimfilter.settings.SettingsViewModel
+import com.example.dcimfilter.ui.components.SecondaryAppBar
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -71,25 +72,14 @@ fun PackageSelectScreen(navController: NavController, viewModel: SettingsViewMod
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = { Text(appName, style = MaterialTheme.typography.titleLarge) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description"
-                        )
-                    }
-                }
-            )
-        }
+        topBar = { SecondaryAppBar(navController) }
     ) { innerPadding ->
         if (!loaded) {
             Box(
                 Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -116,7 +106,7 @@ fun PackageSelectContent(
 ) {
     LazyColumn(Modifier.padding(paddingValues = innerPadding)) {
         items(
-            items =installedPackages,
+            items = installedPackages,
             key = { it.packageName }
         ) { item ->
             // Skip any null packages, and also skip self

@@ -12,7 +12,7 @@ class BatchFileMoverWorker(
     params: WorkerParameters
 ): FileMoverWorker(context, params) {
     override suspend fun doWork(): Result {
-        val filesToMove = dao.getCount() // For UI
+        val filesToMove = filterDao.getCount() // For UI
         var filesMoved = 0
         setProgress(workDataOf(
             "progress_message" to "Found $filesToMove files to filter",
@@ -21,7 +21,7 @@ class BatchFileMoverWorker(
 
         Log.d(TAG, "Found $filesToMove files to filter")
 
-        while (dao.peekFilterTarget() != null) {
+        while (filterDao.peekFilterTarget() != null) {
             moveFile()
             filesMoved++
             setProgress(workDataOf(

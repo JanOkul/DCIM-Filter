@@ -1,4 +1,4 @@
-package com.example.dcimfilter.room
+package com.example.dcimfilter.room.queue
 
 import androidx.room.Dao
 import androidx.room.Delete

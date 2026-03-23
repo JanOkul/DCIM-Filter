@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.dcimfilter.room.FilterDB
+import com.example.dcimfilter.room.history.History
 
 private const val TAG = "FileMoverWorker"
 
@@ -20,14 +21,17 @@ abstract class FileMoverWorker(
     context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
-    protected val dao by lazy { FilterDB.getInstance(applicationContext).filterDao }
+    protected val filterDao by lazy { FilterDB.getInstance(applicationContext).filterDao }
+    protected val historyDao by lazy { FilterDB.getInstance(applicationContext).historyDao }
 
     suspend fun moveFile() {
-        val nextEntry = dao.claimNext() ?: return
+        val nextEntry = filterDao.claimNext() ?: return
         val resolver =  applicationContext.contentResolver
         val mimeType = nextEntry.mimeType
 
         Log.d(TAG, "Received entry: $nextEntry")
+
+        val destinationPath = convertMimeToDir(mimeType, nextEntry.destinationFolder)
 
         val uri = ContentUris.withAppendedId(
             convertMimeToBaseUri(mimeType),
@@ -35,10 +39,14 @@ abstract class FileMoverWorker(
         )
 
         val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.RELATIVE_PATH, convertMimeToDir(mimeType, nextEntry.destinationFolder))
+            put(MediaStore.MediaColumns.RELATIVE_PATH, destinationPath)
         }
 
         resolver.update(uri, contentValues, null, null)
+
+        val historyEntry = History(filename = nextEntry.name, movedTo = destinationPath)
+        historyDao.insertHistoryEntry(historyEntry)
+
         Log.d(TAG, "Moved file: $uri")
     }
 
