@@ -7,6 +7,8 @@ import androidx.room.PrimaryKey
 data class History (
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val uriId: Long,
+    val mimeType: String,
     val movedAt: Long = System.currentTimeMillis(),
     val filename: String,
     val movedTo: String

@@ -1,7 +1,10 @@
 package com.example.dcimfilter.ui.components.misc
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
@@ -9,12 +12,20 @@ import com.example.dcimfilter.room.history.HistoryDao
 
 class HistoryViewModel(private val historyDao: HistoryDao) : ViewModel() {
 
-    val historyFlow = Pager(
+    val historyPaged = Pager(
         config = PagingConfig(
-            pageSize = 20,
+            pageSize = 30,
             prefetchDistance = 5,
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = { historyDao.getHistoryPaged() }
-    ).flow.cachedIn(viewModelScope)
+            enablePlaceholders = false,
+            maxSize = 50
+        )
+    ) {
+        historyDao.getHistoryPaged()
+    }.flow.cachedIn(viewModelScope)
+
+    companion object {
+        fun factory(dao: HistoryDao): ViewModelProvider.Factory = viewModelFactory {
+            initializer { HistoryViewModel(dao) }
+        }
+    }
 }

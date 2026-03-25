@@ -45,7 +45,12 @@ abstract class FileMoverWorker(
         val movedCount = resolver.update(uri, contentValues, null, null)
 
         if (movedCount > 0) {
-            val historyEntry = History(filename = nextEntry.name, movedTo = destinationPath)
+            val historyEntry = History(
+                filename = nextEntry.name,
+                uriId = nextEntry.uriId,
+                mimeType = nextEntry.mimeType,
+                movedTo = destinationPath
+            )
             historyDao.insertHistoryEntry(historyEntry)
         }
 

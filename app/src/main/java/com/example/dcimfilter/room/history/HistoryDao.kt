@@ -15,4 +15,7 @@ interface HistoryDao {
     fun getHistoryPaged(): PagingSource<Int, History>
     @Query("SELECT * FROM History ORDER BY movedAt DESC")
     fun getHistory(): List<History>
+
+    @Query("SELECT COUNT(*) FROM History")
+    fun getCount(): Int
 }

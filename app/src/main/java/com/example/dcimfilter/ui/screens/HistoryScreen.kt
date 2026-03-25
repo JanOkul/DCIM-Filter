@@ -1,5 +1,9 @@
 package com.example.dcimfilter.ui.screens
 
+import android.content.ContentUris
+import android.content.Context
+import android.content.Intent
+import android.provider.MediaStore
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,7 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HistoryToggleOff
 import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -23,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -30,9 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.example.dcimfilter.room.FilterDB
 import com.example.dcimfilter.room.history.History
+import com.example.dcimfilter.ui.components.misc.HistoryViewModel
 import com.example.dcimfilter.ui.components.ui.SecondaryAppBar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -40,16 +49,16 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-//todo add paging to history items
 @Composable
 fun HistoryScreen(navController: NavController) {
     val context = LocalContext.current
-    val dao by lazy { FilterDB.getInstance(context).historyDao }
-    var historyItems by remember { mutableStateOf<List<History>?>(null) }
-
+    val dao = FilterDB.getInstance(context).historyDao
+    val viewModel: HistoryViewModel = viewModel(factory = HistoryViewModel.factory(dao))
+    val historyItems = viewModel.historyPaged.collectAsLazyPagingItems()
+    var totalItems by remember { mutableIntStateOf(0) };
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
-            historyItems = dao.getHistory()
+            totalItems = dao.getCount()
         }
     }
 
@@ -57,20 +66,16 @@ fun HistoryScreen(navController: NavController) {
         modifier = Modifier.fillMaxSize(),
         topBar = { SecondaryAppBar(navController, "History") }
     ) { innerPadding ->
-        if (historyItems != null) {
-            HistoryContent(innerPadding, historyItems!!)
-        } else {
-            Text("uh oh") //todo fix whatever this is
-        }
+        HistoryContent(innerPadding, historyItems, totalItems)
     }
 }
 
 @Composable
-fun HistoryContent(innerPadding: PaddingValues, historyItems: List<History>) {
+fun HistoryContent(innerPadding: PaddingValues, historyItems: LazyPagingItems<History>, count: Int) {
     Column(
         Modifier.padding(innerPadding).padding(16.dp)
     ) {
-        if (historyItems.isNotEmpty()) {
+        if (count > 0) {
             HistoryCardNotEmpty(historyItems)
         } else {
             HistoryCardEmpty()
@@ -79,15 +84,18 @@ fun HistoryContent(innerPadding: PaddingValues, historyItems: List<History>) {
 }
 
 @Composable
-fun HistoryCardNotEmpty(historyItems: List<History>) {
+fun HistoryCardNotEmpty(historyItems: LazyPagingItems<History>) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         items(
-            items = historyItems,
-            key = { it.id }
-        ) {
-            HistoryItem(it)
+            count = historyItems.itemCount,
+            key =  historyItems.itemKey { it.id }
+        ) { index ->
+            val item = historyItems[index]
+            item?.let {
+                HistoryItem(it)
+            }
         }
     }
 }
@@ -106,7 +114,6 @@ fun HistoryCardEmpty() {
             Icons.Default.HistoryToggleOff,
             contentDescription = "No history log icon.",
             Modifier.size(32.dp)
-
             )
 
         Spacer(Modifier.size(8.dp))
@@ -119,11 +126,16 @@ fun HistoryCardEmpty() {
 
 @Composable
 fun HistoryItem(item: History) {
-    Card {
+    val context = LocalContext.current
+
+    Card(
+        onClick = {
+            openMedia(context, item.uriId, item.mimeType)
+        }
+    ) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Text(item.filename, style = MaterialTheme.typography.titleSmall)
 
-            // todo add click to show media functionality
             Row {
                 Text(
                     "File moved to ${item.movedTo}",
@@ -145,4 +157,17 @@ fun formatTimestamp(timestamp: Long): String {
         .withZone(ZoneId.systemDefault())
 
     return formatter?.format(Instant.ofEpochMilli(timestamp)) ?: ""
+}
+
+private fun openMedia(context: Context, id: Long, mime: String) {
+    val intent = Intent(Intent.ACTION_VIEW)
+        .setDataAndType(
+            ContentUris.withAppendedId(
+            MediaStore.Files.getContentUri("external"),
+            id
+        ),
+        mime
+        )
+
+    context.startActivity(intent)
 }
