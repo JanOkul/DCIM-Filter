@@ -44,9 +44,6 @@ class BatchScanner(
 
     /**
      *  Retrieves information from MediaStore about the entire DCIM folder at once.
-     *  @param context app context to call mediastore.
-     *  @param owner the name of the user-selected package to filter
-     *  @param dcimPath the relative path of the DCIM folder.
      */
     private fun sendDCIMQuery(): List<QueryResult> {
         val projection = arrayOf(
@@ -75,7 +72,7 @@ class BatchScanner(
     }
 
     /**
-     * Extracts the projection into a QueryResults object from a MediaStore query.
+     * Extracts the projection into a list of QueryResults objects, from a MediaStore query.
      */
     private fun extractResult(cursor: Cursor?): List<QueryResult> {
         val results = ArrayList<QueryResult>()
@@ -99,6 +96,7 @@ class BatchScanner(
                     it.getString(mimetypeIndex),
                     it.getString(nameIndex)
                 )
+
                 Log.d(TAG, "Query result: $result")
                 results.add(result)
             }

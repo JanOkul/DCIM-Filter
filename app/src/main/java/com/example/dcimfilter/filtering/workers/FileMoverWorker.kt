@@ -42,10 +42,12 @@ abstract class FileMoverWorker(
             put(MediaStore.MediaColumns.RELATIVE_PATH, destinationPath)
         }
 
-        resolver.update(uri, contentValues, null, null)
+        val movedCount = resolver.update(uri, contentValues, null, null)
 
-        val historyEntry = History(filename = nextEntry.name, movedTo = destinationPath)
-        historyDao.insertHistoryEntry(historyEntry)
+        if (movedCount > 0) {
+            val historyEntry = History(filename = nextEntry.name, movedTo = destinationPath)
+            historyDao.insertHistoryEntry(historyEntry)
+        }
 
         Log.d(TAG, "Moved file: $uri")
     }

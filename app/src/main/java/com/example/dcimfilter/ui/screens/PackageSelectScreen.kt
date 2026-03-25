@@ -16,17 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,25 +33,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.dcimfilter.R
 import com.example.dcimfilter.settings.SettingsViewModel
-import com.example.dcimfilter.ui.components.SecondaryAppBar
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import com.example.dcimfilter.ui.components.ui.SecondaryAppBar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-val TAG = "Settings"
+const val TAG = "Settings"
 data class AppItemInfo(val label: String, val packageName: String, val version: String?, val icon: ImageBitmap)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PackageSelectScreen(navController: NavController, viewModel: SettingsViewModel = viewModel()) {
-    val appName = stringResource(R.string.app_name)
     val context = LocalContext.current
     val packageManager = context.packageManager
     var installedPackages by remember { mutableStateOf<List<AppItemInfo>>(ArrayList()) }
@@ -72,7 +63,7 @@ fun PackageSelectScreen(navController: NavController, viewModel: SettingsViewMod
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { SecondaryAppBar(navController) }
+        topBar = { SecondaryAppBar(navController, "Select A Package") }
     ) { innerPadding ->
         if (!loaded) {
             Box(
@@ -132,11 +123,8 @@ fun AppItem(
     navController: NavController,
     item: AppItemInfo
 ) {
-
-
     Row(
-        Modifier
-            .fillMaxWidth()
+        Modifier.fillMaxWidth()
             .padding(8.dp)
             .clickable( onClick = {
                     viewModel.setSelectedPackage(item.packageName)
@@ -161,7 +149,8 @@ fun AppItem(
 
 private fun getInstalledPackages(packageManager: PackageManager): List<AppItemInfo> {
     val installedPackages = packageManager.queryIntentActivities(
-        Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0
+        Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER),
+        0
     )
 
     return installedPackages.map {
@@ -174,5 +163,6 @@ private fun getInstalledPackages(packageManager: PackageManager): List<AppItemIn
                 .toBitmap(48,48)
                 .asImageBitmap()
         )
-    }.distinctBy { it.packageName }.sortedBy { it.label }
+    }.distinctBy { it.packageName }
+        .sortedBy { it.label }
 }

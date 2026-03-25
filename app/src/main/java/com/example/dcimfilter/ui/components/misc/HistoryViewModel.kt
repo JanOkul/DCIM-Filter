@@ -1,4 +1,4 @@
-package com.example.dcimfilter.ui.components
+package com.example.dcimfilter.ui.components.misc
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,10 +1,6 @@
 package com.example.dcimfilter.ui.screens
 
-import android.annotation.SuppressLint
-import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
-
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -34,26 +30,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemKey
 import com.example.dcimfilter.room.FilterDB
 import com.example.dcimfilter.room.history.History
-import com.example.dcimfilter.ui.components.HistoryViewModel
-import com.example.dcimfilter.ui.components.SecondaryAppBar
-import kotlinx.coroutines.CoroutineScope
+import com.example.dcimfilter.ui.components.ui.SecondaryAppBar
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Date
 
-
+//todo add paging to history items
 @Composable
 fun HistoryScreen(navController: NavController) {
     val context = LocalContext.current
@@ -68,12 +55,12 @@ fun HistoryScreen(navController: NavController) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { SecondaryAppBar(navController) }
+        topBar = { SecondaryAppBar(navController, "History") }
     ) { innerPadding ->
         if (historyItems != null) {
             HistoryContent(innerPadding, historyItems!!)
         } else {
-            Text("uh oh")
+            Text("uh oh") //todo fix whatever this is
         }
     }
 }
@@ -83,22 +70,6 @@ fun HistoryContent(innerPadding: PaddingValues, historyItems: List<History>) {
     Column(
         Modifier.padding(innerPadding).padding(16.dp)
     ) {
-        Card {  // removed double innerPadding
-            Column(Modifier.padding(16.dp)) {
-                Text(
-                    "History",
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Column(Modifier.padding(8.dp)) {
-                    Text(
-                        "A log of the files that have been automatically, or manually moved by the app.",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-        }
-
-
         if (historyItems.isNotEmpty()) {
             HistoryCardNotEmpty(historyItems)
         } else {
@@ -109,13 +80,16 @@ fun HistoryContent(innerPadding: PaddingValues, historyItems: List<History>) {
 
 @Composable
 fun HistoryCardNotEmpty(historyItems: List<History>) {
-    Card(Modifier.padding(top = 16.dp).fillMaxWidth()) {
+    Card(
+        Modifier.padding(top = 16.dp)
+            .fillMaxWidth()
+    ) {
         LazyColumn {
             items(
                 items = historyItems,
                 key = { it.id }
-            ) { item ->
-                HistoryItem(item)
+            ) {
+                HistoryItem(it)
                 HorizontalDivider()
             }
         }
@@ -139,7 +113,6 @@ fun HistoryCardEmpty() {
             )
 
         Spacer(Modifier.size(8.dp))
-
         Text(
             "Nothing logged yet",
             style = MaterialTheme.typography.titleLarge
@@ -152,7 +125,8 @@ fun HistoryItem(item: History) {
     Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
         Text(item.filename, style = MaterialTheme.typography.titleSmall)
 
-        Row() {
+        // todo add click to show media functionality
+        Row {
             Text(
                 "File moved to ${item.movedTo}",
                 modifier = Modifier.weight(1f),

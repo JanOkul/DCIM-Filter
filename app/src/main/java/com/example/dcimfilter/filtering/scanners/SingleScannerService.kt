@@ -20,7 +20,7 @@ import com.example.dcimfilter.R
 import com.example.dcimfilter.filtering.workers.SingleFileMoverWorker
 import com.example.dcimfilter.room.FilterDB
 import com.example.dcimfilter.room.queue.FilterTarget
-import com.example.dcimfilter.ui.components.hasAllFileAccess
+import com.example.dcimfilter.ui.components.misc.hasAllFileAccess
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -35,12 +35,7 @@ class FileScannerService : Service() {
     private val dao by lazy { FilterDB.getInstance(this).filterDao }
     private val scope = CoroutineScope(Dispatchers.IO)
     private val relativePath = "${Environment.DIRECTORY_DCIM}/Camera/"
-    private val dcimFile = File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-        "Camera"
-    )
-    private var fileObserver: FileObserver? = DcimObserver(dcimFile, this::enqueueFile)
-
+    private var fileObserver: FileObserver? = DcimObserver(this::enqueueFile)
     private lateinit var selectedPackage: String
     private lateinit var destinationFolder: String
 
@@ -70,7 +65,11 @@ class FileScannerService : Service() {
         Log.d(TAG, "Selected Package: $selectedPackage")
         Log.d(TAG, "Destination Folder: $destinationFolder")
 
-        startForeground(1, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        startForeground(
+            1,
+            buildNotification(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+        )
         Log.d(TAG, "Started foreground service")
 
         fileObserver?.startWatching()
@@ -128,7 +127,8 @@ class FileScannerService : Service() {
         val projection = arrayOf(
             MediaStore.MediaColumns.OWNER_PACKAGE_NAME,
             MediaStore.MediaColumns._ID,
-            MediaStore.MediaColumns.MIME_TYPE
+            MediaStore.MediaColumns.MIME_TYPE,
+            MediaStore.MediaColumns.DISPLAY_NAME
         )
 
         // No need to query owner, as null check is still required and also allows for an explicit

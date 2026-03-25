@@ -9,11 +9,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dcimfilter.room.history.History
+import com.example.dcimfilter.settings.SettingsViewModel
 import com.example.dcimfilter.ui.screens.HistoryScreen
 import com.example.dcimfilter.ui.screens.MainScreen
 import com.example.dcimfilter.ui.screens.PackageSelectScreen
@@ -51,9 +53,6 @@ class MainActivity : ComponentActivity () {
         enableEdgeToEdge()
         setContent {
             DCIMFilterTheme {
-
-
-
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "main") {
                     composable("main") { MainScreen(navController) }
@@ -63,8 +62,6 @@ class MainActivity : ComponentActivity () {
             }
         }
     }
-
-    // todo Make foreground start on bootup
 }
 
 

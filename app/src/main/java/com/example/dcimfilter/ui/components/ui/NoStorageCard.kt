@@ -1,4 +1,4 @@
-package com.example.dcimfilter.ui.components
+package com.example.dcimfilter.ui.components.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

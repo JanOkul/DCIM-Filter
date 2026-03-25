@@ -1,4 +1,4 @@
-package com.example.dcimfilter.ui.components
+package com.example.dcimfilter.ui.components.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -33,8 +33,7 @@ fun PrimaryAppBar(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SecondaryAppBar(navController: NavController) {
-    val appName = stringResource(R.string.app_name)
+fun SecondaryAppBar(navController: NavController, appName: String = stringResource(R.string.app_name)) {
     TopAppBar(
         title = { Text(appName, style = MaterialTheme.typography.titleLarge) },
         navigationIcon = {
