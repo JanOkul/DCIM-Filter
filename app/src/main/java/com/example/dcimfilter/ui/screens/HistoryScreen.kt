@@ -80,21 +80,18 @@ fun HistoryContent(innerPadding: PaddingValues, historyItems: List<History>) {
 
 @Composable
 fun HistoryCardNotEmpty(historyItems: List<History>) {
-    Card(
-        Modifier.padding(top = 16.dp)
-            .fillMaxWidth()
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        LazyColumn {
-            items(
-                items = historyItems,
-                key = { it.id }
-            ) {
-                HistoryItem(it)
-                HorizontalDivider()
-            }
+        items(
+            items = historyItems,
+            key = { it.id }
+        ) {
+            HistoryItem(it)
         }
     }
 }
+
 
 @Composable
 fun HistoryCardEmpty() {
@@ -122,20 +119,22 @@ fun HistoryCardEmpty() {
 
 @Composable
 fun HistoryItem(item: History) {
-    Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-        Text(item.filename, style = MaterialTheme.typography.titleSmall)
+    Card {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            Text(item.filename, style = MaterialTheme.typography.titleSmall)
 
-        // todo add click to show media functionality
-        Row {
-            Text(
-                "File moved to ${item.movedTo}",
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodySmall
-            )
-            Text(
-                formatTimestamp(item.movedAt),
-                style = MaterialTheme.typography.bodySmall
-            )
+            // todo add click to show media functionality
+            Row {
+                Text(
+                    "File moved to ${item.movedTo}",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    formatTimestamp(item.movedAt),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }

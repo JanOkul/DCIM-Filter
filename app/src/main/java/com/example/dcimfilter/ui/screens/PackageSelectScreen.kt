@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -95,7 +97,12 @@ fun PackageSelectContent(
     navController: NavController,
     installedPackages: List<AppItemInfo>
 ) {
-    LazyColumn(Modifier.padding(paddingValues = innerPadding)) {
+
+    LazyColumn(
+        Modifier.padding(paddingValues = innerPadding)
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
         items(
             items = installedPackages,
             key = { it.packageName }
@@ -107,12 +114,6 @@ fun PackageSelectContent(
                     item
                 )
             }
-
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                thickness = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
         }
     }
 }
@@ -123,26 +124,28 @@ fun AppItem(
     navController: NavController,
     item: AppItemInfo
 ) {
-    Row(
-        Modifier.fillMaxWidth()
-            .padding(8.dp)
-            .clickable( onClick = {
+    Card {
+        Row(
+            Modifier.fillMaxWidth()
+                .padding(16.dp)
+                .clickable(onClick = {
                     viewModel.setSelectedPackage(item.packageName)
                     viewModel.setDestinationFolder(item.label)
                     Log.d(TAG, "Selected package: ${item.packageName}")
                     navController.popBackStack()
                 }
+                )
+        ) {
+            Image(
+                bitmap = item.icon,
+                contentDescription = "App icon for ${item.label}",
+                Modifier.size(48.dp)
             )
-    ) {
-        Image(
-            bitmap = item.icon,
-            contentDescription = "App icon for ${item.label}",
-            Modifier.size(48.dp)
-        )
-        Column(Modifier.padding(start = 8.dp, end = 8.dp)) {
-            Text(item.label, style = MaterialTheme.typography.titleSmall)
-            Text(item.packageName, style = MaterialTheme.typography.bodySmall)
-            Text(item.version ?: "", style = MaterialTheme.typography.bodySmall)
+            Column(Modifier.padding(start = 8.dp, end = 8.dp)) {
+                Text(item.label, style = MaterialTheme.typography.titleSmall)
+                Text(item.packageName, style = MaterialTheme.typography.bodySmall)
+                Text(item.version ?: "", style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
 }
