@@ -1,0 +1,8 @@
+package com.janokul.dcimfilter.filtering.scanners
+
+data class QueryResult(
+    val owner: String,
+    val id: Long,
+    val mimeType: String,
+    val name: String
+)

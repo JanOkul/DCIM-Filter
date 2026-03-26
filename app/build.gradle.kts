@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.dcimfilter"
+    namespace = "com.janokul.dcimfilter"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -13,7 +13,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.dcimfilter"
+        applicationId = "com.janokul.dcimfilter"
         minSdk = 31
         targetSdk = 36
         versionCode = 1
@@ -24,7 +24,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
