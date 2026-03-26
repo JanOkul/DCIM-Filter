@@ -1,5 +1,6 @@
 package com.example.dcimfilter.ui.theme
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +33,7 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+@SuppressLint("ObsoleteSdkInt")
 @Composable
 fun DCIMFilterTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

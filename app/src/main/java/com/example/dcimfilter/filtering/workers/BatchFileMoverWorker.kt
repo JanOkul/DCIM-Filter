@@ -15,7 +15,7 @@ import kotlinx.coroutines.delay
 private const val TAG = "BatchFileMoverWorker"
 
 class BatchFileMoverWorker(
-    private val context: Context,
+    val context: Context,
     params: WorkerParameters
 ) : FileMoverWorker(context, params, TAG) {
     override suspend fun doWork(): Result {

@@ -252,7 +252,7 @@ private fun DestinationFolderSetting(
 }
 
 /**
- *  A standardized container for each setting in the application.
+ *  A standardised container for each setting in the application.
  *  @param composable The composable UI element that will be within a setting.
  */
 @Composable

@@ -6,6 +6,7 @@ import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.database.Cursor
+import android.os.Build
 import android.os.Environment
 import android.os.FileObserver
 import android.os.IBinder
@@ -67,11 +68,19 @@ class FileScannerService : Service() {
         Log.d(TAG, "Source Package: $sourcePackage")
         Log.d(TAG, "Destination Folder: $destinationFolder")
 
-        startForeground(
-            NotificationIds.FOREGROUND_SERVICE.id,
-            buildNotification(),
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(
+                NotificationIds.FOREGROUND_SERVICE.id,
+                buildNotification(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+            )
+        } else {
+            startForeground(
+                NotificationIds.FOREGROUND_SERVICE.id,
+                buildNotification()
+            )
+        }
+
         Log.d(TAG, "Started foreground service")
 
         fileObserver?.startWatching()
