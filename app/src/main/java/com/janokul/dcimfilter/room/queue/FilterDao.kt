@@ -27,6 +27,17 @@ interface FilterDao {
         return entry
     }
 
+    @Transaction
+    @Query("SELECT * FROM FilterTarget WHERE uriId = :uriId")
+    suspend fun getByUriId(uriId: Long): FilterTarget
+
+    @Transaction
+    suspend fun claimByUriId(uriId: Long): FilterTarget? {
+        val entry = getByUriId(uriId)
+        deleteFilterTarget(entry)
+        return entry
+    }
+
     /**
      *  Used to get the first entry in the queue.
      */

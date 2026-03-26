@@ -17,10 +17,12 @@ import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.janokul.dcimfilter.NotificationIds
 import com.janokul.dcimfilter.PREFS_DESTINATION_FOLDER
 import com.janokul.dcimfilter.PREFS_SOURCE_PACKAGE
 import com.janokul.dcimfilter.R
+import com.janokul.dcimfilter.WORK_DATA_ID
 import com.janokul.dcimfilter.WorkerIds
 import com.janokul.dcimfilter.filtering.workers.SingleFileMoverWorker
 import com.janokul.dcimfilter.room.FilterDB
@@ -128,7 +130,7 @@ class FileScannerService : Service() {
                 )
             )
             Log.d(TAG, "Enqueued: $name")
-            createWork()
+            createWork(fileInfo.id)
         }
     }
 
@@ -211,7 +213,7 @@ class FileScannerService : Service() {
     /**
      * Creates a work request to process a single file in the Room queue.
      */
-    private fun createWork() {
+    private fun createWork(id: Long) {
         val manager = WorkManager.getInstance(applicationContext)
         val work = OneTimeWorkRequestBuilder<SingleFileMoverWorker>()
             .setConstraints(
@@ -220,11 +222,12 @@ class FileScannerService : Service() {
                     .setRequiresStorageNotLow(true)
                     .build()
             )
+            .setInputData(workDataOf(WORK_DATA_ID to id))
             .build()
 
         manager.enqueueUniqueWork(
             WorkerIds.SINGLE.id,
-            ExistingWorkPolicy.APPEND,
+            ExistingWorkPolicy.KEEP,
             work
         )
     }

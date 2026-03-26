@@ -10,6 +10,7 @@ import androidx.work.workDataOf
 import com.janokul.dcimfilter.NOTIFICATION_CHANNEL
 import com.janokul.dcimfilter.NotificationIds
 import com.janokul.dcimfilter.R
+import com.janokul.dcimfilter.room.queue.FilterTarget
 import kotlinx.coroutines.delay
 
 private const val TAG = "BatchFileMoverWorker"
@@ -19,6 +20,7 @@ class BatchFileMoverWorker(
     params: WorkerParameters
 ) : FileMoverWorker(context, params, TAG) {
     override suspend fun doWork(): Result {
+        delay(500)
         val filesToMove = filterDao.getCount() // For UI
 
         setProgress(
@@ -45,6 +47,10 @@ class BatchFileMoverWorker(
         }
 
         return Result.success()
+    }
+
+    override suspend fun getEntry(): FilterTarget? {
+        return filterDao.claimNext()
     }
 
     private suspend fun updateNotification(current: Int, total: Int) {

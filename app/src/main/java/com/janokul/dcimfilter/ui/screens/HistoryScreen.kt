@@ -4,6 +4,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.provider.MediaStore
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -49,6 +50,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+private const val TAG = "HistoryScreen"
 @Composable
 fun HistoryScreen(navController: NavController) {
     val context = LocalContext.current
@@ -178,5 +180,9 @@ private fun openMedia(context: Context, id: Long, mime: String) {
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         }
 
-    context.startActivity(intent)
+    try {
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        Log.d(TAG, "Failed to open $id, reason: $e")
+    }
 }
