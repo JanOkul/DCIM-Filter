@@ -20,7 +20,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,14 +33,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.dcimfilter.NavNames
 import com.example.dcimfilter.R
 import com.example.dcimfilter.filtering.scanners.FileScannerService
 import com.example.dcimfilter.settings.SettingsViewModel
 import com.example.dcimfilter.ui.components.misc.AppSettings
 import kotlinx.coroutines.delay
 
-val subtitleStyle = Typography().titleSmall
-val descriptionStyle = Typography().bodySmall
 const val TAG = "Settings"
 
 /**
@@ -90,13 +88,10 @@ private fun SettingsContent(
     navController: NavController,
     settings: AppSettings
 ) {
-    val title = stringResource(R.string.settings_title)
-
-
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                title,
+                stringResource(R.string.settings_title),
                 style = MaterialTheme.typography.titleMedium)
 
             IsOnSetting(viewModel, settings)
@@ -113,10 +108,8 @@ private fun SettingsContent(
  */
 @Composable
 private fun IsOnSetting(viewModel: SettingsViewModel, settings: AppSettings) {
-    val subtitle = stringResource(R.string.settings_on_off_subtitle)
-    val description = stringResource(R.string.settings_on_off_description)
-    val hint = stringResource(R.string.settings_on_off_hint)
     val canEnable = settings.selectedPackage.isNotBlank() && settings.destinationFolder.isNotBlank()
+    val hint = if (!canEnable) stringResource(R.string.settings_state_hint) else ""
 
     val switch = @Composable {
         Switch(
@@ -139,9 +132,12 @@ private fun IsOnSetting(viewModel: SettingsViewModel, settings: AppSettings) {
 
     SettingsComponent {
         Column(Modifier.weight(1f)) {
-            Text(subtitle, style = subtitleStyle)
-            Text("$description ${if (!canEnable) hint else ""}",
-                style = descriptionStyle,
+            Text(stringResource(R.string.settings_state_subtitle),
+                style = MaterialTheme.typography.titleSmall
+            )
+            Text(
+                stringResource(R.string.settings_state_description) + " " + hint,
+                style = MaterialTheme.typography.bodySmall,
                 color = if (!canEnable && ! settings.isOn) MaterialTheme.colorScheme.error else Color.Unspecified
             )
         }
@@ -161,18 +157,17 @@ private fun SourcePackageSetting(
     navController: NavController,
     settings: AppSettings
 ) {
-    val subtitle = stringResource(R.string.settings_source_package_subtitle)
-    val description = stringResource(R.string.settings_source_package_description)
-    val hint = stringResource(R.string.settings_source_package_hint)
-    val buttonName = stringResource(R.string.settings_source_package_button_name)
-    val currentPackage = stringResource(R.string.settings_source_package_current_package)
     val isBlank = settings.selectedPackage.isBlank()
+    val hint = if (isBlank) stringResource(R.string.settings_package_hint) else ""
 
     SettingsComponent {
         Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-            Text(subtitle, style = subtitleStyle)
-            Text("$description ${if (isBlank) hint else ""}",
-                style = descriptionStyle,
+            Text(stringResource(R.string.settings_package_subtitle),
+                style = MaterialTheme.typography.titleSmall
+            )
+
+            Text(stringResource(R.string.settings_package_description) + " " + hint,
+                style = MaterialTheme.typography.bodySmall,
                 color = if (isBlank) MaterialTheme.colorScheme.error else Color.Unspecified
             )
 
@@ -183,17 +178,17 @@ private fun SourcePackageSetting(
                 onValueChange = {},
                 readOnly = true,
                 enabled = !settings.isOn,
-                label = { Text(currentPackage) }
+                label = { Text(stringResource(R.string.settings_current_package)) }
             )
 
             Spacer(modifier = Modifier.size(8.dp))
 
             FilledTonalButton (
-                onClick = { navController.navigate("package_select") },
+                onClick = { navController.navigate(NavNames.PACKAGE_SELECT.id) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !settings.isOn
             ) {
-                Text(buttonName)
+                Text(stringResource(R.string.settings_package_button))
             }
 
         }
@@ -210,12 +205,9 @@ private fun DestinationFolderSetting(
     viewModel: SettingsViewModel,
     settings: AppSettings
 ) {
-    val subtitle = stringResource(R.string.settings_destination_subtitle)
-    val description = stringResource(R.string.settings_destination_description)
-    val hint = stringResource(R.string.settings_destination_hint)
-    val currentDestination = stringResource(R.string.settings_current_destination_uri)
     var text by remember(settings.destinationFolder) { mutableStateOf(settings.destinationFolder) }
     val isBlank = settings.destinationFolder.isBlank()
+    val hint = if (isBlank) stringResource(R.string.settings_destination_hint) else ""
 
     LaunchedEffect(text) {
         if (text != settings.destinationFolder) {
@@ -227,9 +219,10 @@ private fun DestinationFolderSetting(
 
     SettingsComponent {
         Column {
-            Text(subtitle, style = subtitleStyle)
-            Text("$description ${if (isBlank) hint else ""}",
-                style = descriptionStyle,
+            Text(stringResource(R.string.settings_destination_subtitle), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.settings_destination_description, settings.destinationFolder, settings.destinationFolder) +
+                    " " + hint,
+                style = MaterialTheme.typography.bodySmall,
                 color = if (isBlank) MaterialTheme.colorScheme.error else Color.Unspecified
             )
 
@@ -239,7 +232,7 @@ private fun DestinationFolderSetting(
                 value = text,
                 onValueChange = { text = it },
                 enabled = !settings.isOn,
-                label = { Text(currentDestination) }
+                label = { Text(stringResource(R.string.settings_current_destination)) }
             )
         }
     }

@@ -1,38 +1,56 @@
 <resources>
+    <!-- App Bar -->
     <string name="app_name">DCIM Filter</string>
+    <string name="history_name">History</string>
+    <string name="package_select_name">Select A Package</string>
+    <string name="primary_content_description">Takes you to the history page.</string>
+    <string name="secondary_content_description">Takes you back to the previous page.</string>
 
-    <string name="batch_filter_subtitle">Filter Entire Folder</string>
-    <string name="batch_filter_description">Batch filter the DCIM file, for use after install or after pausing operation.</string>
-    <string name="batch_filter_button_name">Filter</string>
+    <!-- Filter card -->
+    <string name="filter_subtitle">Filter Entire Folder</string>
+    <string name="filter_description">Batch filter the DCIM/Camera/ folder, for use after install or after pausing operation.</string>
+    <string name="filter_button">Filter</string>
+    <string name="filter_toast">Filtering Complete!</string>
 
+    <!-- Settings card -->
     <string name="settings_title">Settings</string>
-    <string name="settings_on_off_subtitle">On/Off</string>
-    <string name="settings_on_off_description">Turn the automatic filtering on and off.</string>
-    <string name="settings_on_off_hint">(Please select a source package and destination folder to enable service)</string>
 
-    <string name="settings_source_package_subtitle">Source Package</string>
-    <string name="settings_source_package_description">The app you want to filter out from DCIM.</string>
-    <string name="settings_source_package_hint">(Please select a source package)</string>
-    <string name="settings_source_package_button_name">Select Package"</string>
-    <string name="settings_source_package_current_package">Current Package"</string>
+    <!-- Enable disable -->
+    <string name="settings_state_subtitle">On/Off</string>
+    <string name="settings_state_description">Turn the automatic filtering on and off.</string>
+    <string name="settings_state_hint">(Please select a source package and destination folder to enable service)</string>
 
+    <!-- Source package -->
+    <string name="settings_package_subtitle">Source Package</string>
+    <string name="settings_package_description">The package producing media that should be filtered out of DCIM/Camera/.</string>
+    <string name="settings_package_hint">(Please select a source package)</string>
+    <string name="settings_package_button">Select Package</string>
+    <string name="settings_current_package">Current Package</string>
 
-    <string name="settings_destination_subtitle">Destination Folder</string>
-    <string name="settings_destination_description">The destination folder of where filtered files are moved to.</string>
+    <!-- Destination folder -->
+    <string name="settings_destination_subtitle">Destination Subfolder</string>
+    <string name="settings_destination_description" formatted="true">The destination subfolder of where filtered files are moved to. Videos are moved to Movies/%s and Images are moved to Pictures/%s.</string>
     <string name="settings_destination_hint">(Please type in a destination folder)</string>
-    <string name="settings_destination_button_name">Select Folder</string>
-    <string name="settings_current_destination_uri">Current Folder:</string>
+    <string name="settings_destination_button">Select Folder</string>
+    <string name="settings_current_destination">Current Folder:</string>
 
+    <!-- History -->
+    <string name="history_empty">Nothing logged yet</string>
+    <string name="history_description">File moved to </string>
 
-    <string name="notification_channel_id">FOREGROUND_SERVICE_CHANNEL</string>
+    <!-- Notifications -->
     <string name="notification_channel_name">DCIM Filter</string>
     <string name="foreground_notification_text">Watching DCIM folder</string>
     <string name="foreground_notification_title">DCIM Filter</string>
 
+    <!-- Permission dialogues-->
     <string name="permission_storage_title">Storage Access Required</string>
     <string name="permission_storage_description">DCIM Filter needs full access to your files to gain permission to filter out your files without your input.</string>
     <string name="permission_battery_title">Disable Battery Optimisation</string>
     <string name="permission_battery_description">DCIM Filter needs battery optimisation disabled to work effectively.</string>
     <string name="permission_cancel">Cancel</string>
     <string name="permission_ok">Settings</string>
+
+    <string name="no_storage_title">Storage Access Required</string>
+    <string name="no_storage_description">Please restart app and enable full storage access</string>
 </resources>

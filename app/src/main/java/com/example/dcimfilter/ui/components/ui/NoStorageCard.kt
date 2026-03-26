@@ -11,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.dcimfilter.R
 
 @Composable
 fun NoStorageAccessCard(innerPadding: PaddingValues) {
@@ -30,11 +32,11 @@ fun NoStorageAccessCard(innerPadding: PaddingValues) {
         ) {
             Column (modifier = Modifier.padding(16.dp)) {
                 Text(
-                    "Storage Access Required",
+                    stringResource(R.string.no_storage_title),
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    "Please restart app and enable full storage access",
+                    stringResource(R.string.no_storage_description),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

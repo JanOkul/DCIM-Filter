@@ -43,8 +43,8 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun FilterCard(viewModel: SettingsViewModel, settings: AppSettings) {
-    val subtitle = stringResource(R.string.batch_filter_subtitle)
-    val description = stringResource(R.string.batch_filter_description)
+    val subtitle = stringResource(R.string.filter_subtitle)
+    val description = stringResource(R.string.filter_description)
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -63,7 +63,6 @@ fun FilterCard(viewModel: SettingsViewModel, settings: AppSettings) {
 private fun FilterButtonAndProgress(viewModel: SettingsViewModel, settings: AppSettings) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val buttonName = stringResource(R.string.batch_filter_button_name)
     val workInfo = WorkManager.getInstance(context)
         .getWorkInfosForUniqueWorkLiveData("batch_file_move")
         .observeAsState().value?.firstOrNull()
@@ -71,12 +70,13 @@ private fun FilterButtonAndProgress(viewModel: SettingsViewModel, settings: AppS
     var wasFiltering by remember {mutableStateOf(false)}
     val filesToMove = workInfo?.progress?.getInt("files_to_move", 0)
     val canEnable = !filteringInProgress && settings.selectedPackage.isNotBlank() && settings.destinationFolder.isNotBlank()
+    val toastText = stringResource(R.string.filter_toast)
 
     LaunchedEffect(filteringInProgress) {
         if (wasFiltering && !filteringInProgress) {
             Toast.makeText(
                 context,
-                "Filtering Complete",
+                toastText,
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -96,7 +96,7 @@ private fun FilterButtonAndProgress(viewModel: SettingsViewModel, settings: AppS
                 }
             }
         ) {
-            Text(buttonName)
+            Text(stringResource(R.string.filter_button))
         }
 
         if (filesToMove != null) {
@@ -120,24 +120,3 @@ private suspend fun filterOnClick(context: Context, settings: AppSettings, viewM
     // Reset file service state to what it was before
     viewModel.setIsEnabled(previousServiceState)
 }
-
-/**
- * {
- *             scope.launch(Dispatchers.IO) {
- *                 filteringInProgress = true
- *                 val prevState = viewModel.isEnabled.first()
- *                 viewModel.setIsEnabled(false)
- *                 BatchScanner(context, settings.selectedPackage, settings.destinationFolder).batchFilter()
- *                 viewModel.setIsEnabled(prevState)
- *                 filteringInProgress = false
- *
- *                 withContext(Dispatchers.Main) {
- *                     Toast.makeText(context,
- *                         "Batch filtering complete",
- *                         Toast.LENGTH_LONG
- *                     ).show()
- *                 }
- *             }
- *
- *         }
- */

@@ -7,6 +7,8 @@ import androidx.core.app.NotificationCompat
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.example.dcimfilter.NOTIFICATION_CHANNEL
+import com.example.dcimfilter.NotificationIds
 import com.example.dcimfilter.R
 import kotlinx.coroutines.delay
 
@@ -25,9 +27,7 @@ class BatchFileMoverWorker(
         ))
 
         // Give illusion of work as it seems too quick on low file counts.
-        if (filesToMove >= 0) {
-            delay(500)
-        }
+        delay(500)
 
         var filesMoved = 0
 
@@ -46,16 +46,17 @@ class BatchFileMoverWorker(
     }
 
     private suspend fun updateNotification(current: Int, total: Int) {
+        val notification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
+            .setContentTitle("Filtering Files")
+            .setContentText("$current / $total")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setProgress(total, current, false)
+            .setOngoing(true)
+
         setForeground(
             ForegroundInfo(
-                2,
-                NotificationCompat.Builder(applicationContext,context.getString(R.string.notification_channel_id))
-                    .setContentTitle("Filtering Files")
-                    .setContentText("$current / $total")
-                    .setSmallIcon(R.drawable.ic_launcher_foreground)
-                    .setProgress(total, current, false)
-                    .setOngoing(true)
-                    .build(),
+                NotificationIds.BATCH_SCANNER.id,
+                notification.build(),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         )

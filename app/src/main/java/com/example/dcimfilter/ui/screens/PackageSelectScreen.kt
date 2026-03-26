@@ -35,16 +35,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.dcimfilter.R
 import com.example.dcimfilter.settings.SettingsViewModel
 import com.example.dcimfilter.ui.components.ui.SecondaryAppBar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-const val TAG = "Settings"
+private const val TAG = "Package Select"
 data class AppItemInfo(val label: String, val packageName: String, val version: String?, val icon: ImageBitmap)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +67,7 @@ fun PackageSelectScreen(navController: NavController, viewModel: SettingsViewMod
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { SecondaryAppBar(navController, "Select A Package") }
+        topBar = { SecondaryAppBar(navController, stringResource(R.string.package_select_name)) }
     ) { innerPadding ->
         if (!loaded) {
             Box(

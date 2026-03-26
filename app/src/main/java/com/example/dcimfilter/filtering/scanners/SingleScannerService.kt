@@ -16,6 +16,7 @@ import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.dcimfilter.NotificationIds
 import com.example.dcimfilter.R
 import com.example.dcimfilter.filtering.workers.SingleFileMoverWorker
 import com.example.dcimfilter.room.FilterDB
@@ -66,7 +67,7 @@ class FileScannerService : Service() {
         Log.d(TAG, "Destination Folder: $destinationFolder")
 
         startForeground(
-            1,
+            NotificationIds.FOREGROUND_SERVICE.id,
             buildNotification(),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
@@ -179,7 +180,7 @@ class FileScannerService : Service() {
      *  Builds notification so that the service is considered a foreground service.
      */
     private fun buildNotification(): Notification {
-        val channelId = getString(R.string.notification_channel_id)
+        val channelId = "DCIM_FILTER_CHANNEL"
         val title = getString(R.string.foreground_notification_title)
         val text = getString(R.string.foreground_notification_text)
 

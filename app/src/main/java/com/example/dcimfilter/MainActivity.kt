@@ -9,13 +9,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.lifecycle.viewmodel.compose.viewModel
-
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.EaseOutQuart
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.dcimfilter.room.history.History
-import com.example.dcimfilter.settings.SettingsViewModel
 import com.example.dcimfilter.ui.screens.HistoryScreen
 import com.example.dcimfilter.ui.screens.MainScreen
 import com.example.dcimfilter.ui.screens.PackageSelectScreen
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity () {
     }
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
-            getString(R.string.notification_channel_id),
+            NOTIFICATION_CHANNEL,
             getString(R.string.notification_channel_name),
             NotificationManager.IMPORTANCE_LOW
         )
@@ -54,10 +55,38 @@ class MainActivity : ComponentActivity () {
         setContent {
             DCIMFilterTheme {
                 val navController = rememberNavController()
-                NavHost(navController = navController, startDestination = "main") {
-                    composable("main") { MainScreen(navController) }
-                    composable("package_select" ){ PackageSelectScreen(navController) }
-                    composable("history") { HistoryScreen(navController) }
+                NavHost(
+                    navController = navController,
+                    startDestination = NavNames.MAIN.id,
+
+                    // Animation
+                    enterTransition = {
+                        slideInHorizontally(
+                            animationSpec = tween(300, easing = EaseOutQuart),
+                            initialOffsetX = { it })
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            animationSpec = tween(300, easing = EaseOutQuart),
+                            targetOffsetX = { -it / 3 })
+                    },
+                    popEnterTransition = {
+                        slideInHorizontally(
+                            animationSpec = tween(
+                                300,
+                                easing = EaseOutQuart
+                            ), initialOffsetX = { -it / 3 })
+                    },
+                    popExitTransition = {
+                        slideOutHorizontally(
+                            animationSpec = tween(300, easing = EaseOutQuart),
+                            targetOffsetX = { it })
+                    }
+
+                ) {
+                    composable(NavNames.MAIN.id) { MainScreen(navController) }
+                    composable(NavNames.PACKAGE_SELECT.id ) { PackageSelectScreen(navController) }
+                    composable(NavNames.HISTORY.id) { HistoryScreen(navController) }
                 }
             }
         }

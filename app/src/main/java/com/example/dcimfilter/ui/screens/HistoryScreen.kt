@@ -15,10 +15,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HistoryToggleOff
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -27,18 +27,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import com.example.dcimfilter.R
 import com.example.dcimfilter.room.FilterDB
 import com.example.dcimfilter.room.history.History
 import com.example.dcimfilter.ui.components.misc.HistoryViewModel
@@ -55,7 +56,8 @@ fun HistoryScreen(navController: NavController) {
     val dao = FilterDB.getInstance(context).historyDao
     val viewModel: HistoryViewModel = viewModel(factory = HistoryViewModel.factory(dao))
     val historyItems = viewModel.historyPaged.collectAsLazyPagingItems()
-    var totalItems by remember { mutableIntStateOf(0) };
+    var totalItems by remember { mutableIntStateOf(0) }
+
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             totalItems = dao.getCount()
@@ -64,7 +66,7 @@ fun HistoryScreen(navController: NavController) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { SecondaryAppBar(navController, "History") }
+        topBar = { SecondaryAppBar(navController, stringResource(R.string.history_name)) }
     ) { innerPadding ->
         HistoryContent(innerPadding, historyItems, totalItems)
     }
@@ -99,8 +101,6 @@ fun HistoryCardNotEmpty(historyItems: LazyPagingItems<History>) {
         }
     }
 }
-
-
 @Composable
 fun HistoryCardEmpty() {
     Column(
@@ -112,13 +112,13 @@ fun HistoryCardEmpty() {
     ) {
         Icon(
             Icons.Default.HistoryToggleOff,
-            contentDescription = "No history log icon.",
+            contentDescription = null,
             Modifier.size(32.dp)
             )
 
         Spacer(Modifier.size(8.dp))
         Text(
-            "Nothing logged yet",
+            stringResource(R.string.history_empty),
             style = MaterialTheme.typography.titleLarge
         )
     }
@@ -138,7 +138,7 @@ fun HistoryItem(item: History) {
 
             Row {
                 Text(
-                    "File moved to ${item.movedTo}",
+                    stringResource(R.string.history_description) + item.movedTo,
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -167,7 +167,9 @@ private fun openMedia(context: Context, id: Long, mime: String) {
             id
         ),
         mime
-        )
+        ).apply {
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
 
     context.startActivity(intent)
 }

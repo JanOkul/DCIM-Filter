@@ -12,6 +12,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.example.dcimfilter.NavNames
 import com.example.dcimfilter.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -21,10 +22,10 @@ fun PrimaryAppBar(navController: NavController) {
     TopAppBar(
         title = { Text(appName, style = MaterialTheme.typography.titleLarge) },
         actions = {
-            IconButton( onClick = { navController.navigate("history") }) {
+            IconButton( onClick = { navController.navigate(NavNames.HISTORY.id) }) {
                 Icon(
                     Icons.Default.History,
-                    contentDescription = "Takes you to the history page."
+                    contentDescription = stringResource(R.string.primary_content_description)
                 )
             }
         }
@@ -40,7 +41,7 @@ fun SecondaryAppBar(navController: NavController, appName: String = stringResour
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Takes you back to the previous page."
+                    contentDescription = stringResource(R.string.secondary_content_description)
                 )
             }
         }
