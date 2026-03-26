@@ -22,8 +22,8 @@ import com.janokul.dcimfilter.NotificationIds
 import com.janokul.dcimfilter.PREFS_DESTINATION_FOLDER
 import com.janokul.dcimfilter.PREFS_SOURCE_PACKAGE
 import com.janokul.dcimfilter.R
+import com.janokul.dcimfilter.WORKER_ID
 import com.janokul.dcimfilter.WORK_DATA_ID
-import com.janokul.dcimfilter.WorkerIds
 import com.janokul.dcimfilter.filtering.workers.SingleFileMoverWorker
 import com.janokul.dcimfilter.room.FilterDB
 import com.janokul.dcimfilter.room.queue.FilterTarget
@@ -226,7 +226,7 @@ class FileScannerService : Service() {
             .build()
 
         manager.enqueueUniqueWork(
-            WorkerIds.SINGLE.id,
+            WORKER_ID,
             ExistingWorkPolicy.KEEP,
             work
         )

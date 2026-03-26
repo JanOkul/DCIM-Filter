@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.janokul.dcimfilter.R
+import com.janokul.dcimfilter.WORKER_ID
 import com.janokul.dcimfilter.filtering.scanners.BatchScanner
 import com.janokul.dcimfilter.settings.SettingsViewModel
 import com.janokul.dcimfilter.ui.components.misc.AppSettings
@@ -63,7 +64,7 @@ fun FilterCard(viewModel: SettingsViewModel, settings: AppSettings) {
 private fun FilterButtonAndProgress(viewModel: SettingsViewModel, settings: AppSettings) {
     val context = LocalContext.current
     val workInfo = WorkManager.getInstance(context)
-        .getWorkInfosForUniqueWorkLiveData("batch_file_move")
+        .getWorkInfosForUniqueWorkLiveData(WORKER_ID)
         .observeAsState().value?.firstOrNull()
     val filteringInProgress = workInfo?.state == WorkInfo.State.RUNNING
 

@@ -9,7 +9,7 @@ import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import com.janokul.dcimfilter.WorkerIds
+import com.janokul.dcimfilter.WORKER_ID
 import com.janokul.dcimfilter.filtering.workers.BatchFileMoverWorker
 import com.janokul.dcimfilter.room.FilterDB
 import com.janokul.dcimfilter.room.queue.FilterTarget
@@ -107,7 +107,7 @@ class BatchScanner(
         ).build()
 
         workManager.enqueueUniqueWork(
-            WorkerIds.BATCH.id, ExistingWorkPolicy.REPLACE, work
+            WORKER_ID, ExistingWorkPolicy.REPLACE, work
         )
     }
 }

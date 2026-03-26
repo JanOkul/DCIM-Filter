@@ -30,9 +30,6 @@ class BatchFileMoverWorker(
             )
         )
 
-        // Give illusion of work as it seems too quick on low file counts.
-        delay(500)
-
         var filesMoved = 0
 
         if (filesToMove >= 20) {
