@@ -17,7 +17,10 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.dcimfilter.NotificationIds
+import com.example.dcimfilter.PREFS_DESTINATION_FOLDER
+import com.example.dcimfilter.PREFS_SOURCE_PACKAGE
 import com.example.dcimfilter.R
+import com.example.dcimfilter.WorkerIds
 import com.example.dcimfilter.filtering.workers.SingleFileMoverWorker
 import com.example.dcimfilter.room.FilterDB
 import com.example.dcimfilter.room.queue.FilterTarget
@@ -26,10 +29,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.io.File
 
 private const val TAG = "SingleScannerService"
-
 
 
 class FileScannerService : Service() {
@@ -37,7 +38,7 @@ class FileScannerService : Service() {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val relativePath = "${Environment.DIRECTORY_DCIM}/Camera/"
     private var fileObserver: FileObserver? = DcimObserver(this::enqueueFile)
-    private lateinit var selectedPackage: String
+    private lateinit var sourcePackage: String
     private lateinit var destinationFolder: String
 
     /**
@@ -50,20 +51,20 @@ class FileScannerService : Service() {
         }
 
         // Get selected package setting, if null stop service.
-        selectedPackage = intent.getStringExtra("selectedPackage") ?: run {
+        sourcePackage = intent.getStringExtra(PREFS_SOURCE_PACKAGE) ?: run {
             stopSelf()
-            Log.d(TAG, "Selected Package is null, stopping service")
+            Log.d(TAG, "Source Package is null, stopping service")
             return START_NOT_STICKY
         }
 
         // Get destination folder setting, if null stop service.
-        destinationFolder = intent.getStringExtra("destinationFolder") ?: run {
+        destinationFolder = intent.getStringExtra(PREFS_DESTINATION_FOLDER) ?: run {
             stopSelf()
             Log.d(TAG, "Destination Folder is null, stopping service")
             return START_NOT_STICKY
         }
 
-        Log.d(TAG, "Selected Package: $selectedPackage")
+        Log.d(TAG, "Source Package: $sourcePackage")
         Log.d(TAG, "Destination Folder: $destinationFolder")
 
         startForeground(
@@ -102,19 +103,21 @@ class FileScannerService : Service() {
 
         val fileInfo = getFileInfo(name) ?: return
         // Check if file owner is source app.
-        if (fileInfo.owner != selectedPackage) {
+        if (fileInfo.owner != sourcePackage) {
             Log.d(TAG, "The owner of $name is not the source app, owner: $fileInfo")
             return
         }
 
         // Insert into Room queue.
         scope.launch {
-            dao.insertFilterTarget(FilterTarget(
-                name = name,
-                uriId = fileInfo.id,
-                mimeType = fileInfo.mimeType,
-                destinationFolder = destinationFolder
-            ))
+            dao.insertFilterTarget(
+                FilterTarget(
+                    name = name,
+                    uriId = fileInfo.id,
+                    mimeType = fileInfo.mimeType,
+                    destinationFolder = destinationFolder
+                )
+            )
             Log.d(TAG, "Enqueued: $name")
             createWork()
         }
@@ -134,7 +137,8 @@ class FileScannerService : Service() {
 
         // No need to query owner, as null check is still required and also allows for an explicit
         // check that the file is not owned by selected package.
-        val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.RELATIVE_PATH} = ?"
+        val selection =
+            "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.RELATIVE_PATH} = ?"
         val selectionArgs = arrayOf(displayName, relativePath)
 
         val cursor = contentResolver.query(
@@ -210,7 +214,7 @@ class FileScannerService : Service() {
             .build()
 
         manager.enqueueUniqueWork(
-            "single_file_move",
+            WorkerIds.SINGLE.id,
             ExistingWorkPolicy.APPEND,
             work
         )

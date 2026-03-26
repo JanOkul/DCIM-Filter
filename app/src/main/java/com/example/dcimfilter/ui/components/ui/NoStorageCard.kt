@@ -30,7 +30,7 @@ fun NoStorageAccessCard(innerPadding: PaddingValues) {
         Card(
             modifier = Modifier.padding(16.dp)
         ) {
-            Column (modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     stringResource(R.string.no_storage_title),
                     style = MaterialTheme.typography.titleMedium

@@ -9,7 +9,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.EaseOutQuart
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -22,7 +21,7 @@ import com.example.dcimfilter.ui.screens.MainScreen
 import com.example.dcimfilter.ui.screens.PackageSelectScreen
 import com.example.dcimfilter.ui.theme.DCIMFilterTheme
 
-class MainActivity : ComponentActivity () {
+class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -30,6 +29,7 @@ class MainActivity : ComponentActivity () {
             Log.d("MediaStoreTest", "$perm granted: $granted")
         }
     }
+
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL,
@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity () {
 
                 ) {
                     composable(NavNames.MAIN.id) { MainScreen(navController) }
-                    composable(NavNames.PACKAGE_SELECT.id ) { PackageSelectScreen(navController) }
+                    composable(NavNames.PACKAGE_SELECT.id) { PackageSelectScreen(navController) }
                     composable(NavNames.HISTORY.id) { HistoryScreen(navController) }
                 }
             }

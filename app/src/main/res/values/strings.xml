@@ -36,7 +36,7 @@
 
     <!-- History -->
     <string name="history_empty">Nothing logged yet</string>
-    <string name="history_description">File moved to </string>
+    <string name="history_description" formatted="true">File moved to %s</string>
 
     <!-- Notifications -->
     <string name="notification_channel_name">DCIM Filter</string>

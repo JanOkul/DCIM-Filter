@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,7 +46,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 private const val TAG = "Package Select"
-data class AppItemInfo(val label: String, val packageName: String, val version: String?, val icon: ImageBitmap)
+
+data class AppItemInfo(
+    val label: String,
+    val packageName: String,
+    val version: String?,
+    val icon: ImageBitmap
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,9 +77,9 @@ fun PackageSelectScreen(navController: NavController, viewModel: SettingsViewMod
         if (!loaded) {
             Box(
                 Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -92,7 +97,7 @@ fun PackageSelectScreen(navController: NavController, viewModel: SettingsViewMod
 }
 
 @Composable
-fun PackageSelectContent(
+private fun PackageSelectContent(
     context: Context,
     innerPadding: PaddingValues,
     viewModel: SettingsViewModel,
@@ -101,7 +106,8 @@ fun PackageSelectContent(
 ) {
 
     LazyColumn(
-        Modifier.padding(paddingValues = innerPadding)
+        Modifier
+            .padding(paddingValues = innerPadding)
             .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -111,7 +117,8 @@ fun PackageSelectContent(
         ) { item ->
             // Skip any null packages, and also skip self
             if (context.packageName != item.packageName) {
-                AppItem(viewModel,
+                AppItem(
+                    viewModel,
                     navController,
                     item
                 )
@@ -121,17 +128,18 @@ fun PackageSelectContent(
 }
 
 @Composable
-fun AppItem(
+private fun AppItem(
     viewModel: SettingsViewModel,
     navController: NavController,
     item: AppItemInfo
 ) {
     Card {
         Row(
-            Modifier.fillMaxWidth()
+            Modifier
+                .fillMaxWidth()
                 .padding(16.dp)
                 .clickable(onClick = {
-                    viewModel.setSelectedPackage(item.packageName)
+                    viewModel.setSourcePackage(item.packageName)
                     viewModel.setDestinationFolder(item.label)
                     Log.d(TAG, "Selected package: ${item.packageName}")
                     navController.popBackStack()
@@ -165,7 +173,7 @@ private fun getInstalledPackages(packageManager: PackageManager): List<AppItemIn
             it.activityInfo.packageName,
             packageInfo.versionName,
             it.activityInfo.loadIcon(packageManager)
-                .toBitmap(48,48)
+                .toBitmap(48, 48)
                 .asImageBitmap()
         )
     }.distinctBy { it.packageName }

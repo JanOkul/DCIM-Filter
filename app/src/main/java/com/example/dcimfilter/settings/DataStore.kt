@@ -4,13 +4,17 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.dcimfilter.PREFS_DESTINATION_FOLDER
+import com.example.dcimfilter.PREFS_IS_ENABLED
+import com.example.dcimfilter.PREFS_SOURCE_PACKAGE
+import com.example.dcimfilter.USER_PREFS_NAME
 
-val Context.dataStore by preferencesDataStore(name = "settings")
+val Context.dataStore by preferencesDataStore(name = USER_PREFS_NAME)
 
 object PreferencesKeys {
-    val IS_ENABLED = booleanPreferencesKey("is_enabled")
-    val SELECTED_PACKAGE = stringPreferencesKey("selected_package")
-    val DESTINATION_FOLDER = stringPreferencesKey("destination_folder")
+    val IS_ENABLED = booleanPreferencesKey(PREFS_IS_ENABLED)
+    val SOURCE_PACKAGE = stringPreferencesKey(PREFS_SOURCE_PACKAGE)
+    val DESTINATION_FOLDER = stringPreferencesKey(PREFS_DESTINATION_FOLDER)
 }
 
 

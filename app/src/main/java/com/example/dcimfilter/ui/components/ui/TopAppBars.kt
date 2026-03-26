@@ -22,7 +22,7 @@ fun PrimaryAppBar(navController: NavController) {
     TopAppBar(
         title = { Text(appName, style = MaterialTheme.typography.titleLarge) },
         actions = {
-            IconButton( onClick = { navController.navigate(NavNames.HISTORY.id) }) {
+            IconButton(onClick = { navController.navigate(NavNames.HISTORY.id) }) {
                 Icon(
                     Icons.Default.History,
                     contentDescription = stringResource(R.string.primary_content_description)
@@ -34,7 +34,10 @@ fun PrimaryAppBar(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SecondaryAppBar(navController: NavController, appName: String = stringResource(R.string.app_name)) {
+fun SecondaryAppBar(
+    navController: NavController,
+    appName: String = stringResource(R.string.app_name)
+) {
     TopAppBar(
         title = { Text(appName, style = MaterialTheme.typography.titleLarge) },
         navigationIcon = {

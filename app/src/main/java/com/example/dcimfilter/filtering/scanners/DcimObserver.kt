@@ -7,8 +7,9 @@ import java.io.File
 
 private const val TAG = "DCIMObserver"
 
-class DcimObserver(private val handler: (String?) -> Unit
-): FileObserver(dcimFile , CLOSE_WRITE) {
+class DcimObserver(
+    private val handler: (String?) -> Unit
+) : FileObserver(dcimFile, CLOSE_WRITE) {
     companion object {
         private val dcimFile = File(
             Environment.getExternalStoragePublicDirectory(

@@ -16,12 +16,13 @@ import com.example.dcimfilter.room.queue.FilterTarget
     entities = [FilterTarget::class, History::class],
     version = 1
 )
-abstract class FilterDB: RoomDatabase() {
+abstract class FilterDB : RoomDatabase() {
     abstract val filterDao: FilterDao
     abstract val historyDao: HistoryDao
 
     companion object {
-        @Volatile private var INSTANCE: FilterDB? = null
+        @Volatile
+        private var INSTANCE: FilterDB? = null
 
         fun getInstance(context: Context) = INSTANCE ?: Room.databaseBuilder(
             context.applicationContext,

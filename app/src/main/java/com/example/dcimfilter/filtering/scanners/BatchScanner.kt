@@ -9,11 +9,13 @@ import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.dcimfilter.WorkerIds
 import com.example.dcimfilter.filtering.workers.BatchFileMoverWorker
 import com.example.dcimfilter.room.FilterDB
 import com.example.dcimfilter.room.queue.FilterTarget
 
 private const val TAG = "BatchScanner"
+
 class BatchScanner(
     private val context: Context,
     private val owner: String,
@@ -52,19 +54,14 @@ class BatchScanner(
             MediaStore.MediaColumns.OWNER_PACKAGE_NAME,
             MediaStore.MediaColumns.DISPLAY_NAME
         )
-        val selection =
-            "${MediaStore.MediaColumns.RELATIVE_PATH} = ?"
+        val selection = "${MediaStore.MediaColumns.RELATIVE_PATH} = ?"
 
         val selectionArgs = arrayOf(relativePath)
 
         Log.d(TAG, "owner length: ${owner.length}")
 
         val cursor = context.contentResolver.query(
-            MediaStore.Files.getContentUri("external"),
-            projection,
-            selection,
-            selectionArgs,
-            null
+            MediaStore.Files.getContentUri("external"), projection, selection, selectionArgs, null
         )
 
         Log.d(TAG, "Cursor length: ${cursor?.count}")
@@ -91,10 +88,7 @@ class BatchScanner(
                 }
 
                 val result = QueryResult(
-                    owner,
-                    it.getLong(idIndex),
-                    it.getString(mimetypeIndex),
-                    it.getString(nameIndex)
+                    owner, it.getLong(idIndex), it.getString(mimetypeIndex), it.getString(nameIndex)
                 )
 
                 Log.d(TAG, "Query result: $result")
@@ -107,18 +101,13 @@ class BatchScanner(
 
     private fun createWork() {
         val workManager = WorkManager.getInstance(context)
-        val work = OneTimeWorkRequestBuilder<BatchFileMoverWorker>()
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiresBatteryNotLow(true)
-                    .setRequiresStorageNotLow(true)
-                    .build()
-            ).build()
+        val work = OneTimeWorkRequestBuilder<BatchFileMoverWorker>().setConstraints(
+            Constraints.Builder().setRequiresBatteryNotLow(true).setRequiresStorageNotLow(true)
+                .build()
+        ).build()
 
         workManager.enqueueUniqueWork(
-            "batch_file_move",
-            ExistingWorkPolicy.REPLACE,
-            work
+            WorkerIds.BATCH.id, ExistingWorkPolicy.REPLACE, work
         )
     }
 }

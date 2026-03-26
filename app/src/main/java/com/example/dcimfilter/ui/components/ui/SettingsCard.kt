@@ -34,6 +34,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.dcimfilter.NavNames
+import com.example.dcimfilter.PREFS_DESTINATION_FOLDER
+import com.example.dcimfilter.PREFS_SOURCE_PACKAGE
 import com.example.dcimfilter.R
 import com.example.dcimfilter.filtering.scanners.FileScannerService
 import com.example.dcimfilter.settings.SettingsViewModel
@@ -53,15 +55,14 @@ fun SettingsCard(
     navController: NavController,
     settings: AppSettings
 ) {
-
     val context = LocalContext.current
 
     LaunchedEffect(settings.isOn) {
         if (settings.isOn) {
             context.startForegroundService(
                 Intent(context, FileScannerService::class.java)
-                    .putExtra("selectedPackage", settings.selectedPackage)
-                    .putExtra("destinationFolder", settings.destinationFolder)
+                    .putExtra(PREFS_SOURCE_PACKAGE, settings.sourcePackage)
+                    .putExtra(PREFS_DESTINATION_FOLDER, settings.destinationFolder)
             )
         } else {
             context.stopService(
@@ -92,7 +93,8 @@ private fun SettingsContent(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 stringResource(R.string.settings_title),
-                style = MaterialTheme.typography.titleMedium)
+                style = MaterialTheme.typography.titleMedium
+            )
 
             IsOnSetting(viewModel, settings)
             SourcePackageSetting(viewModel, navController, settings)
@@ -108,7 +110,7 @@ private fun SettingsContent(
  */
 @Composable
 private fun IsOnSetting(viewModel: SettingsViewModel, settings: AppSettings) {
-    val canEnable = settings.selectedPackage.isNotBlank() && settings.destinationFolder.isNotBlank()
+    val canEnable = settings.sourcePackage.isNotBlank() && settings.destinationFolder.isNotBlank()
     val hint = if (!canEnable) stringResource(R.string.settings_state_hint) else ""
 
     val switch = @Composable {
@@ -132,13 +134,14 @@ private fun IsOnSetting(viewModel: SettingsViewModel, settings: AppSettings) {
 
     SettingsComponent {
         Column(Modifier.weight(1f)) {
-            Text(stringResource(R.string.settings_state_subtitle),
+            Text(
+                stringResource(R.string.settings_state_subtitle),
                 style = MaterialTheme.typography.titleSmall
             )
             Text(
                 stringResource(R.string.settings_state_description) + " " + hint,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (!canEnable && ! settings.isOn) MaterialTheme.colorScheme.error else Color.Unspecified
+                color = if (!canEnable && !settings.isOn) MaterialTheme.colorScheme.error else Color.Unspecified
             )
         }
 
@@ -157,16 +160,18 @@ private fun SourcePackageSetting(
     navController: NavController,
     settings: AppSettings
 ) {
-    val isBlank = settings.selectedPackage.isBlank()
+    val isBlank = settings.sourcePackage.isBlank()
     val hint = if (isBlank) stringResource(R.string.settings_package_hint) else ""
 
     SettingsComponent {
         Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-            Text(stringResource(R.string.settings_package_subtitle),
+            Text(
+                stringResource(R.string.settings_package_subtitle),
                 style = MaterialTheme.typography.titleSmall
             )
 
-            Text(stringResource(R.string.settings_package_description) + " " + hint,
+            Text(
+                stringResource(R.string.settings_package_description) + " " + hint,
                 style = MaterialTheme.typography.bodySmall,
                 color = if (isBlank) MaterialTheme.colorScheme.error else Color.Unspecified
             )
@@ -174,7 +179,7 @@ private fun SourcePackageSetting(
             Spacer(modifier = Modifier.size(8.dp))
 
             OutlinedTextField(
-                value = settings.selectedPackage,
+                value = settings.sourcePackage,
                 onValueChange = {},
                 readOnly = true,
                 enabled = !settings.isOn,
@@ -183,7 +188,7 @@ private fun SourcePackageSetting(
 
             Spacer(modifier = Modifier.size(8.dp))
 
-            FilledTonalButton (
+            FilledTonalButton(
                 onClick = { navController.navigate(NavNames.PACKAGE_SELECT.id) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !settings.isOn
@@ -219,9 +224,17 @@ private fun DestinationFolderSetting(
 
     SettingsComponent {
         Column {
-            Text(stringResource(R.string.settings_destination_subtitle), style = MaterialTheme.typography.titleSmall)
-            Text(stringResource(R.string.settings_destination_description, settings.destinationFolder, settings.destinationFolder) +
-                    " " + hint,
+            Text(
+                stringResource(R.string.settings_destination_subtitle),
+                style = MaterialTheme.typography.titleSmall
+            )
+            Text(
+                stringResource(
+                    R.string.settings_destination_description,
+                    settings.destinationFolder,
+                    settings.destinationFolder
+                ) +
+                        " " + hint,
                 style = MaterialTheme.typography.bodySmall,
                 color = if (isBlank) MaterialTheme.colorScheme.error else Color.Unspecified
             )
@@ -245,7 +258,9 @@ private fun DestinationFolderSetting(
 @Composable
 private fun SettingsComponent(composable: @Composable RowScope.() -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         composable()

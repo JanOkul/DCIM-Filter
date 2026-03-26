@@ -17,14 +17,16 @@ private const val TAG = "BatchFileMoverWorker"
 class BatchFileMoverWorker(
     private val context: Context,
     params: WorkerParameters
-): FileMoverWorker(context, params) {
+) : FileMoverWorker(context, params, TAG) {
     override suspend fun doWork(): Result {
         val filesToMove = filterDao.getCount() // For UI
 
-        setProgress(workDataOf(
-            "message" to "Found $filesToMove files to filter",
-            "files_to_move" to filesToMove,
-        ))
+        setProgress(
+            workDataOf(
+                "message" to "Found $filesToMove files to filter",
+                "files_to_move" to filesToMove,
+            )
+        )
 
         // Give illusion of work as it seems too quick on low file counts.
         delay(500)

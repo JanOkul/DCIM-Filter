@@ -33,12 +33,12 @@ import androidx.navigation.NavController
 import com.example.dcimfilter.R
 import com.example.dcimfilter.settings.SettingsViewModel
 import com.example.dcimfilter.ui.components.misc.AppSettings
+import com.example.dcimfilter.ui.components.misc.hasAllFileAccess
+import com.example.dcimfilter.ui.components.misc.hasUnrestrictedBattery
 import com.example.dcimfilter.ui.components.ui.FilterCard
 import com.example.dcimfilter.ui.components.ui.NoStorageAccessCard
 import com.example.dcimfilter.ui.components.ui.PrimaryAppBar
 import com.example.dcimfilter.ui.components.ui.SettingsCard
-import com.example.dcimfilter.ui.components.misc.hasAllFileAccess
-import com.example.dcimfilter.ui.components.misc.hasUnrestrictedBattery
 
 
 /**
@@ -49,18 +49,22 @@ import com.example.dcimfilter.ui.components.misc.hasUnrestrictedBattery
 fun MainScreen(navController: NavController) {
     val viewModel: SettingsViewModel = viewModel()
     val isOn by viewModel.isEnabled.collectAsStateWithLifecycle(initialValue = false)
-    val selectedPackage by viewModel.selectedPackage.collectAsStateWithLifecycle(initialValue = "")
+    val selectedPackage by viewModel.sourcePackage.collectAsStateWithLifecycle(initialValue = "")
     val destinationFolder by viewModel.destinationFolder.collectAsStateWithLifecycle(initialValue = "")
     val settings = AppSettings(isOn, selectedPackage, destinationFolder)
     val context = LocalContext.current
 
-    var allFileAccess by remember { mutableStateOf(
-        hasAllFileAccess()
-    ) }
+    var allFileAccess by remember {
+        mutableStateOf(
+            hasAllFileAccess()
+        )
+    }
 
-    var unrestrictedBattery by remember { mutableStateOf(
-        hasUnrestrictedBattery(context)
-    ) }
+    var unrestrictedBattery by remember {
+        mutableStateOf(
+            hasUnrestrictedBattery(context)
+        )
+    }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         allFileAccess = hasAllFileAccess()
@@ -96,7 +100,7 @@ fun MainScreen(navController: NavController) {
  *  @param innerPadding The padding values for the content
  */
 @Composable
-fun MainBody(
+private fun MainBody(
     innerPadding: PaddingValues,
     navController: NavController,
     viewModel: SettingsViewModel,
@@ -115,7 +119,7 @@ fun MainBody(
 }
 
 @Composable
-fun PowerOptimisationDialog(context: Context, changeDialogState: (Boolean) -> Unit) {
+private fun PowerOptimisationDialog(context: Context, changeDialogState: (Boolean) -> Unit) {
     val title = stringResource(R.string.permission_battery_title)
     val description = stringResource(R.string.permission_battery_description)
     val accept = stringResource(R.string.permission_ok)
@@ -143,7 +147,7 @@ fun PowerOptimisationDialog(context: Context, changeDialogState: (Boolean) -> Un
 }
 
 @Composable
-fun StoragePermissionDialog(context: Context) {
+private fun StoragePermissionDialog(context: Context) {
     val title = stringResource(R.string.permission_storage_title)
     val description = stringResource(R.string.permission_storage_description)
     val accept = stringResource(R.string.permission_ok)

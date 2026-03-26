@@ -62,14 +62,12 @@ fun FilterCard(viewModel: SettingsViewModel, settings: AppSettings) {
 @Composable
 private fun FilterButtonAndProgress(viewModel: SettingsViewModel, settings: AppSettings) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val workInfo = WorkManager.getInstance(context)
         .getWorkInfosForUniqueWorkLiveData("batch_file_move")
         .observeAsState().value?.firstOrNull()
     val filteringInProgress = workInfo?.state == WorkInfo.State.RUNNING
-    var wasFiltering by remember {mutableStateOf(false)}
-    val filesToMove = workInfo?.progress?.getInt("files_to_move", 0)
-    val canEnable = !filteringInProgress && settings.selectedPackage.isNotBlank() && settings.destinationFolder.isNotBlank()
+
+    var wasFiltering by remember { mutableStateOf(false) }
     val toastText = stringResource(R.string.filter_toast)
 
     LaunchedEffect(filteringInProgress) {
@@ -84,10 +82,15 @@ private fun FilterButtonAndProgress(viewModel: SettingsViewModel, settings: AppS
         wasFiltering = filteringInProgress
     }
 
+    val scope = rememberCoroutineScope()
+    val filesToMove = workInfo?.progress?.getInt("files_to_move", 0)
+    val canEnable =
+        !filteringInProgress && settings.sourcePackage.isNotBlank() && settings.destinationFolder.isNotBlank()
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
-        ) {
+    ) {
         FilledTonalButton(
             enabled = canEnable,
             onClick = {
@@ -109,12 +112,16 @@ private fun FilterButtonAndProgress(viewModel: SettingsViewModel, settings: AppS
     }
 }
 
-private suspend fun filterOnClick(context: Context, settings: AppSettings, viewModel: SettingsViewModel) {
+private suspend fun filterOnClick(
+    context: Context,
+    settings: AppSettings,
+    viewModel: SettingsViewModel
+) {
     // Temporarily disable file service
     val previousServiceState = settings.isOn
     viewModel.setIsEnabled(false)
 
-    BatchScanner(context, settings.selectedPackage, settings.destinationFolder)
+    BatchScanner(context, settings.sourcePackage, settings.destinationFolder)
         .batchFilter()
 
     // Reset file service state to what it was before

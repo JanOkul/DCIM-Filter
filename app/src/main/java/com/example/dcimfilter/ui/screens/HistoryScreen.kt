@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HistoryToggleOff
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -73,9 +72,15 @@ fun HistoryScreen(navController: NavController) {
 }
 
 @Composable
-fun HistoryContent(innerPadding: PaddingValues, historyItems: LazyPagingItems<History>, count: Int) {
+private fun HistoryContent(
+    innerPadding: PaddingValues,
+    historyItems: LazyPagingItems<History>,
+    count: Int
+) {
     Column(
-        Modifier.padding(innerPadding).padding(16.dp)
+        Modifier
+            .padding(innerPadding)
+            .padding(16.dp)
     ) {
         if (count > 0) {
             HistoryCardNotEmpty(historyItems)
@@ -86,13 +91,13 @@ fun HistoryContent(innerPadding: PaddingValues, historyItems: LazyPagingItems<Hi
 }
 
 @Composable
-fun HistoryCardNotEmpty(historyItems: LazyPagingItems<History>) {
+private fun HistoryCardNotEmpty(historyItems: LazyPagingItems<History>) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         items(
             count = historyItems.itemCount,
-            key =  historyItems.itemKey { it.id }
+            key = historyItems.itemKey { it.id }
         ) { index ->
             val item = historyItems[index]
             item?.let {
@@ -101,10 +106,12 @@ fun HistoryCardNotEmpty(historyItems: LazyPagingItems<History>) {
         }
     }
 }
+
 @Composable
-fun HistoryCardEmpty() {
+private fun HistoryCardEmpty() {
     Column(
-        Modifier.fillMaxWidth()
+        Modifier
+            .fillMaxWidth()
             .fillMaxHeight()
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -114,7 +121,7 @@ fun HistoryCardEmpty() {
             Icons.Default.HistoryToggleOff,
             contentDescription = null,
             Modifier.size(32.dp)
-            )
+        )
 
         Spacer(Modifier.size(8.dp))
         Text(
@@ -125,7 +132,7 @@ fun HistoryCardEmpty() {
 }
 
 @Composable
-fun HistoryItem(item: History) {
+private fun HistoryItem(item: History) {
     val context = LocalContext.current
 
     Card(
@@ -138,7 +145,7 @@ fun HistoryItem(item: History) {
 
             Row {
                 Text(
-                    stringResource(R.string.history_description) + item.movedTo,
+                    stringResource(R.string.history_description, item.movedTo),
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -151,7 +158,7 @@ fun HistoryItem(item: History) {
     }
 }
 
-fun formatTimestamp(timestamp: Long): String {
+private fun formatTimestamp(timestamp: Long): String {
     val formatter: DateTimeFormatter? = DateTimeFormatter
         .ofPattern("dd/MM/yy HH:mm:ss")
         .withZone(ZoneId.systemDefault())
@@ -163,10 +170,10 @@ private fun openMedia(context: Context, id: Long, mime: String) {
     val intent = Intent(Intent.ACTION_VIEW)
         .setDataAndType(
             ContentUris.withAppendedId(
-            MediaStore.Files.getContentUri("external"),
-            id
-        ),
-        mime
+                MediaStore.Files.getContentUri("external"),
+                id
+            ),
+            mime
         ).apply {
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         }
