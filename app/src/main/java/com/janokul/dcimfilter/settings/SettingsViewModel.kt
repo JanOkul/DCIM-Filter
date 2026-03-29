@@ -1,8 +1,14 @@
 package com.janokul.dcimfilter.settings
 
 import android.app.Application
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.janokul.dcimfilter.PREFS_DESTINATION_FOLDER
+import com.janokul.dcimfilter.PREFS_SOURCE_PACKAGE
+import com.janokul.dcimfilter.filtering.scanners.FileScannerService
+import com.janokul.dcimfilter.ui.components.misc.AppSettings
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(app: Application) : AndroidViewModel(app) {
@@ -16,4 +22,18 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setSourcePackage(value: String) = viewModelScope.launch { repo.setSourcePackage(value) }
     fun setDestinationFolder(value: String) =
         viewModelScope.launch { repo.setDestinationFolder(value) }
+
+    fun updateServiceState(context: Context, settings: AppSettings) {
+        setIsEnabled(settings.isOn)
+
+        val intent = Intent(context, FileScannerService::class.java)
+
+        if (settings.isOn) {
+            context.startForegroundService(intent
+                .putExtra(PREFS_SOURCE_PACKAGE, settings.sourcePackage)
+                .putExtra(PREFS_DESTINATION_FOLDER, settings.destinationFolder))
+        } else {
+            context.stopService(intent)
+        }
+    }
 }

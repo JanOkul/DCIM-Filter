@@ -1,6 +1,5 @@
 package com.janokul.dcimfilter.ui.components.ui
 
-import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,10 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.janokul.dcimfilter.NavNames
-import com.janokul.dcimfilter.PREFS_DESTINATION_FOLDER
-import com.janokul.dcimfilter.PREFS_SOURCE_PACKAGE
 import com.janokul.dcimfilter.R
-import com.janokul.dcimfilter.filtering.scanners.FileScannerService
 import com.janokul.dcimfilter.settings.SettingsViewModel
 import com.janokul.dcimfilter.ui.components.misc.AppSettings
 import kotlinx.coroutines.delay
@@ -55,22 +51,6 @@ fun SettingsCard(
     navController: NavController,
     settings: AppSettings
 ) {
-    val context = LocalContext.current
-
-    LaunchedEffect(settings.isOn) {
-        if (settings.isOn) {
-            context.startForegroundService(
-                Intent(context, FileScannerService::class.java)
-                    .putExtra(PREFS_SOURCE_PACKAGE, settings.sourcePackage)
-                    .putExtra(PREFS_DESTINATION_FOLDER, settings.destinationFolder)
-            )
-        } else {
-            context.stopService(
-                Intent(context, FileScannerService::class.java)
-            )
-        }
-    }
-
     SettingsContent(
         viewModel,
         navController,
@@ -112,12 +92,20 @@ private fun SettingsContent(
 private fun IsOnSetting(viewModel: SettingsViewModel, settings: AppSettings) {
     val canEnable = settings.sourcePackage.isNotBlank() && settings.destinationFolder.isNotBlank()
     val hint = if (!canEnable) stringResource(R.string.settings_state_hint) else ""
+    val context = LocalContext.current
 
     val switch = @Composable {
         Switch(
             checked = settings.isOn,
             enabled = canEnable || settings.isOn,
-            onCheckedChange = { viewModel.setIsEnabled(it) },
+            onCheckedChange = {
+                viewModel.updateServiceState(context.applicationContext,
+                    AppSettings(it,
+                        settings.sourcePackage,
+                        settings.destinationFolder
+                    )
+                )
+            },
             thumbContent = if (settings.isOn) {
                 {
                     Icon(
