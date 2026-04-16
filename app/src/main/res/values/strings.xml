@@ -34,6 +34,10 @@
     <string name="settings_destination_button">Select Folder</string>
     <string name="settings_current_destination">Current Folder:</string>
 
+    <!-- Timeout Notification -->
+    <string name="settings_timeout_subtitle">Timeout Notification</string>
+    <string name="settings_timeout_description">Sends a notification if the background service has a timeout or is stopped when not stopped by the user</string>
+
     <!-- History -->
     <string name="history_empty">Nothing logged yet</string>
     <string name="history_description" formatted="true">File moved to %s</string>

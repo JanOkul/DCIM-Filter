@@ -51,7 +51,8 @@ fun MainScreen(navController: NavController) {
     val isOn by viewModel.isEnabled.collectAsStateWithLifecycle(initialValue = false)
     val selectedPackage by viewModel.sourcePackage.collectAsStateWithLifecycle(initialValue = "")
     val destinationFolder by viewModel.destinationFolder.collectAsStateWithLifecycle(initialValue = "")
-    val settings = AppSettings(isOn, selectedPackage, destinationFolder)
+    val timeoutNotification by viewModel.timeoutNotification.collectAsStateWithLifecycle(initialValue = false)
+    val settings = AppSettings(isOn, selectedPackage, destinationFolder, timeoutNotification)
     val context = LocalContext.current
 
     var allFileAccess by remember {

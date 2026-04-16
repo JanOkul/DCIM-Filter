@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.janokul.dcimfilter.PREFS_DESTINATION_FOLDER
 import com.janokul.dcimfilter.PREFS_SOURCE_PACKAGE
+import com.janokul.dcimfilter.PREFS_TIMEOUT_NOTIFICATION
 import com.janokul.dcimfilter.filtering.scanners.FileScannerService
 import com.janokul.dcimfilter.ui.components.misc.AppSettings
 import kotlinx.coroutines.launch
@@ -17,11 +18,14 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     val isEnabled = repo.isEnabled
     val sourcePackage = repo.sourcePackage
     val destinationFolder = repo.destinationFolder
+    val timeoutNotification = repo.timeoutNotification
 
     fun setIsEnabled(value: Boolean) = viewModelScope.launch { repo.setIsEnabled(value) }
     fun setSourcePackage(value: String) = viewModelScope.launch { repo.setSourcePackage(value) }
     fun setDestinationFolder(value: String) =
         viewModelScope.launch { repo.setDestinationFolder(value) }
+
+    fun setTimeoutNotification(value: Boolean) = viewModelScope.launch { repo.setTimeoutNotification(value) }
 
     fun updateServiceState(context: Context, settings: AppSettings) {
         setIsEnabled(settings.isOn)
@@ -31,7 +35,9 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
         if (settings.isOn) {
             context.startForegroundService(intent
                 .putExtra(PREFS_SOURCE_PACKAGE, settings.sourcePackage)
-                .putExtra(PREFS_DESTINATION_FOLDER, settings.destinationFolder))
+                .putExtra(PREFS_DESTINATION_FOLDER, settings.destinationFolder)
+                .putExtra(PREFS_TIMEOUT_NOTIFICATION, settings.timeoutNotification)
+            )
         } else {
             context.stopService(intent)
         }

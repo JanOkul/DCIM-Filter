@@ -16,6 +16,9 @@ class SettingsRepository(private val context: Context) {
     val destinationFolder: Flow<String> = context.dataStore.data
         .map { it[PreferencesKeys.DESTINATION_FOLDER] ?: "" }
 
+    val timeoutNotification: Flow<Boolean> = context.dataStore.data
+        .map { it[PreferencesKeys.TIMEOUT_NOTIFICATION] ?: false }
+
     suspend fun setIsEnabled(value: Boolean) {
         context.dataStore.edit { it[PreferencesKeys.IS_ENABLED] = value }
     }
@@ -26,5 +29,9 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setDestinationFolder(value: String) {
         context.dataStore.edit { it[PreferencesKeys.DESTINATION_FOLDER] = value }
+    }
+
+    suspend fun setTimeoutNotification(value: Boolean) {
+        context.dataStore.edit { it[PreferencesKeys.TIMEOUT_NOTIFICATION] = value }
     }
 }

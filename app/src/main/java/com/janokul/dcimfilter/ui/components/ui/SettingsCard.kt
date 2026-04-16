@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavController
 import com.janokul.dcimfilter.NavNames
 import com.janokul.dcimfilter.R
@@ -79,6 +80,7 @@ private fun SettingsContent(
             IsOnSetting(viewModel, settings)
             SourcePackageSetting(viewModel, navController, settings)
             DestinationFolderSetting(viewModel, settings)
+            TimeoutNotificationSetting(viewModel, settings)
         }
     }
 }
@@ -102,7 +104,8 @@ private fun IsOnSetting(viewModel: SettingsViewModel, settings: AppSettings) {
                 viewModel.updateServiceState(context.applicationContext,
                     AppSettings(it,
                         settings.sourcePackage,
-                        settings.destinationFolder
+                        settings.destinationFolder,
+                        settings.timeoutNotification
                     )
                 )
             },
@@ -236,6 +239,43 @@ private fun DestinationFolderSetting(
                 label = { Text(stringResource(R.string.settings_current_destination)) }
             )
         }
+    }
+}
+
+@Composable
+private fun TimeoutNotificationSetting(
+    viewModel: SettingsViewModel,
+    settings: AppSettings
+) {
+    val areNotificationsEnabled = NotificationManagerCompat.from(LocalContext.current).areNotificationsEnabled()
+
+    SettingsComponent {
+        Column(Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.settings_timeout_subtitle),
+                style = MaterialTheme.typography.titleSmall
+            )
+            Text(
+                stringResource(R.string.settings_timeout_description)
+            )
+        }
+
+        Switch(
+            checked = settings.timeoutNotification,
+            enabled = areNotificationsEnabled,
+            onCheckedChange = { viewModel.setTimeoutNotification(it) },
+            thumbContent = if (settings.isOn) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                    )
+                }
+            } else {
+                null
+            }
+        )
     }
 }
 

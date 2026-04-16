@@ -2,7 +2,9 @@ package com.janokul.dcimfilter.filtering.scanners
 
 
 import android.app.Notification
+import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.database.Cursor
@@ -18,9 +20,11 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.janokul.dcimfilter.NOTIFICATION_CHANNEL
 import com.janokul.dcimfilter.NotificationIds
 import com.janokul.dcimfilter.PREFS_DESTINATION_FOLDER
 import com.janokul.dcimfilter.PREFS_SOURCE_PACKAGE
+import com.janokul.dcimfilter.PREFS_TIMEOUT_NOTIFICATION
 import com.janokul.dcimfilter.R
 import com.janokul.dcimfilter.WORKER_ID
 import com.janokul.dcimfilter.WORK_DATA_ID
@@ -43,6 +47,7 @@ class FileScannerService : Service() {
     private var fileObserver: FileObserver? = DcimObserver(this::enqueueFile)
     private lateinit var sourcePackage: String
     private lateinit var destinationFolder: String
+    var timeoutNotification: Boolean = false
 
     /**
      * Retrieves user settings, starts file observer and foreground service.
@@ -67,8 +72,11 @@ class FileScannerService : Service() {
             return START_NOT_STICKY
         }
 
+        timeoutNotification = intent.getBooleanExtra(PREFS_TIMEOUT_NOTIFICATION, false)
+
         Log.d(TAG, "Source Package: $sourcePackage")
         Log.d(TAG, "Destination Folder: $destinationFolder")
+        Log.d(TAG, "Timeout Notification: $timeoutNotification")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
@@ -93,6 +101,18 @@ class FileScannerService : Service() {
     override fun onDestroy() {
         fileObserver?.stopWatching()
         scope.cancel()
+
+        if (timeoutNotification) {
+            val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
+                .setContentTitle("Service stopped or timed out.")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
+                .build()
+            manager.notify(NotificationIds.SERVICE_TIMEOUT.id, notification)
+            Log.d(TAG, "Sent timeout notification")
+        }
 
         Log.d(TAG, "Stopped file observer")
         Log.d(TAG, "Stopping foreground service")
@@ -195,13 +215,10 @@ class FileScannerService : Service() {
      *  Builds notification so that the service is considered a foreground service.
      */
     private fun buildNotification(): Notification {
-        val channelId = "DCIM_FILTER_CHANNEL"
-        val title = getString(R.string.foreground_notification_title)
         val text = getString(R.string.foreground_notification_text)
 
-        return NotificationCompat.Builder(this, channelId)
-            .setContentTitle(title)
-            .setContentText(text)
+        return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
+            .setContentTitle(text)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
