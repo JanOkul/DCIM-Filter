@@ -20,7 +20,6 @@ class BatchFileMoverWorker(
     params: WorkerParameters
 ) : FileMoverWorker(context, params, TAG) {
     override suspend fun doWork(): Result {
-        delay(500)
         val filesToMove = filterDao.getCount() // For UI
 
         setProgress(

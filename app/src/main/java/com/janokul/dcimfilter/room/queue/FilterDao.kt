@@ -21,6 +21,10 @@ interface FilterDao {
     suspend fun insertFilterTarget(filterTarget: FilterTarget)
 
     @Transaction
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(items: List<FilterTarget>)
+
+    @Transaction
     suspend fun claimNext(): FilterTarget? {
         val entry = peekFilterTarget() ?: return null
         deleteFilterTarget(entry)

@@ -5,10 +5,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.janokul.dcimfilter.PREFS_DESTINATION_FOLDER
-import com.janokul.dcimfilter.PREFS_SOURCE_PACKAGE
-import com.janokul.dcimfilter.PREFS_TIMEOUT_NOTIFICATION
 import com.janokul.dcimfilter.filtering.scanners.FileScannerService
+import com.janokul.dcimfilter.filtering.Job.MediaJobScheduler
 import com.janokul.dcimfilter.ui.components.misc.AppSettings
 import kotlinx.coroutines.launch
 
@@ -27,19 +25,31 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setTimeoutNotification(value: Boolean) = viewModelScope.launch { repo.setTimeoutNotification(value) }
 
-    fun updateServiceState(context: Context, settings: AppSettings) {
+//    fun updateServiceState(context: Context, settings: AppSettings) {
+//        setIsEnabled(settings.isEnabled)
+//
+//        val intent = Intent(context, FileScannerService::class.java)
+//
+//        if (settings.isEnabled) {
+//            context.startForegroundService(intent
+//                .putExtra(PREFS_SOURCE_PACKAGE, settings.sourcePackage)
+//                .putExtra(PREFS_DESTINATION_FOLDER, settings.destinationFolder)
+//                .putExtra(PREFS_TIMEOUT_NOTIFICATION, settings.timeoutNotification)
+//            )
+//        } else {
+//            context.stopService(intent)
+//        }
+//    }
+
+        fun updateServiceState(context: Context, settings: AppSettings) {
         setIsEnabled(settings.isEnabled)
 
         val intent = Intent(context, FileScannerService::class.java)
 
         if (settings.isEnabled) {
-            context.startForegroundService(intent
-                .putExtra(PREFS_SOURCE_PACKAGE, settings.sourcePackage)
-                .putExtra(PREFS_DESTINATION_FOLDER, settings.destinationFolder)
-                .putExtra(PREFS_TIMEOUT_NOTIFICATION, settings.timeoutNotification)
-            )
+            MediaJobScheduler(context).buildAndStartJob()
         } else {
-            context.stopService(intent)
+            MediaJobScheduler(context).stopJob()
         }
     }
 }
