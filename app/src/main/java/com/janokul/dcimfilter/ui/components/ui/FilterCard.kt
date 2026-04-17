@@ -119,7 +119,7 @@ private suspend fun filterOnClick(
     viewModel: SettingsViewModel
 ) {
     // Temporarily disable file service
-    val previousServiceState = settings.isOn
+    val previousServiceState = settings.isEnabled
     viewModel.setIsEnabled(false)
 
     BatchScanner(context, settings.sourcePackage, settings.destinationFolder)

@@ -98,8 +98,8 @@ private fun IsOnSetting(viewModel: SettingsViewModel, settings: AppSettings) {
 
     val switch = @Composable {
         Switch(
-            checked = settings.isOn,
-            enabled = canEnable || settings.isOn,
+            checked = settings.isEnabled,
+            enabled = canEnable || settings.isEnabled,
             onCheckedChange = {
                 viewModel.updateServiceState(context.applicationContext,
                     AppSettings(it,
@@ -109,7 +109,7 @@ private fun IsOnSetting(viewModel: SettingsViewModel, settings: AppSettings) {
                     )
                 )
             },
-            thumbContent = if (settings.isOn) {
+            thumbContent = if (settings.isEnabled) {
                 {
                     Icon(
                         imageVector = Icons.Filled.Check,
@@ -132,7 +132,7 @@ private fun IsOnSetting(viewModel: SettingsViewModel, settings: AppSettings) {
             Text(
                 stringResource(R.string.settings_state_description) + " " + hint,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (!canEnable && !settings.isOn) MaterialTheme.colorScheme.error else Color.Unspecified
+                color = if (!canEnable && !settings.isEnabled) MaterialTheme.colorScheme.error else Color.Unspecified
             )
         }
 
@@ -173,7 +173,7 @@ private fun SourcePackageSetting(
                 value = settings.sourcePackage,
                 onValueChange = {},
                 readOnly = true,
-                enabled = !settings.isOn,
+                enabled = !settings.isEnabled,
                 label = { Text(stringResource(R.string.settings_current_package)) }
             )
 
@@ -182,7 +182,7 @@ private fun SourcePackageSetting(
             FilledTonalButton(
                 onClick = { navController.navigate(NavNames.PACKAGE_SELECT.id) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !settings.isOn
+                enabled = !settings.isEnabled
             ) {
                 Text(stringResource(R.string.settings_package_button))
             }
@@ -235,7 +235,7 @@ private fun DestinationFolderSetting(
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
-                enabled = !settings.isOn,
+                enabled = !settings.isEnabled,
                 label = { Text(stringResource(R.string.settings_current_destination)) }
             )
         }
@@ -264,7 +264,7 @@ private fun TimeoutNotificationSetting(
             checked = settings.timeoutNotification,
             enabled = areNotificationsEnabled,
             onCheckedChange = { viewModel.setTimeoutNotification(it) },
-            thumbContent = if (settings.isOn) {
+            thumbContent = if (settings.isEnabled) {
                 {
                     Icon(
                         imageVector = Icons.Filled.Check,

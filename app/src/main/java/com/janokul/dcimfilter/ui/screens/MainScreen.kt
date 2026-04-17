@@ -1,9 +1,7 @@
 package com.janokul.dcimfilter.ui.screens
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.os.Environment
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,7 +34,7 @@ import com.janokul.dcimfilter.ui.components.misc.AppSettings
 import com.janokul.dcimfilter.ui.components.misc.hasAllFileAccess
 import com.janokul.dcimfilter.ui.components.misc.hasUnrestrictedBattery
 import com.janokul.dcimfilter.ui.components.ui.FilterCard
-import com.janokul.dcimfilter.ui.components.ui.NoStorageAccessCard
+import com.janokul.dcimfilter.ui.components.ui.InsufficientPermissionsCard
 import com.janokul.dcimfilter.ui.components.ui.PrimaryAppBar
 import com.janokul.dcimfilter.ui.components.ui.SettingsCard
 
@@ -47,51 +45,71 @@ import com.janokul.dcimfilter.ui.components.ui.SettingsCard
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavController) {
-    val viewModel: SettingsViewModel = viewModel()
-    val isOn by viewModel.isEnabled.collectAsStateWithLifecycle(initialValue = false)
-    val selectedPackage by viewModel.sourcePackage.collectAsStateWithLifecycle(initialValue = "")
-    val destinationFolder by viewModel.destinationFolder.collectAsStateWithLifecycle(initialValue = "")
-    val timeoutNotification by viewModel.timeoutNotification.collectAsStateWithLifecycle(initialValue = false)
-    val settings = AppSettings(isOn, selectedPackage, destinationFolder, timeoutNotification)
     val context = LocalContext.current
-
-    var allFileAccess by remember {
-        mutableStateOf(
-            hasAllFileAccess()
-        )
-    }
-
-    var unrestrictedBattery by remember {
-        mutableStateOf(
-            hasUnrestrictedBattery(context)
-        )
-    }
+    var allFileAccess by remember { mutableStateOf(hasAllFileAccess()) }
+    var unrestrictedBattery by remember { mutableStateOf(hasUnrestrictedBattery(context)) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         allFileAccess = hasAllFileAccess()
         unrestrictedBattery = hasUnrestrictedBattery(context)
     }
 
-    if (!allFileAccess) {
-        StoragePermissionDialog(context)
+    if (!unrestrictedBattery) {
+        val onAccept = {
+            context.startActivity(
+                Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+            )
+        }
+
+        val onDecline = {
+            (context as? Activity)?.finishAffinity()
+            Unit
+        }
+
+        PermissionDialog(
+            stringResource(R.string.permission_battery_title),
+            stringResource(R.string.permission_battery_description),
+            onAccept,
+            onDecline
+        )
     }
 
-    if (!unrestrictedBattery) {
-        PowerOptimisationDialog(context) {
-            unrestrictedBattery = it
-            unrestrictedBattery
+    if (!allFileAccess) {
+        val onAccept = {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                data = "package:${context.packageName}".toUri()
+            }
+            context.startActivity(intent)
         }
+
+        val onDecline = {
+            (context as? Activity)?.finishAffinity()
+            Unit
+        }
+
+        PermissionDialog(
+            stringResource(R.string.permission_storage_title),
+            stringResource(R.string.permission_storage_description),
+            onAccept,
+            onDecline
+        )
     }
+
+    val viewModel: SettingsViewModel = viewModel()
+    val isEnabled by viewModel.isEnabled.collectAsStateWithLifecycle(initialValue = false)
+    val selectedPackage by viewModel.sourcePackage.collectAsStateWithLifecycle(initialValue = "")
+    val destinationFolder by viewModel.destinationFolder.collectAsStateWithLifecycle(initialValue = "")
+    val timeoutNotification by viewModel.timeoutNotification.collectAsStateWithLifecycle(initialValue = false)
+    val settings = AppSettings(isEnabled, selectedPackage, destinationFolder, timeoutNotification)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { PrimaryAppBar(navController) }
     ) { innerPadding ->
-        if (Environment.isExternalStorageManager()) {
+        if (hasAllFileAccess() && hasUnrestrictedBattery(context)) {
             MainBody(innerPadding, navController, viewModel, settings)
         } else {
-            NoStorageAccessCard(innerPadding)
-
+            InsufficientPermissionsCard(innerPadding)
         }
     }
 }
@@ -120,60 +138,26 @@ private fun MainBody(
 }
 
 @Composable
-private fun PowerOptimisationDialog(context: Context, changeDialogState: (Boolean) -> Unit) {
-    val title = stringResource(R.string.permission_battery_title)
-    val description = stringResource(R.string.permission_battery_description)
+private fun PermissionDialog(
+    title: String,
+    description: String,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit
+) {
     val accept = stringResource(R.string.permission_ok)
     val decline = stringResource(R.string.permission_cancel)
 
     AlertDialog(
-        onDismissRequest = { changeDialogState(true) },
+        onDismissRequest = { onDecline() },
         title = { Text(title) },
         text = { Text(description) },
         confirmButton = {
-            TextButton(onClick = {
-                context.startActivity(
-                    Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                )
-            }) {
+            TextButton(onClick = { onAccept() }) {
                 Text(accept)
             }
         },
         dismissButton = {
-            TextButton(onClick = { changeDialogState(true) }) {
-                Text(decline)
-            }
-        }
-    )
-}
-
-@Composable
-private fun StoragePermissionDialog(context: Context) {
-    val title = stringResource(R.string.permission_storage_title)
-    val description = stringResource(R.string.permission_storage_description)
-    val accept = stringResource(R.string.permission_ok)
-    val decline = stringResource(R.string.permission_cancel)
-
-    val acceptOnclick = { context: Context ->
-        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-            data = "package:${context.packageName}".toUri()
-        }
-        context.startActivity(intent)
-    }
-
-    val activity = context as? Activity
-
-    AlertDialog(
-        onDismissRequest = { activity?.finish() },
-        title = { Text(title) },
-        text = { Text(description) },
-        confirmButton = {
-            TextButton(onClick = { acceptOnclick(context) }) {
-                Text(accept)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { activity?.finish() }) {
+            TextButton(onClick = { onDecline() }) {
                 Text(decline)
             }
         }

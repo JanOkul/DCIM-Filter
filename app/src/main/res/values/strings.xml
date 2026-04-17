@@ -52,7 +52,7 @@
     <string name="permission_storage_description">DCIM Filter needs full access to your files to gain permission to filter out your files without your input.</string>
     <string name="permission_battery_title">Disable Battery Optimisation</string>
     <string name="permission_battery_description">DCIM Filter needs battery optimisation disabled to work effectively.</string>
-    <string name="permission_cancel">Cancel</string>
+    <string name="permission_cancel">Exit</string>
     <string name="permission_ok">Settings</string>
 
     <string name="no_storage_title">Storage Access Required</string>

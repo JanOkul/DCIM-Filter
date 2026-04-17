@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.janokul.dcimfilter.R
 
 @Composable
-fun NoStorageAccessCard(innerPadding: PaddingValues) {
+fun InsufficientPermissionsCard(innerPadding: PaddingValues) {
     Column(
         modifier = Modifier
             .fillMaxSize()

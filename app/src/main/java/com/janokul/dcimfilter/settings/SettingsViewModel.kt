@@ -28,11 +28,11 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setTimeoutNotification(value: Boolean) = viewModelScope.launch { repo.setTimeoutNotification(value) }
 
     fun updateServiceState(context: Context, settings: AppSettings) {
-        setIsEnabled(settings.isOn)
+        setIsEnabled(settings.isEnabled)
 
         val intent = Intent(context, FileScannerService::class.java)
 
-        if (settings.isOn) {
+        if (settings.isEnabled) {
             context.startForegroundService(intent
                 .putExtra(PREFS_SOURCE_PACKAGE, settings.sourcePackage)
                 .putExtra(PREFS_DESTINATION_FOLDER, settings.destinationFolder)
