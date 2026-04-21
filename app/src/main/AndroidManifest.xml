@@ -21,6 +21,7 @@
     </queries>
 
     <application
+        android:name=".DCIMFilter"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -44,7 +45,7 @@
             tools:node="merge" />
 
         <service
-            android:name=".filtering.Job.MediaJobService"
+            android:name=".filtering.job.MediaJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="true" />
 

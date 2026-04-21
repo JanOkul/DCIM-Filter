@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.ui.components.misc
+package com.janokul.dcimfilter.ui.main
 
 import android.content.Context
 import android.os.Environment

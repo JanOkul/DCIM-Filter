@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.ui.screens
+package com.janokul.dcimfilter.ui.main
 
 import android.content.Context
 import android.content.Intent
@@ -41,7 +41,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.janokul.dcimfilter.R
 import com.janokul.dcimfilter.settings.SettingsViewModel
-import com.janokul.dcimfilter.ui.components.ui.SecondaryAppBar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

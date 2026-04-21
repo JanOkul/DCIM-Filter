@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.room.queue
+package com.janokul.dcimfilter.room.target
 
 import androidx.room.Entity
 import androidx.room.Index

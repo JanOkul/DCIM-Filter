@@ -6,7 +6,7 @@ import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.janokul.dcimfilter.filtering.scanners.FileScannerService
-import com.janokul.dcimfilter.filtering.Job.MediaJobScheduler
+import com.janokul.dcimfilter.filtering.job.MediaJobScheduler
 import com.janokul.dcimfilter.ui.components.misc.AppSettings
 import kotlinx.coroutines.launch
 

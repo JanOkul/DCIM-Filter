@@ -4,7 +4,6 @@ package com.janokul.dcimfilter.filtering.scanners
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.database.Cursor
@@ -29,9 +28,11 @@ import com.janokul.dcimfilter.R
 import com.janokul.dcimfilter.WORKER_ID
 import com.janokul.dcimfilter.WORK_DATA_ID
 import com.janokul.dcimfilter.filtering.workers.SingleFileMoverWorker
-import com.janokul.dcimfilter.room.FilterDB
-import com.janokul.dcimfilter.room.queue.FilterTarget
-import com.janokul.dcimfilter.ui.components.misc.hasAllFileAccess
+import com.janokul.dcimfilter.room.DcimFilterDb
+import com.janokul.dcimfilter.room.target.FilterTarget
+import com.janokul.dcimfilter.room.target.FilterTargetDao
+import com.janokul.dcimfilter.ui.main.hasAllFileAccess
+import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -41,7 +42,8 @@ private const val TAG = "FileScannerService"
 
 
 class FileScannerService : Service() {
-    private val dao by lazy { FilterDB.getInstance(this).filterDao }
+    @Inject
+    lateinit var filterTargetDao: FilterTargetDao
     private val scope = CoroutineScope(Dispatchers.IO)
     private val relativePath = "${Environment.DIRECTORY_DCIM}/Camera/"
     private var fileObserver: FileObserver? = DcimObserver(this::enqueueFile)
@@ -141,7 +143,7 @@ class FileScannerService : Service() {
 
         // Insert into Room queue.
         scope.launch {
-            dao.insertFilterTarget(
+            filterTargetDao.insertFilterTarget(
                 FilterTarget(
                     name = name,
                     uriId = fileInfo.id,

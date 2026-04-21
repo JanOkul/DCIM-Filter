@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.ui.screens
+package com.janokul.dcimfilter.ui.history
 
 import android.content.ContentUris
 import android.content.Context
@@ -34,16 +34,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.janokul.dcimfilter.R
-import com.janokul.dcimfilter.room.FilterDB
+import com.janokul.dcimfilter.room.DcimFilterDb
 import com.janokul.dcimfilter.room.history.History
-import com.janokul.dcimfilter.ui.components.misc.HistoryViewModel
-import com.janokul.dcimfilter.ui.components.ui.SecondaryAppBar
+import com.janokul.dcimfilter.ui.main.SecondaryAppBar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -54,8 +54,8 @@ private const val TAG = "HistoryScreen"
 @Composable
 fun HistoryScreen(navController: NavController) {
     val context = LocalContext.current
-    val dao = FilterDB.getInstance(context).historyDao
-    val viewModel: HistoryViewModel = viewModel(factory = HistoryViewModel.factory(dao))
+    val dao = DcimFilterDb.getInstance(context).historyDao
+    val viewModel: HistoryViewModel = hiltViewModel()
     val historyItems = viewModel.historyPaged.collectAsLazyPagingItems()
     var totalItems by remember { mutableIntStateOf(0) }
 

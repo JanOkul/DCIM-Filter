@@ -11,8 +11,10 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.janokul.dcimfilter.WORKER_ID
 import com.janokul.dcimfilter.filtering.workers.BatchFileMoverWorker
-import com.janokul.dcimfilter.room.FilterDB
-import com.janokul.dcimfilter.room.queue.FilterTarget
+import com.janokul.dcimfilter.room.DcimFilterDb
+import com.janokul.dcimfilter.room.target.FilterTarget
+import com.janokul.dcimfilter.room.target.FilterTargetDao
+import jakarta.inject.Inject
 
 private const val TAG = "BatchScanner"
 
@@ -21,7 +23,8 @@ class BatchScanner(
     private val owner: String,
     private val destinationFolder: String,
 ) {
-    val dao by lazy { FilterDB.getInstance(context).filterDao }
+    @Inject
+    lateinit var filterTargetDao: FilterTargetDao
     private val relativePath = "${Environment.DIRECTORY_DCIM}/Camera/"
 
     suspend fun batchFilter() {
@@ -30,7 +33,7 @@ class BatchScanner(
         Log.d(TAG, "File count: ${files.size}")
 
         files.forEach {
-            dao.insertFilterTarget(
+            filterTargetDao.insertFilterTarget(
                 FilterTarget(
                     name = it.name,
                     uriId = it.id,

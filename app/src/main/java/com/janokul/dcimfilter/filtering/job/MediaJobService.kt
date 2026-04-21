@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.filtering.Job
+package com.janokul.dcimfilter.filtering.job
 
 import android.app.job.JobParameters
 import android.app.job.JobService
@@ -15,8 +15,11 @@ import com.janokul.dcimfilter.PREFS_DESTINATION_FOLDER
 import com.janokul.dcimfilter.WORKER_ID
 import com.janokul.dcimfilter.filtering.scanners.QueryResult
 import com.janokul.dcimfilter.filtering.workers.BatchFileMoverWorker
-import com.janokul.dcimfilter.room.FilterDB
-import com.janokul.dcimfilter.room.queue.FilterTarget
+import com.janokul.dcimfilter.room.DcimFilterDb
+import com.janokul.dcimfilter.room.rule.FilterRuleDao
+import com.janokul.dcimfilter.room.target.FilterTarget
+import com.janokul.dcimfilter.room.target.FilterTargetDao
+import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,7 +27,9 @@ import kotlinx.coroutines.launch
 private val TAG = "MediaJobService"
 class MediaJobService: JobService() {
     private lateinit var destinationFolder: String
-    private val dao by lazy { FilterDB.getInstance(this).filterDao }
+
+    @Inject
+    lateinit var filterTargetDao: FilterTargetDao
     private val scope = CoroutineScope(Dispatchers.IO)
 
     override fun onStartJob(params: JobParameters?): Boolean {
@@ -58,7 +63,7 @@ class MediaJobService: JobService() {
         }
 
         scope.launch {
-            dao.insertAll(extractedResults)
+            filterTargetDao.insertAll(extractedResults)
             Log.d(TAG, "Enqueued length: ${extractedResults.size}")
             createWork()
         }
@@ -108,9 +113,7 @@ class MediaJobService: JobService() {
                     it.getString(nameIndex)
                 )
 
-                Log.d(TAG, "Owner length: ${it.getString(ownerIndex).length}")
                 Log.d(TAG, "Query result: $result")
-
                 results.add(result)
             }
         }

@@ -9,9 +9,12 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.janokul.dcimfilter.room.FilterDB
+import com.janokul.dcimfilter.room.DcimFilterDb
 import com.janokul.dcimfilter.room.history.History
-import com.janokul.dcimfilter.room.queue.FilterTarget
+import com.janokul.dcimfilter.room.history.HistoryDao
+import com.janokul.dcimfilter.room.target.FilterTarget
+import com.janokul.dcimfilter.room.target.FilterTargetDao
+import jakarta.inject.Inject
 
 /**
  * Implements common functionality used by all file mover workers.
@@ -21,8 +24,12 @@ abstract class FileMoverWorker(
     params: WorkerParameters,
     private val tag: String
 ) : CoroutineWorker(context, params) {
-    protected val filterDao by lazy { FilterDB.getInstance(applicationContext).filterDao }
-    protected val historyDao by lazy { FilterDB.getInstance(applicationContext).historyDao }
+
+    @Inject
+    lateinit var filterTargetDao: FilterTargetDao
+
+    @Inject
+    lateinit var historyDao: HistoryDao
 
     suspend fun moveFile() {
         val entry = getEntry() ?: return

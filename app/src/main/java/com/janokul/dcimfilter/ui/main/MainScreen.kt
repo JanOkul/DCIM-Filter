@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.ui.screens
+package com.janokul.dcimfilter.ui.main
 
 import android.app.Activity
 import android.content.Intent
@@ -31,12 +31,10 @@ import androidx.navigation.NavController
 import com.janokul.dcimfilter.R
 import com.janokul.dcimfilter.settings.SettingsViewModel
 import com.janokul.dcimfilter.ui.components.misc.AppSettings
-import com.janokul.dcimfilter.ui.components.misc.hasAllFileAccess
-import com.janokul.dcimfilter.ui.components.misc.hasUnrestrictedBattery
 import com.janokul.dcimfilter.ui.components.ui.FilterCard
 import com.janokul.dcimfilter.ui.components.ui.InsufficientPermissionsCard
-import com.janokul.dcimfilter.ui.components.ui.PrimaryAppBar
 import com.janokul.dcimfilter.ui.components.ui.SettingsCard
+import com.janokul.dcimfilter.ui.rule.RuleScreen
 
 
 /**
@@ -132,8 +130,7 @@ private fun MainBody(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        FilterCard(viewModel, settings)
-        SettingsCard(viewModel, navController, settings)
+        RuleScreen(navController)
     }
 }
 

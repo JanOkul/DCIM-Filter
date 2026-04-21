@@ -17,11 +17,15 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.janokul.dcimfilter.ui.screens.HistoryScreen
-import com.janokul.dcimfilter.ui.screens.MainScreen
-import com.janokul.dcimfilter.ui.screens.PackageSelectScreen
+import com.janokul.dcimfilter.ui.history.HistoryScreen
+import com.janokul.dcimfilter.ui.main.MainScreen
+import com.janokul.dcimfilter.ui.main.PackageSelectScreen
+import com.janokul.dcimfilter.ui.rule.RuleScreen
 import com.janokul.dcimfilter.ui.theme.DCIMFilterTheme
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -89,6 +93,7 @@ class MainActivity : ComponentActivity() {
                     composable(NavNames.MAIN.id) { MainScreen(navController) }
                     composable(NavNames.PACKAGE_SELECT.id) { PackageSelectScreen(navController) }
                     composable(NavNames.HISTORY.id) { HistoryScreen(navController) }
+                    composable(NavNames.RULE.id) { RuleScreen(navController) }
                 }
             }
         }

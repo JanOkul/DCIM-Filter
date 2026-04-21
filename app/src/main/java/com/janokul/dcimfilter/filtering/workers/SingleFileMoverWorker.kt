@@ -3,7 +3,7 @@ package com.janokul.dcimfilter.filtering.workers
 import android.content.Context
 import androidx.work.WorkerParameters
 import com.janokul.dcimfilter.WORK_DATA_ID
-import com.janokul.dcimfilter.room.queue.FilterTarget
+import com.janokul.dcimfilter.room.target.FilterTarget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -26,7 +26,7 @@ class SingleFileMoverWorker(context: Context, private val params: WorkerParamete
 
         if (uriId == -1L) return null
 
-        return filterDao.claimByUriId(uriId)
+        return filterTargetDao.claimByUriId(uriId)
     }
 }
 

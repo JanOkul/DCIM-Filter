@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.room.queue
+package com.janokul.dcimfilter.room.target
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -11,7 +11,7 @@ import androidx.room.Transaction
  *  The interface for the Room database.
  */
 @Dao
-interface FilterDao {
+interface FilterTargetDao {
 
     /**
      *  Used to insert a new entry into the queue.

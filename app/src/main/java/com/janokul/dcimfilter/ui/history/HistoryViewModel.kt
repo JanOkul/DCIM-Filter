@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.ui.components.misc
+package com.janokul.dcimfilter.ui.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -9,8 +9,13 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.janokul.dcimfilter.room.history.HistoryDao
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class HistoryViewModel(private val historyDao: HistoryDao) : ViewModel() {
+@HiltViewModel
+class HistoryViewModel @Inject constructor (
+    private val historyDao: HistoryDao
+) : ViewModel() {
 
     val historyPaged = Pager(
         config = PagingConfig(
@@ -22,10 +27,4 @@ class HistoryViewModel(private val historyDao: HistoryDao) : ViewModel() {
     ) {
         historyDao.getHistoryPaged()
     }.flow.cachedIn(viewModelScope)
-
-    companion object {
-        fun factory(dao: HistoryDao): ViewModelProvider.Factory = viewModelFactory {
-            initializer { HistoryViewModel(dao) }
-        }
-    }
 }

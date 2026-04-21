@@ -11,6 +11,7 @@ const val PREFS_TIMEOUT_NOTIFICATION = "timeout_notification"
 const val WORKER_ID = "file_mover"
 const val WORK_DATA_ID = "uri_id"
 
+const val DB_NAME = "dcimFilter.db"
 
 enum class NotificationIds(val id: Int) {
     FOREGROUND_SERVICE(1),
@@ -21,5 +22,6 @@ enum class NotificationIds(val id: Int) {
 enum class NavNames(val id: String) {
     MAIN("main"),
     PACKAGE_SELECT("package_select"),
-    HISTORY("history")
+    HISTORY("history"),
+    RULE("rule")
 }

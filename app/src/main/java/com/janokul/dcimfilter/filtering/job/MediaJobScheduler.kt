@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.filtering.Job
+package com.janokul.dcimfilter.filtering.job
 
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
