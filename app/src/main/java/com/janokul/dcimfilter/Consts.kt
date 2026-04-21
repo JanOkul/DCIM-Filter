@@ -25,3 +25,5 @@ enum class NavNames(val id: String) {
     HISTORY("history"),
     RULE("rule")
 }
+
+const val RULE_ID = "ruleId"

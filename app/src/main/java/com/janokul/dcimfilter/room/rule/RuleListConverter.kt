@@ -1,6 +1,7 @@
 package com.janokul.dcimfilter.room.rule
 
 import androidx.room.TypeConverter
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 
 class RuleListConverter {
@@ -8,11 +9,11 @@ class RuleListConverter {
 
     @TypeConverter
     fun fromRuleList(rules: List<Rule>): String {
-        return json.encodeToString(rules)
+        return json.encodeToString(ListSerializer(Rule.serializer()), rules)
     }
 
     @TypeConverter
     fun toRuleList(value: String): List<Rule> {
-        return json.decodeFromString(value)
+        return json.decodeFromString(ListSerializer(Rule.serializer()), value)
     }
 }

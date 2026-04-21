@@ -14,16 +14,17 @@ import androidx.compose.animation.core.EaseOutQuart
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.janokul.dcimfilter.ui.history.HistoryScreen
 import com.janokul.dcimfilter.ui.main.MainScreen
 import com.janokul.dcimfilter.ui.main.PackageSelectScreen
 import com.janokul.dcimfilter.ui.rule.RuleScreen
 import com.janokul.dcimfilter.ui.theme.DCIMFilterTheme
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -93,7 +94,11 @@ class MainActivity : ComponentActivity() {
                     composable(NavNames.MAIN.id) { MainScreen(navController) }
                     composable(NavNames.PACKAGE_SELECT.id) { PackageSelectScreen(navController) }
                     composable(NavNames.HISTORY.id) { HistoryScreen(navController) }
-                    composable(NavNames.RULE.id) { RuleScreen(navController) }
+                    composable(
+                        route = "${NavNames.RULE.id}/{ruleId}",
+                        arguments = listOf(navArgument(RULE_ID) { type = NavType.LongType })
+
+                    ) { RuleScreen(navController) }
                 }
             }
         }

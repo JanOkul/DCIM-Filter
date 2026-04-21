@@ -22,17 +22,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.janokul.dcimfilter.room.rule.Rule
+import com.janokul.dcimfilter.ui.main.SecondaryAppBar
 
 private const val TAG = "RuleScreen"
 @Composable
-fun RuleScreen(navController: NavController) {
-
-
+fun RuleScreen(navController: NavController, viewModel: RuleViewModel = hiltViewModel()) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-//        topBar = { SecondaryAppBar(navController, stringResource(R.string.history_name)) }
+        topBar = { SecondaryAppBar(navController, "Rule - ${viewModel.ruleId}") }
     ) { innerPadding ->
         RuleBody(innerPadding)
     }
@@ -52,7 +52,7 @@ fun RuleBody(innerPadding: PaddingValues) {
 @Composable
 fun PathSelection() {
     var fromPath by remember { mutableStateOf("") }
-    Card() {
+    Card {
         RuleComponent {
             Column {
                 Text("From Path", style = MaterialTheme.typography.titleMedium)

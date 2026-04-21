@@ -1,5 +1,8 @@
 package com.janokul.dcimfilter.room.rule.types
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class RuleOps(val op: String) {
     EQUALS("="),
     NOT_EQUALS("!="),
