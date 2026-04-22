@@ -20,7 +20,7 @@ class ContentFilterEngine {
      */
     private fun fetchContentRelativePaths(contentUris: Array<Uri>): Array<String> {
 
-        return emptyArray();
+        return emptyArray()
     }
 
     private fun fetchFilteringRules(): List<FilterRule> {

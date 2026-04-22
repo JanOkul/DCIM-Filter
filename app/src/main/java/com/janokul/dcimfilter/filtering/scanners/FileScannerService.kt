@@ -28,10 +28,8 @@ import com.janokul.dcimfilter.R
 import com.janokul.dcimfilter.WORKER_ID
 import com.janokul.dcimfilter.WORK_DATA_ID
 import com.janokul.dcimfilter.filtering.workers.SingleFileMoverWorker
-import com.janokul.dcimfilter.room.DcimFilterDb
 import com.janokul.dcimfilter.room.target.FilterTarget
 import com.janokul.dcimfilter.room.target.FilterTargetDao
-import com.janokul.dcimfilter.ui.main.hasAllFileAccess
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -128,7 +126,7 @@ class FileScannerService : Service() {
         if (name == null) return
 
         // If file access is turned off while service is running, errors will occur.
-        if (!hasAllFileAccess()) {
+        if (!Environment.isExternalStorageManager()) {
             Log.d(TAG, "No storage permission, stopping service")
             stopSelf()
             return

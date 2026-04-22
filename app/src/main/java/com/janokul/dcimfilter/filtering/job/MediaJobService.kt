@@ -15,8 +15,6 @@ import com.janokul.dcimfilter.PREFS_DESTINATION_FOLDER
 import com.janokul.dcimfilter.WORKER_ID
 import com.janokul.dcimfilter.filtering.scanners.QueryResult
 import com.janokul.dcimfilter.filtering.workers.BatchFileMoverWorker
-import com.janokul.dcimfilter.room.DcimFilterDb
-import com.janokul.dcimfilter.room.rule.FilterRuleDao
 import com.janokul.dcimfilter.room.target.FilterTarget
 import com.janokul.dcimfilter.room.target.FilterTargetDao
 import jakarta.inject.Inject

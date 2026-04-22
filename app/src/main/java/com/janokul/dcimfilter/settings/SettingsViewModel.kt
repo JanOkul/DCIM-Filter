@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.janokul.dcimfilter.filtering.scanners.FileScannerService
 import com.janokul.dcimfilter.filtering.job.MediaJobScheduler
+import com.janokul.dcimfilter.filtering.scanners.FileScannerService
 import com.janokul.dcimfilter.ui.components.misc.AppSettings
 import kotlinx.coroutines.launch
 
@@ -44,7 +44,7 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
         fun updateServiceState(context: Context, settings: AppSettings) {
         setIsEnabled(settings.isEnabled)
 
-        val intent = Intent(context, FileScannerService::class.java)
+            Intent(context, FileScannerService::class.java)
 
         if (settings.isEnabled) {
             MediaJobScheduler(context).buildAndStartJob()

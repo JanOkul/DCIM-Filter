@@ -9,10 +9,10 @@ import com.janokul.dcimfilter.DB_NAME
 import com.janokul.dcimfilter.room.history.History
 import com.janokul.dcimfilter.room.history.HistoryDao
 import com.janokul.dcimfilter.room.rule.FilterRule
-import com.janokul.dcimfilter.room.target.FilterTargetDao
-import com.janokul.dcimfilter.room.target.FilterTarget
 import com.janokul.dcimfilter.room.rule.FilterRuleDao
 import com.janokul.dcimfilter.room.rule.RuleListConverter
+import com.janokul.dcimfilter.room.target.FilterTarget
+import com.janokul.dcimfilter.room.target.FilterTargetDao
 
 /**
  *  An implementation of an ID ordered queue using Android Room databases.

@@ -9,7 +9,6 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.janokul.dcimfilter.room.DcimFilterDb
 import com.janokul.dcimfilter.room.history.History
 import com.janokul.dcimfilter.room.history.HistoryDao
 import com.janokul.dcimfilter.room.target.FilterTarget

@@ -2,30 +2,53 @@ package com.janokul.dcimfilter.ui.main
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.drawable.Icon
+import android.os.Environment
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.NewLabel
+import androidx.compose.material.icons.outlined.FilterNone
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -47,32 +70,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltViewModel()) {
     val context = LocalContext.current
-    var allFileAccess by remember { mutableStateOf(hasAllFileAccess()) }
-    var unrestrictedBattery by remember { mutableStateOf(hasUnrestrictedBattery(context)) }
+    var allFileAccess by remember { mutableStateOf(Environment.isExternalStorageManager()) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        allFileAccess = hasAllFileAccess()
-        unrestrictedBattery = hasUnrestrictedBattery(context)
-    }
-
-    if (!unrestrictedBattery) {
-        val onAccept = {
-            context.startActivity(
-                Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-            )
-        }
-
-        val onDecline = {
-            (context as? Activity)?.finishAffinity()
-            Unit
-        }
-
-        PermissionDialog(
-            stringResource(R.string.permission_battery_title),
-            stringResource(R.string.permission_battery_description),
-            onAccept,
-            onDecline
-        )
+        allFileAccess = Environment.isExternalStorageManager()
     }
 
     if (!allFileAccess) {
@@ -83,30 +84,49 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltView
             context.startActivity(intent)
         }
 
-        val onDecline = {
-            (context as? Activity)?.finishAffinity()
-            Unit
-        }
-
         PermissionDialog(
             stringResource(R.string.permission_storage_title),
             stringResource(R.string.permission_storage_description),
-            onAccept,
-            onDecline
-        )
+            onAccept
+        ) { (context as? Activity)?.finishAffinity() }
     }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { PrimaryAppBar(navController) }
+        topBar = { AppBar(navController) },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = { Text("New Rule") },
+                icon = { Icon( Icons.Default.Add, contentDescription = "hi") },
+                onClick = { viewModel.createNewRule(navController) }
+            )
+        }
     ) { innerPadding ->
-        if (hasAllFileAccess() && hasUnrestrictedBattery(context)) {
+        if (Environment.isExternalStorageManager()) {
             MainBody(innerPadding, navController, viewModel)
         } else {
             InsufficientPermissionsCard(innerPadding)
         }
     }
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AppBar(navController: NavController) {
+    TopAppBar(
+        title = { Text(stringResource(R.string.app_name), style = MaterialTheme.typography.titleLarge) },
+        actions = {
+            IconButton(onClick = { navController.navigate(NavNames.HISTORY.id) }) {
+                Icon(
+                    Icons.Default.History,
+                    contentDescription = stringResource(R.string.primary_content_description)
+                )
+            }
+        }
+    )
+}
+
 
 /**
  *  The main screen content composable
@@ -131,30 +151,61 @@ private fun MainBody(
         if (rules.isEmpty()) {
             NoRules(viewModel, navController)
         } else {
-            RulesCard(navController, rules)
+            RulesCard(navController, viewModel, rules)
         }
+
 
     }
 }
 
 @Composable
 fun NoRules(viewModel: MainViewModel, navController: NavController) {
-    val scope = rememberCoroutineScope()
-    Card {
-        Text("No Rules Added, Create your first!")
-        TextButton(onClick = {
-            scope.launch {
-                val id = viewModel.newRuleBlank()
-                navController.navigate("${NavNames.RULE.id}/$id")
+    Card(
+        modifier = Modifier
+            .padding(16.dp) // Space around the card
+            .fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(24.dp) // Internal padding for all content
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp) // Automatically adds gaps between items
+        ) {
+            Icon(
+                Icons.Outlined.FilterNone,
+                contentDescription = null, // decorative
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
+                text = "No Rules Added",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center
+            )
+
+            Text(
+                text = "To filter out files from the DCIM folder, you must define rules.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+
+            Button(
+                onClick = { viewModel.createNewRule(navController) }
+            ) {
+                Text("Create First Rule")
             }
-        }) {
-            Text("Create First Rule")
         }
     }
 }
 
 @Composable
-fun RulesCard(navController: NavController, rules: List<FilterRule>) {
+fun RulesCard(
+    navController: NavController,
+    viewModel: MainViewModel,
+    rules: List<FilterRule>) {
     LazyColumn {
         items(
             items = rules,
@@ -165,15 +216,20 @@ fun RulesCard(navController: NavController, rules: List<FilterRule>) {
                 .padding(vertical = 4.dp),
                 onClick = {navController.navigate("${NavNames.RULE.id}/${item.id}")}
             ) {
-                Text(item.fromRelativePath, style = MaterialTheme.typography.titleMedium)
+                Row {
+                    Text(item.fromRelativePath, style = MaterialTheme.typography.titleMedium)
+                    Switch(
+                        checked = item.enabled,
+                        onCheckedChange = { viewModel.updateRule(
+                            item.copy(enabled = it)
+                        ) }
+                    )
+                }
             }
         }
 
     }
 }
-
-
-
 
 @Composable
 private fun PermissionDialog(
@@ -182,21 +238,18 @@ private fun PermissionDialog(
     onAccept: () -> Unit,
     onDecline: () -> Unit
 ) {
-    val accept = stringResource(R.string.permission_ok)
-    val decline = stringResource(R.string.permission_cancel)
-
     AlertDialog(
         onDismissRequest = { onDecline() },
         title = { Text(title) },
         text = { Text(description) },
         confirmButton = {
             TextButton(onClick = { onAccept() }) {
-                Text(accept)
+                Text(stringResource(R.string.permission_ok))
             }
         },
         dismissButton = {
             TextButton(onClick = { onDecline() }) {
-                Text(decline)
+                Text(stringResource(R.string.permission_cancel))
             }
         }
     )

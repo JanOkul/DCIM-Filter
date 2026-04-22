@@ -17,12 +17,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.HistoryToggleOff
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -43,7 +46,6 @@ import androidx.paging.compose.itemKey
 import com.janokul.dcimfilter.R
 import com.janokul.dcimfilter.room.DcimFilterDb
 import com.janokul.dcimfilter.room.history.History
-import com.janokul.dcimfilter.ui.main.SecondaryAppBar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -67,10 +69,29 @@ fun HistoryScreen(navController: NavController) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { SecondaryAppBar(navController, stringResource(R.string.history_name)) }
+        topBar = { AppBar(navController, stringResource(R.string.history_name)) }
     ) { innerPadding ->
         HistoryContent(innerPadding, historyItems, totalItems)
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AppBar(
+    navController: NavController,
+    appName: String = stringResource(R.string.app_name)
+) {
+    TopAppBar(
+        title = { Text(appName, style = MaterialTheme.typography.titleLarge) },
+        navigationIcon = {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.secondary_content_description)
+                )
+            }
+        }
+    )
 }
 
 @Composable
