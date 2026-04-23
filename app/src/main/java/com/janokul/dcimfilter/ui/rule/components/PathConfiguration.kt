@@ -4,46 +4,54 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.janokul.dcimfilter.ui.rule.RuleViewModel
 
 /**
  * Ui to allow user to configure the from and to path settings of a filter rule.
  */
 @Composable
-fun PathSelection() {
-    Card {
-        Column(
-            Modifier.Companion
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
+fun PathSelection(viewModel: RuleViewModel) {
+    val fromPath = viewModel.currentFilterRule.fromRelativePath
+    val toPath = viewModel.currentFilterRule.toRelativePath
+    CollapsibleCard(
+        {
             Text("Path Configuration", style = MaterialTheme.typography.titleLarge)
-            var fromPath by remember { mutableStateOf("") }
+        },
+        {
+            Text("From Path: $fromPath", style = MaterialTheme.typography.bodyMedium)
+            Text("To Path: $toPath", style = MaterialTheme.typography.bodyMedium)
+        },
+        {
             PathComponent(
                 fromPath,
                 "From Path",
-                "All files within this path will be filtered to the destination path"
+                "All files within this path will be filtered to the destination path",
+                {
+                    viewModel.updateCurrentRule(
+                        viewModel.currentFilterRule.copy(fromRelativePath = it)
+                    )
+                }
             )
 
-            var toPath by remember { mutableStateOf("") }
             PathComponent(
                 toPath,
                 "To Path",
-                "Name of the folder you want to move files to. A folder will be created in Pictures/$toPath and Movies/$toPath for photo and video content."
+                "Name of the folder you want to move files to. A folder will be created in Pictures/$toPath and Movies/$toPath for photo and video content.",
+                {
+                    viewModel.updateCurrentRule(
+                        viewModel.currentFilterRule.copy(toRelativePath = it)
+                    )
+                }
             )
         }
-    }
+    )
 }
 
 /**
@@ -51,22 +59,28 @@ fun PathSelection() {
  *  @param value The value currently displayed within the box
  *  @param title A title for the component
  *  @param description A description of what the component controls.
+ *  @param onTextChange A callback for when the path text changes
  */
 @Composable
-private fun PathComponent(value: String, title: String, description: String) {
+private fun PathComponent(
+    value: String,
+    title: String,
+    description: String,
+    onTextChange: (String) -> Unit
+) {
     Row(
-        modifier = Modifier.Companion
+        modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp),
-        verticalAlignment = Alignment.Companion.CenterVertically
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
             Text(title, style = MaterialTheme.typography.titleMedium)
-            Column(Modifier.Companion.padding(4.dp)) {
+            Column(Modifier.padding(4.dp)) {
                 Text(description, style = MaterialTheme.typography.bodyMedium)
                 OutlinedTextField(
                     value = value,
-                    onValueChange = { it },
+                    onValueChange = { onTextChange(it) },
                     label = { Text("Current Path") }
                 )
             }

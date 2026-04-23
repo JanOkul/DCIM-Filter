@@ -11,4 +11,15 @@ data class FilterRule(
     val fromRelativePath: String,
     val toRelativePath: String,
     val rules: List<Rule>
-)
+) {
+    companion object {
+        fun empty(): FilterRule {
+            return FilterRule(
+                enabled = false,
+                fromRelativePath = "",
+                toRelativePath = "",
+                rules = emptyList()
+            )
+        }
+    }
+}

@@ -9,6 +9,7 @@ import com.janokul.dcimfilter.room.rule.FilterRuleDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -24,7 +25,6 @@ class MainViewModel @Inject constructor (
             initialValue = emptyList()
         )
 
-
     fun createNewRule(navController: NavController) {
         viewModelScope.launch {
             val id = newRuleBlank()
@@ -32,24 +32,16 @@ class MainViewModel @Inject constructor (
         }
     }
 
-    /**
-     *  Creates a new entry in Room, so user can navigate to the appropriate page, and actually
-     *  create a new entry, which will update this empty entry
-     */
-    suspend fun newRuleBlank(): Long {
-        return filterRuleDao.insert(
-            FilterRule(
-                enabled = false,
-                fromRelativePath = "",
-                toRelativePath = "",
-                rules = emptyList()
-            )
-        )
+    // A blank entry that's created so that the page is navigable by the nav controller
+    private suspend fun newRuleBlank(): Long {
+        return filterRuleDao.insert(FilterRule.empty())
     }
 
-    fun updateRule(rule: FilterRule) {
+    // Flips the enabled state of a FilterRule
+    fun changeEnabledState(id: Long) {
         viewModelScope.launch {
-            filterRuleDao.update(rule)
+            val rule = filterRuleDao.getById(id).firstOrNull() ?: return@launch
+            filterRuleDao.update(rule.copy(enabled = !rule.enabled))
         }
     }
 }

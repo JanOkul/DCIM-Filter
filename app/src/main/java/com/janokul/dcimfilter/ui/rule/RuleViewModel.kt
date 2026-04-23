@@ -1,5 +1,8 @@
 package com.janokul.dcimfilter.ui.rule
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +12,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,25 +22,42 @@ class RuleViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
     val ruleId = checkNotNull(savedStateHandle.get<Long>("ruleId"))
-    var isNew = checkNotNull(savedStateHandle.get<Boolean>("isNew"))
+    var isNew by mutableStateOf(checkNotNull(savedStateHandle.get<Boolean>("isNew")))
+    var isDirty by mutableStateOf(isNew)
+    var currentFilterRule by mutableStateOf(FilterRule.empty())
+        private set
 
-    val currentRule = filterRuleDao.getById(ruleId)
-
-    fun updateCurrentRule(rule: FilterRule) {
+    init {
         viewModelScope.launch {
-            filterRuleDao.delete(rule)
+            currentFilterRule = filterRuleDao.getById(ruleId).firstOrNull() ?: FilterRule.empty()
+        }
+    }
+
+    // Updates viewmodel copy of the filter rule
+    fun updateCurrentRule(newFilterRule: FilterRule) {
+        if (!isDirty) {
+            isDirty = true
+        }
+        currentFilterRule = newFilterRule
+    }
+
+    // Syncs changes to Room
+    fun saveCurrentRule() {
+        viewModelScope.launch {
+            filterRuleDao.update(currentFilterRule)
+            isDirty = false
+            isNew = false
         }
     }
 
     fun deleteCurrentRule(scope: CoroutineScope = viewModelScope) {
         scope.launch {
-            val rule = currentRule.firstOrNull() ?: return@launch
-            filterRuleDao.delete(rule)
+            filterRuleDao.delete(currentFilterRule)
         }
     }
 
+    // If app closed without making a save, this override will make sure empty rule isn't saved.
     override fun onCleared() {
-        // If app closed etc, will make sure empty entry isnt made.
         if (isNew) {
             deleteCurrentRule(CoroutineScope(Dispatchers.IO + NonCancellable))
         }

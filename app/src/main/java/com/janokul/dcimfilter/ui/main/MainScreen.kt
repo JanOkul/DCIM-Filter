@@ -2,18 +2,14 @@ package com.janokul.dcimfilter.ui.main
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.drawable.Icon
 import android.os.Environment
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,7 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.NewLabel
 import androidx.compose.material.icons.outlined.FilterNone
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -40,14 +35,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -60,7 +52,6 @@ import com.janokul.dcimfilter.NavNames
 import com.janokul.dcimfilter.R
 import com.janokul.dcimfilter.room.rule.FilterRule
 import com.janokul.dcimfilter.ui.components.ui.InsufficientPermissionsCard
-import kotlinx.coroutines.launch
 
 
 /**
@@ -97,7 +88,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltView
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("New Rule") },
-                icon = { Icon( Icons.Default.Add, contentDescription = "hi") },
+                icon = { Icon( Icons.Default.Add, contentDescription = "Create new rule") },
                 onClick = { viewModel.createNewRule(navController) }
             )
         }
@@ -151,7 +142,7 @@ private fun MainBody(
         if (rules.isEmpty()) {
             NoRules(viewModel, navController)
         } else {
-            RulesCard(navController, viewModel, rules)
+            Rules(navController, viewModel, rules)
         }
 
 
@@ -202,32 +193,44 @@ fun NoRules(viewModel: MainViewModel, navController: NavController) {
 }
 
 @Composable
-fun RulesCard(
+fun Rules(
     navController: NavController,
     viewModel: MainViewModel,
-    rules: List<FilterRule>) {
-    LazyColumn {
+    rules: List<FilterRule>
+) {
+    Text("Rules", style = MaterialTheme.typography.titleLarge)
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         items(
             items = rules,
             key = { it.id }
-        ) { item ->
-            Card(modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = 4.dp),
-                onClick = {navController.navigate("${NavNames.RULE.id}/${item.id}")}
-            ) {
-                Row {
-                    Text(item.fromRelativePath, style = MaterialTheme.typography.titleMedium)
-                    Switch(
-                        checked = item.enabled,
-                        onCheckedChange = { viewModel.updateRule(
-                            item.copy(enabled = it)
-                        ) }
-                    )
-                }
-            }
-        }
+        ) { item -> FilterRuleEntry(item, navController, viewModel) }
+    }
+}
 
+@Composable
+fun FilterRuleEntry(filterRule: FilterRule, navController: NavController, viewModel: MainViewModel) {
+    Card(modifier = Modifier
+        .fillMaxSize(),
+        onClick = {navController.navigate("${NavNames.RULE.id}/${filterRule.id}")}
+    ) {
+        Row(modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+
+        ) {
+            Column {
+                Text(filterRule.fromRelativePath, style = MaterialTheme.typography.titleMedium)
+                Text("Conditions: ${filterRule.rules.size}")
+            }
+            Switch(
+                checked = filterRule.enabled,
+                onCheckedChange = { viewModel.changeEnabledState(filterRule.id) }
+            )
+        }
     }
 }
 
