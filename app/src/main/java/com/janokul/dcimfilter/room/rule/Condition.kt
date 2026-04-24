@@ -6,7 +6,7 @@ import com.janokul.dcimfilter.room.rule.types.RuleValue
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Rule(
+data class Condition(
     val key: RuleKeys,
     val ops: RuleOps,
     val value: RuleValue

@@ -7,13 +7,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.janokul.dcimfilter.room.rule.Rule
+import com.janokul.dcimfilter.room.rule.Condition
 
 /**
  * Ui to allow user to configure rules for media whithin the fromPath
  */
 @Composable
-fun RuleSelection(rules: List<Rule>) {
+fun ConditionSelection(conditions: List<Condition>) {
     CollapsibleCard(
         initiallyCollapsed = false,
         title = { Text("Rule Selection", style = MaterialTheme.typography.titleLarge) },

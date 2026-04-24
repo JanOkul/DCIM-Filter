@@ -6,8 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.janokul.dcimfilter.room.rule.Condition
 import com.janokul.dcimfilter.room.rule.FilterRule
 import com.janokul.dcimfilter.room.rule.FilterRuleDao
+import com.janokul.dcimfilter.room.rule.types.RuleKeys
+import com.janokul.dcimfilter.room.rule.types.RuleOps
+import com.janokul.dcimfilter.room.rule.types.RuleValue
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +43,11 @@ class RuleViewModel @Inject constructor(
             isDirty = true
         }
         currentFilterRule = newFilterRule
+    }
+
+    fun addCondition(key: RuleKeys, op: RuleOps, value: RuleValue) {
+        val condition = Condition(key, op, value)
+        currentFilterRule = currentFilterRule.copy(conditions = currentFilterRule.conditions + condition)
     }
 
     // Syncs changes to Room

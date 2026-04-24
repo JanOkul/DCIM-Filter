@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class RuleKeys(val value: String) {
     OWNER_PACKAGE_NAME(MediaStore.MediaColumns.OWNER_PACKAGE_NAME),
-    FILTER_ALL("")
+    FILTER_ALL("filter_all")
 }

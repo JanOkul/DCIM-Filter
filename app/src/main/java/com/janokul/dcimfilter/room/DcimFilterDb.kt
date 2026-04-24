@@ -10,7 +10,7 @@ import com.janokul.dcimfilter.room.history.History
 import com.janokul.dcimfilter.room.history.HistoryDao
 import com.janokul.dcimfilter.room.rule.FilterRule
 import com.janokul.dcimfilter.room.rule.FilterRuleDao
-import com.janokul.dcimfilter.room.rule.RuleListConverter
+import com.janokul.dcimfilter.room.rule.ConditionListConverter
 import com.janokul.dcimfilter.room.target.FilterTarget
 import com.janokul.dcimfilter.room.target.FilterTargetDao
 
@@ -21,7 +21,7 @@ import com.janokul.dcimfilter.room.target.FilterTargetDao
     entities = [FilterTarget::class, FilterRule::class, History::class],
     version = 1
 )
-@TypeConverters(RuleListConverter::class)
+@TypeConverters(ConditionListConverter::class)
 abstract class DcimFilterDb : RoomDatabase() {
     abstract val filterTargetDao: FilterTargetDao
     abstract val historyDao: HistoryDao

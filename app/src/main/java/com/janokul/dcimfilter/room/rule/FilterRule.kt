@@ -10,7 +10,7 @@ data class FilterRule(
     val enabled: Boolean,
     val fromRelativePath: String,
     val toRelativePath: String,
-    val rules: List<Rule>
+    val conditions: List<Condition>
 ) {
     companion object {
         fun empty(): FilterRule {
@@ -18,7 +18,7 @@ data class FilterRule(
                 enabled = false,
                 fromRelativePath = "",
                 toRelativePath = "",
-                rules = emptyList()
+                conditions = emptyList()
             )
         }
     }

@@ -248,7 +248,7 @@ fun FilterRuleEntry(filterRule: FilterRule, navController: NavController, viewMo
         ) {
             Column {
                 Text(filterRule.fromRelativePath, style = MaterialTheme.typography.titleMedium)
-                Text("Conditions: ${filterRule.rules.size}")
+                Text("Conditions: ${filterRule.conditions.size}")
             }
             Switch(
                 checked = filterRule.enabled,

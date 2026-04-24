@@ -86,6 +86,7 @@ private fun PathComponent(
             Column(Modifier.padding(4.dp)) {
                 Text(description, style = MaterialTheme.typography.bodyMedium)
                 OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
                     value = value,
                     onValueChange = { onTextChange(it) },
                     label = { Text("Current Path") }
