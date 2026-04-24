@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -89,7 +90,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltView
             ExtendedFloatingActionButton(
                 text = { Text("New Rule") },
                 icon = { Icon( Icons.Default.Add, contentDescription = "Create new rule") },
-                onClick = { viewModel.createNewRule(navController) }
+                onClick = { viewModel.createNewRulePage(navController) }
             )
         }
     ) { innerPadding ->
@@ -137,8 +138,11 @@ private fun MainBody(
             .fillMaxSize()
             .padding(innerPadding)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        BatchFilterAllCard()
+        Spacer(Modifier.size(8.dp))
+        Text("Rules", style = MaterialTheme.typography.titleLarge)
         if (rules.isEmpty()) {
             NoRules(viewModel, navController)
         } else {
@@ -150,22 +154,42 @@ private fun MainBody(
 }
 
 @Composable
+fun BatchFilterAllCard() {
+    Card(
+        Modifier.fillMaxWidth()
+    ) {
+        Column(
+            Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text("Batch Filter", style = MaterialTheme.typography.titleLarge)
+            Text("[Description of what this does]", style = MaterialTheme.typography.bodyMedium)
+
+            Button(onClick = {/*todo add batch filter functionality*/} ) {
+                Text("Filter All")
+            }
+
+        }
+    }
+
+}
+
+@Composable
 fun NoRules(viewModel: MainViewModel, navController: NavController) {
     Card(
         modifier = Modifier
-            .padding(16.dp) // Space around the card
             .fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
-                .padding(24.dp) // Internal padding for all content
+                .padding(24.dp)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp) // Automatically adds gaps between items
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Icon(
                 Icons.Outlined.FilterNone,
-                contentDescription = null, // decorative
+                contentDescription = null,
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -177,14 +201,14 @@ fun NoRules(viewModel: MainViewModel, navController: NavController) {
             )
 
             Text(
-                text = "To filter out files from the DCIM folder, you must define rules.",
+                text = "To filter out files from the DCIM folder, you must define rules on how they should be filtered.",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
 
             Button(
-                onClick = { viewModel.createNewRule(navController) }
+                onClick = { viewModel.createNewRulePage(navController) }
             ) {
                 Text("Create First Rule")
             }
@@ -198,7 +222,7 @@ fun Rules(
     viewModel: MainViewModel,
     rules: List<FilterRule>
 ) {
-    Text("Rules", style = MaterialTheme.typography.titleLarge)
+
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {

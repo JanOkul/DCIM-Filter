@@ -25,7 +25,7 @@ class MainViewModel @Inject constructor (
             initialValue = emptyList()
         )
 
-    fun createNewRule(navController: NavController) {
+    fun createNewRulePage(navController: NavController) {
         viewModelScope.launch {
             val id = newRuleBlank()
             navController.navigate("${NavNames.RULE.id}/${id}?isNew=true")

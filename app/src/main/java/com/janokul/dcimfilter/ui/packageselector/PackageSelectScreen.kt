@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.ui.appselector
+package com.janokul.dcimfilter.ui.packageselector
 
 import android.content.Context
 import android.content.Intent
