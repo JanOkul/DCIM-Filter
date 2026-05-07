@@ -52,7 +52,6 @@ import androidx.navigation.NavController
 import com.janokul.dcimfilter.NavNames
 import com.janokul.dcimfilter.R
 import com.janokul.dcimfilter.room.rule.FilterRule
-import com.janokul.dcimfilter.ui.components.ui.InsufficientPermissionsCard
 
 
 /**

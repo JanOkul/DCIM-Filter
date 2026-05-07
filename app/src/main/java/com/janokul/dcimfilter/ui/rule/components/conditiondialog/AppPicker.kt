@@ -1,17 +1,13 @@
-package com.janokul.dcimfilter.ui.packageselector
+package com.janokul.dcimfilter.ui.rule.components.conditiondialog
 
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,14 +16,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,13 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.janokul.dcimfilter.R
-import com.janokul.dcimfilter.settings.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -58,10 +45,13 @@ data class AppItemInfo(
     val icon: ImageBitmap
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PackageSelectScreen(navController: NavController, viewModel: SettingsViewModel = viewModel()) {
+fun AppPicker(
+    closePicker: () -> Unit,
+    onSelectPackage: (String, String) -> Unit
+) {
     val context = LocalContext.current
+    val thisPackageName = context.packageName
     val packageManager = context.packageManager
     var installedPackages by remember { mutableStateOf<List<AppItemInfo>>(ArrayList()) }
     var loaded by remember { mutableStateOf(false) }
@@ -69,92 +59,48 @@ fun PackageSelectScreen(navController: NavController, viewModel: SettingsViewMod
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
-            installedPackages = getInstalledPackages(packageManager)
+            installedPackages = getInstalledPackages(packageManager, thisPackageName)
             loaded = true
         }
     }
-
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = { AppBar(navController, stringResource(R.string.package_select_name)) }
-    ) { innerPadding ->
-        if (!loaded) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+    Column{
+        Row(verticalAlignment = Alignment.CenterVertically){
+            IconButton(onClick = closePicker) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }
-        } else {
-            PackageSelectContent(
-                context,
-                innerPadding,
-                viewModel,
-                navController,
-                installedPackages
-            )
+            Text("Select an Application",  style = MaterialTheme.typography.titleLarge)
         }
+        AppPickerContent(installedPackages, onSelectPackage, closePicker)
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AppBar(
-    navController: NavController,
-    appName: String = stringResource(R.string.app_name)
+private fun AppPickerContent(
+    installedPackages: List<AppItemInfo>,
+    onSelectPackage: (String, String) -> Unit,
+    closePicker: () -> Unit
 ) {
-    TopAppBar(
-        title = { Text(appName, style = MaterialTheme.typography.titleLarge) },
-        navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.secondary_content_description)
-                )
-            }
-        }
-    )
-}
-
-@Composable
-private fun PackageSelectContent(
-    context: Context,
-    innerPadding: PaddingValues,
-    viewModel: SettingsViewModel,
-    navController: NavController,
-    installedPackages: List<AppItemInfo>
-) {
-
     LazyColumn(
-        Modifier
-            .padding(paddingValues = innerPadding)
-            .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         items(
             items = installedPackages,
             key = { it.packageName }
         ) { item ->
-            // Skip any null packages, and also skip self
-            if (context.packageName != item.packageName) {
-                AppItem(
-                    viewModel,
-                    navController,
-                    item
-                )
-            }
+            AppItem(
+                item,
+                onSelectPackage,
+                closePicker
+            )
         }
     }
 }
 
 @Composable
 private fun AppItem(
-    viewModel: SettingsViewModel,
-    navController: NavController,
-    item: AppItemInfo
+    item: AppItemInfo,
+    onSelectPackage: (String, String) -> Unit,
+    closePicker: () -> Unit
 ) {
     Card {
         Row(
@@ -162,12 +108,10 @@ private fun AppItem(
                 .fillMaxWidth()
                 .padding(16.dp)
                 .clickable(onClick = {
-                    viewModel.setSourcePackage(item.packageName)
-                    viewModel.setDestinationFolder(item.label)
+                    onSelectPackage(item.packageName, item.label)
+                    closePicker()
                     Log.d(TAG, "Selected package: ${item.packageName}")
-                    navController.popBackStack()
-                }
-                )
+                })
         ) {
             Image(
                 bitmap = item.icon,
@@ -183,13 +127,13 @@ private fun AppItem(
     }
 }
 
-private fun getInstalledPackages(packageManager: PackageManager): List<AppItemInfo> {
-    val installedPackages = packageManager.queryIntentActivities(
+private fun getInstalledPackages(packageManager: PackageManager, thisPackageName: String): List<AppItemInfo> {
+    val result = packageManager.queryIntentActivities(
         Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER),
         0
     )
 
-    return installedPackages.map {
+    val installedPackages = result.map {
         val packageInfo = packageManager.getPackageInfo(it?.activityInfo?.packageName ?: "", 0)
         AppItemInfo(
             it.loadLabel(packageManager).toString(),
@@ -199,6 +143,10 @@ private fun getInstalledPackages(packageManager: PackageManager): List<AppItemIn
                 .toBitmap(48, 48)
                 .asImageBitmap()
         )
-    }.distinctBy { it.packageName }
+    }
+
+    return installedPackages
+        .filter { it.packageName != thisPackageName}
+        .distinctBy { it.packageName }
         .sortedBy { it.label }
 }

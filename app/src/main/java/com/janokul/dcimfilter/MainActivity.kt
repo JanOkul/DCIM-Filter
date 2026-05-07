@@ -21,7 +21,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.janokul.dcimfilter.ui.history.HistoryScreen
 import com.janokul.dcimfilter.ui.main.MainScreen
-import com.janokul.dcimfilter.ui.packageselector.PackageSelectScreen
 import com.janokul.dcimfilter.ui.rule.RuleScreen
 import com.janokul.dcimfilter.ui.theme.DCIMFilterTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -92,7 +91,6 @@ class MainActivity : ComponentActivity() {
 
                 ) {
                     composable(NavNames.MAIN.id) { MainScreen(navController) }
-                    composable(NavNames.PACKAGE_SELECT.id) { PackageSelectScreen(navController) }
                     composable(NavNames.HISTORY.id) { HistoryScreen(navController) }
                     composable(
                         route = "${NavNames.RULE.id}/{ruleId}?isNew={isNew}",

@@ -9,9 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.janokul.dcimfilter.room.rule.Condition
 import com.janokul.dcimfilter.room.rule.FilterRule
 import com.janokul.dcimfilter.room.rule.FilterRuleDao
-import com.janokul.dcimfilter.room.rule.types.RuleKeys
-import com.janokul.dcimfilter.room.rule.types.RuleOps
-import com.janokul.dcimfilter.room.rule.types.RuleValue
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,9 +42,25 @@ class RuleViewModel @Inject constructor(
         currentFilterRule = newFilterRule
     }
 
-    fun addCondition(key: RuleKeys, op: RuleOps, value: RuleValue) {
-        val condition = Condition(key, op, value)
-        currentFilterRule = currentFilterRule.copy(conditions = currentFilterRule.conditions + condition)
+    fun addCondition(condition: Condition) {
+        val newFilterRule = currentFilterRule.copy(conditions = currentFilterRule.conditions + condition)
+        updateCurrentRule(newFilterRule)
+    }
+
+    fun updateCondition(index: Int, updatedCondition: Condition) {
+        val newConditions = currentFilterRule.conditions.toMutableList()
+        newConditions[index] = updatedCondition
+        val newFilterRule = currentFilterRule.copy(conditions = newConditions.toList())
+
+        updateCurrentRule(newFilterRule)
+    }
+
+    fun deleteCondition(index: Int) {
+        val newConditions = currentFilterRule.conditions.toMutableList()
+        newConditions.removeAt(index)
+        val newFilterRule = currentFilterRule.copy(conditions = newConditions.toList())
+
+        updateCurrentRule(newFilterRule)
     }
 
     // Syncs changes to Room

@@ -1,13 +1,13 @@
 package com.janokul.dcimfilter.room.rule
 
-import com.janokul.dcimfilter.room.rule.types.RuleKeys
-import com.janokul.dcimfilter.room.rule.types.RuleOps
-import com.janokul.dcimfilter.room.rule.types.RuleValue
+import com.janokul.dcimfilter.room.rule.types.ConditionAttribute
+import com.janokul.dcimfilter.room.rule.types.ConditionOp
+import com.janokul.dcimfilter.room.rule.types.ConditionValue
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Condition(
-    val key: RuleKeys,
-    val ops: RuleOps,
-    val value: RuleValue
+    val attribute: ConditionAttribute,
+    val op: ConditionOp,
+    val value: ConditionValue<*>
 )

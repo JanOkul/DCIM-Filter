@@ -25,38 +25,42 @@ fun PathSelection(viewModel: RuleViewModel) {
             Text("Path Configuration", style = MaterialTheme.typography.titleLarge)
         },
         {
-            Row {
-                Text("From Path: ", style = MaterialTheme.typography.titleSmall,)
-                Text(fromPath, style = MaterialTheme.typography.bodyMedium)
-            }
+            Column {
+                Row {
+                    Text("From Path: ", style = MaterialTheme.typography.titleSmall,)
+                    Text(fromPath, style = MaterialTheme.typography.bodyMedium)
+                }
 
-            Row {
-                Text("To Path: ", style = MaterialTheme.typography.titleSmall)
-                Text(toPath, style = MaterialTheme.typography.bodyMedium)
+                Row {
+                    Text("To Path: ", style = MaterialTheme.typography.titleSmall)
+                    Text(toPath, style = MaterialTheme.typography.bodyMedium)
+                }
             }
         },
         {
-            PathComponent(
-                fromPath,
-                "From Path",
-                "All files within this path will be filtered to the destination path",
-                {
-                    viewModel.updateCurrentRule(
-                        viewModel.currentFilterRule.copy(fromRelativePath = it)
-                    )
-                }
-            )
+            Column {
+                PathComponent(
+                    fromPath,
+                    "From Path",
+                    "All files within this path will be filtered to the destination path",
+                    {
+                        viewModel.updateCurrentRule(
+                            viewModel.currentFilterRule.copy(fromRelativePath = it)
+                        )
+                    }
+                )
 
-            PathComponent(
-                toPath,
-                "To Path",
-                "Name of the folder you want to move files to. A folder will be created in Pictures/$toPath and Movies/$toPath for photo and video content.",
-                {
-                    viewModel.updateCurrentRule(
-                        viewModel.currentFilterRule.copy(toRelativePath = it)
-                    )
-                }
-            )
+                PathComponent(
+                    toPath,
+                    "To Path",
+                    "Name of the folder you want to move files to. A folder will be created in Pictures/$toPath and Movies/$toPath for photo and video content.",
+                    {
+                        viewModel.updateCurrentRule(
+                            viewModel.currentFilterRule.copy(toRelativePath = it)
+                        )
+                    }
+                )
+            }
         }
     )
 }

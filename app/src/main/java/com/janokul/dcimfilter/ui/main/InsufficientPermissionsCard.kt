@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.ui.components.ui
+package com.janokul.dcimfilter.ui.main
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

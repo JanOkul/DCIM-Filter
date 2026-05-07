@@ -8,9 +8,9 @@ import androidx.room.TypeConverters
 import com.janokul.dcimfilter.DB_NAME
 import com.janokul.dcimfilter.room.history.History
 import com.janokul.dcimfilter.room.history.HistoryDao
+import com.janokul.dcimfilter.room.rule.ConditionListConverter
 import com.janokul.dcimfilter.room.rule.FilterRule
 import com.janokul.dcimfilter.room.rule.FilterRuleDao
-import com.janokul.dcimfilter.room.rule.ConditionListConverter
 import com.janokul.dcimfilter.room.target.FilterTarget
 import com.janokul.dcimfilter.room.target.FilterTargetDao
 
