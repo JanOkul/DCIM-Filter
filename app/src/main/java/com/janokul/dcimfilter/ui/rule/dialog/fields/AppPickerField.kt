@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.ui.rule.components.conditiondialog
+package com.janokul.dcimfilter.ui.rule.dialog.fields
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 private const val TAG = "Package Select"
@@ -52,25 +54,41 @@ fun AppPicker(
 ) {
     val context = LocalContext.current
     val thisPackageName = context.packageName
-    val packageManager = context.packageManager
     var installedPackages by remember { mutableStateOf<List<AppItemInfo>>(ArrayList()) }
-    var loaded by remember { mutableStateOf(false) }
-
+    var loading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
-            installedPackages = getInstalledPackages(packageManager, thisPackageName)
-            loaded = true
+            installedPackages = getInstalledPackages(context.packageManager, thisPackageName)
+            loading = false
         }
     }
-    Column{
+
+    Column(Modifier.padding(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically){
             IconButton(onClick = closePicker) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }
-            Text("Select an Application",  style = MaterialTheme.typography.titleLarge)
+            Text("Select an Application", style = MaterialTheme.typography.titleLarge)
         }
-        AppPickerContent(installedPackages, onSelectPackage, closePicker)
+
+        if (loading) {
+            Loading()
+        } else {
+            AppPickerContent(installedPackages, onSelectPackage, closePicker)
+        }
+    }
+}
+
+@Composable
+private fun Loading() {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            CircularProgressIndicator()
+        }
     }
 }
 

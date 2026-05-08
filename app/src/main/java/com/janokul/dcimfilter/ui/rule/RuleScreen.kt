@@ -27,7 +27,7 @@ import androidx.navigation.NavController
 import com.janokul.dcimfilter.ui.rule.components.AppBar
 import com.janokul.dcimfilter.ui.rule.components.ConditionSelection
 import com.janokul.dcimfilter.ui.rule.components.PathSelection
-import com.janokul.dcimfilter.ui.rule.components.conditiondialog.ConditionDialog
+import com.janokul.dcimfilter.ui.rule.dialog.ConditionDialog
 
 
 private const val TAG = "RuleScreen"
@@ -89,7 +89,7 @@ fun RuleScreen(navController: NavController, viewModel: RuleViewModel = hiltView
 
 // Should be shown when the user tries to exit the rule page without saving content
 @Composable
-fun ExitDialog(onLeave: () -> Unit, onStay: () -> Unit) {
+private fun ExitDialog(onLeave: () -> Unit, onStay: () -> Unit) {
     AlertDialog(
         onDismissRequest = { onStay() },
         title = { Text("Unsaved Changes") },
