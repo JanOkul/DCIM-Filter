@@ -10,5 +10,5 @@ enum class ConditionOp(val op: String) {
     GREATER_THAN_OR_EQUAL(">="),
     LESS_THAN("<"),
     LESS_THAN_OR_EQUAL("<="),
-    NO_OP("NO OP")
+    NO_OP("")
 }

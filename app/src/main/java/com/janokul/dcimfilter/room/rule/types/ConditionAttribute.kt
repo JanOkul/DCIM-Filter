@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class ConditionAttribute(val value: String, val displayName: String, val valueType: ConditionValue<*>) {
     FILTER_NONE("filter_none", "Filter None", NoneValue()),
-    FILTER_ALL("filter_all", "Filter All", BoolValue(value = true)),
+    FILTER_ALL("filter_all", "Filter All", BoolValue(value = true).apply{ defaultOp = ConditionOp.NO_OP }),
     OWNER_PACKAGE_NAME(MediaStore.MediaColumns.OWNER_PACKAGE_NAME, "Owner Package Name", StringValue.PackageValue()),
     SIZE(MediaStore.MediaColumns.SIZE, "Size", LongValue())
 }

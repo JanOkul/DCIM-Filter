@@ -245,8 +245,11 @@ fun FilterRuleEntry(filterRule: FilterRule, navController: NavController, viewMo
             horizontalArrangement = Arrangement.SpaceBetween
 
         ) {
+            val ruleTitle = filterRule.fromRelativePath
             Column {
-                Text(filterRule.fromRelativePath, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    ruleTitle.ifEmpty { "Unnamed Rule" }
+                    , style = MaterialTheme.typography.titleMedium)
                 Text("Conditions: ${filterRule.conditions.size}")
             }
             Switch(

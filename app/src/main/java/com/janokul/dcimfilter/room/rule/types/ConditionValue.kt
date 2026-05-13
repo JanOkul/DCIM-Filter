@@ -66,10 +66,10 @@ sealed class ConditionValue<T> {
     @Serializable
     data class BoolValue(override var value: Boolean = false) : ConditionValue<Boolean>() {
         @Transient
-        override val validOps = listOf(ConditionOp.EQUALS, ConditionOp.NOT_EQUALS)
+        override val validOps = listOf(ConditionOp.EQUALS, ConditionOp.NOT_EQUALS, ConditionOp.NO_OP)
 
         @Transient
-        override val defaultOp: ConditionOp = ConditionOp.EQUALS
+        override var defaultOp: ConditionOp = ConditionOp.EQUALS
 
         override fun setImmutable(new: Boolean): ConditionValue<Boolean> {
             return BoolValue(value = new)
@@ -79,7 +79,7 @@ sealed class ConditionValue<T> {
     @Serializable
     data class NoneValue(override var value: Unit = Unit): ConditionValue<Unit>() {
         @Transient
-        override val validOps = listOf(ConditionOp.NO_OP)
+        override val validOps = emptyList<ConditionOp>()
 
         @Transient
         override val defaultOp: ConditionOp = ConditionOp.NO_OP

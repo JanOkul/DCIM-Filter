@@ -27,8 +27,14 @@ fun ValueField(
     selectedValue: ConditionValue<*>,
     setAppPickerState: (Boolean) -> Unit,
     onSelect: (ConditionValue<*>) -> Unit,
-    selectionAllowed: (Boolean) -> Unit
+    onCanSave: (Boolean) -> Unit
 ) {
+    var canSave by remember { mutableStateOf(true) }
+    LaunchedEffect(canSave) {
+        onCanSave(canSave)
+    }
+
+
 
     when (selectedValue) {
         is StringValue -> StringValueField(selectedValue, setAppPickerState, onSelect)
@@ -53,21 +59,19 @@ fun ValueField(
             )
         }
         is BoolValue -> {
-            var checked by remember { mutableStateOf(false) }
             val message = if (selectedValue.value) "will unconditionally move EVERY media within this folder" else "will not have any effect on the media within this folder"
 
-            LaunchedEffect(checked) {
-                selectionAllowed(checked)
-            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
-                    checked = checked,
-                    onCheckedChange = { checked = it }
+                    checked = canSave,
+                    onCheckedChange = { canSave = it }
                 )
                 Text("I understand that this option $message, regardless of any other conditions present.")
             }
         }
-        is NoneValue -> Unit
+        is NoneValue -> {
+            canSave = false
+        }
     }
 }
 

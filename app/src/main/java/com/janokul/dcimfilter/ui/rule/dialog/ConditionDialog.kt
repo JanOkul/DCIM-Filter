@@ -121,7 +121,7 @@ private fun ConditionForm(
                     selectedCondition.copy(value = it)
                 )
             },
-            selectionAllowed = { acceptEnabled = it }
+            onCanSave = { acceptEnabled = it }
         )
 
         AcceptOrDismiss(
