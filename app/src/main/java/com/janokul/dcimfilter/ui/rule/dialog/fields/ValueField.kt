@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import com.janokul.dcimfilter.room.rule.types.ConditionValue
 import com.janokul.dcimfilter.room.rule.types.ConditionValue.BoolValue
 import com.janokul.dcimfilter.room.rule.types.ConditionValue.LongValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.NoneValue
+import com.janokul.dcimfilter.room.rule.types.ConditionValue.SpecialValue
 import com.janokul.dcimfilter.room.rule.types.ConditionValue.StringValue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,6 +38,7 @@ fun ValueField(
 
     when (selectedValue) {
         is StringValue -> StringValueField(selectedValue, setAppPickerState, onSelect)
+        is SpecialValue -> SpecialValueField(selectedValue, canSave, { canSave = it })
 
         is LongValue -> {
             var text by remember(selectedValue) { mutableStateOf(selectedValue.value.toString()) }
@@ -69,9 +70,7 @@ fun ValueField(
                 Text("I understand that this option $message, regardless of any other conditions present.")
             }
         }
-        is NoneValue -> {
-            canSave = false
-        }
+
     }
 }
 
@@ -103,5 +102,30 @@ fun StringValueField(
             }
         }
         is StringValue.DateValue -> {}
+    }
+}
+
+@Composable
+fun SpecialValueField(
+    selectedValue: SpecialValue,
+    canSave: Boolean,
+    onCanSave: (Boolean) -> Unit
+) {
+    when (selectedValue) {
+        is SpecialValue.AllValue -> Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                checked = canSave,
+                onCheckedChange = { onCanSave(it) }
+            )
+            Text("I understand that this option will unconditionally move EVERY media within this folder, regardless of any other conditions present.")
+        }
+
+        is SpecialValue.NoneValue -> Row(verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(
+            checked = canSave,
+            onCheckedChange = { onCanSave(it) }
+        )
+        Text("I understand that this option will not have any effect on the media within this folder, regardless of any other conditions present.")
+    }
     }
 }

@@ -22,23 +22,53 @@ sealed class ConditionValue<T> {
         )
 
         @Serializable
-        data class RawStringValue(override var value: String = ""): StringValue() {
+        data class RawStringValue(override var value: String = "") : StringValue() {
             override fun setImmutable(new: String): ConditionValue<String> {
                 return RawStringValue(value = new)
             }
         }
 
         @Serializable
-        data class DateValue(override var value: String = ""): StringValue() {
+        data class DateValue(override var value: String = "") : StringValue() {
             override fun setImmutable(new: String): ConditionValue<String> {
                 return DateValue(value = new)
             }
         }
 
         @Serializable
-        data class PackageValue(override var value: String = ""): StringValue() {
+        data class PackageValue(override var value: String = "") : StringValue() {
             override fun setImmutable(new: String): ConditionValue<String> {
                 return PackageValue(value = new)
+            }
+        }
+    }
+
+    @Serializable
+    sealed class SpecialValue : ConditionValue<Unit>() {
+        @Transient
+        override val validOps = emptyList<ConditionOp>()
+
+        @Serializable
+        data object NoneValue : SpecialValue() {
+            override var value: Unit = Unit
+
+            @Transient
+            override val defaultOp: ConditionOp = ConditionOp.NO_OP
+
+            override fun setImmutable(new: Unit): ConditionValue<Unit> {
+                return NoneValue
+            }
+        }
+
+        @Serializable
+        data object AllValue : SpecialValue() {
+            override var value: Unit = Unit
+
+            @Transient
+            override val defaultOp: ConditionOp = ConditionOp.NO_OP
+
+            override fun setImmutable(new: Unit): ConditionValue<Unit> {
+                return AllValue
             }
         }
     }
@@ -75,18 +105,4 @@ sealed class ConditionValue<T> {
             return BoolValue(value = new)
         }
     }
-
-    @Serializable
-    data class NoneValue(override var value: Unit = Unit): ConditionValue<Unit>() {
-        @Transient
-        override val validOps = emptyList<ConditionOp>()
-
-        @Transient
-        override val defaultOp: ConditionOp = ConditionOp.NO_OP
-
-        override fun setImmutable(new: Unit): ConditionValue<Unit> {
-            return NoneValue(value = new)
-        }
-    }
-
 }

@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.janokul.dcimfilter.room.rule.types.ConditionOp
-import com.janokul.dcimfilter.room.rule.types.ConditionValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,7 +23,7 @@ fun OpField(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    if (options.isEmpty() || options == ConditionValue.BoolValue().validOps) {
+    if (options.isEmpty()) {
         return
     }
 

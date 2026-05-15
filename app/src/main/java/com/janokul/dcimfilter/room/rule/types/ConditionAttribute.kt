@@ -1,17 +1,39 @@
 package com.janokul.dcimfilter.room.rule.types
 
 import android.provider.MediaStore
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.BoolValue
 import com.janokul.dcimfilter.room.rule.types.ConditionValue.LongValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.NoneValue
+import com.janokul.dcimfilter.room.rule.types.ConditionValue.SpecialValue
 import com.janokul.dcimfilter.room.rule.types.ConditionValue.StringValue
 import kotlinx.serialization.Serializable
 
 //todo add all the columns appropriate for the app
 @Serializable
-enum class ConditionAttribute(val value: String, val displayName: String, val valueType: ConditionValue<*>) {
-    FILTER_NONE("filter_none", "Filter None", NoneValue()),
-    FILTER_ALL("filter_all", "Filter All", BoolValue(value = true).apply{ defaultOp = ConditionOp.NO_OP }),
-    OWNER_PACKAGE_NAME(MediaStore.MediaColumns.OWNER_PACKAGE_NAME, "Owner Package Name", StringValue.PackageValue()),
-    SIZE(MediaStore.MediaColumns.SIZE, "Size", LongValue())
+enum class ConditionAttribute(val value: String, val displayName: String, val valueType: ConditionValue<*>, val queryable: Boolean) {
+    FILTER_NONE(
+        value = "filter_none",
+        displayName = "Filter None",
+        valueType = SpecialValue.NoneValue,
+        queryable = false
+    ),
+
+    FILTER_ALL(
+        value = "filter_all",
+        displayName = "Filter All",
+        valueType = SpecialValue.AllValue,
+        queryable = false
+    ),
+
+    OWNER_PACKAGE_NAME(
+        value = MediaStore.MediaColumns.OWNER_PACKAGE_NAME,
+        displayName = "Owner Package Name",
+        valueType = StringValue.PackageValue(),
+        queryable = true
+    ),
+
+    SIZE(
+        value = MediaStore.MediaColumns.SIZE,
+        displayName = "Size",
+        valueType = LongValue(),
+        queryable = true
+    )
 }
