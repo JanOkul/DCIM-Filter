@@ -111,6 +111,7 @@ fun SpecialValueField(
     canSave: Boolean,
     onCanSave: (Boolean) -> Unit
 ) {
+    onCanSave(false)
     when (selectedValue) {
         is SpecialValue.AllValue -> Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(

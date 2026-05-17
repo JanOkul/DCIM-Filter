@@ -9,10 +9,19 @@ import androidx.compose.runtime.mutableStateListOf
 import com.janokul.dcimfilter.DCIM_REL_PATH_SQL
 import com.janokul.dcimfilter.room.rule.FilterRule
 import com.janokul.dcimfilter.room.rule.types.ConditionAttribute
+import com.janokul.dcimfilter.room.rule.types.ConditionValue
+import com.janokul.dcimfilter.room.rule.types.ConditionValue.BoolValue
+import com.janokul.dcimfilter.room.rule.types.ConditionValue.LongValue
+import com.janokul.dcimfilter.room.rule.types.ConditionValue.SpecialValue
+import com.janokul.dcimfilter.room.rule.types.ConditionValue.StringValue
 
 class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
-    val contentResolver: ContentResolver? = context.contentResolver
+    val contentResolver: ContentResolver = context.contentResolver!!
     val rules = rules.filter { it.enabled }
+    val mediaCollections = listOf(
+        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    )
 
     /**
      *
@@ -38,11 +47,6 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
      * @return A map from the content id to its relative path
      */
     private fun fetchContentRelativePaths(contentUris: Array<Uri>): Map<String, String> {
-        val mediaCollections = arrayOf(
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        )
-
         val queryIds = contentUris.map{ ContentUris.parseId(it) }
         val questionMarks = queryIds.joinToString(",") { "?" }
 
@@ -55,19 +59,19 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
         val sortOrder = "${MediaStore.MediaColumns.DATE_ADDED} DESC"
 
         val results = mutableMapOf<String, String>()
-        for (mediaCollection in mediaCollections) {
-            contentResolver!!.query(
-                mediaCollection,
+        for (collection in mediaCollections) {
+            contentResolver.query(
+                collection,
                 projection,
                 selection,
                 selectionArgs,
                 sortOrder
             )?.use { cursor ->
-                val idPathIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                val idIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                 val relPathIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
 
                 while (cursor.moveToNext()) {
-                    results[cursor.getString(idPathIndex)] = cursor.getString(relPathIndex)
+                    results[cursor.getString(idIndex)] = cursor.getString(relPathIndex)
                 }
             }
         }
@@ -92,9 +96,50 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
         return groupedUris
     }
 
-    private fun fetchContentIdAttributes(contentId: String, attributes: List<ConditionAttribute>) {
-        val projection = attributes
+    /**
+     *  Fetches a set of attributes for a piece of Media.
+     *  @param contentId The id of the media within MediaStore.
+     *  @param attributes The set of attributes to fetch the value of.
+     *  @return A map from each attribute to it's corresponding value.
+     */
+    private fun fetchContentIdAttributes(
+        contentId: String,
+        attributes: List<ConditionAttribute>
+    ): Map<String, ConditionValue<*>> {
+        //todo - (Whole function optimisation), should take in a list of contentId's, and get the attributes for each content Id, in one query rather than n queries.
+        val filteredAttributes = attributes.filter { it.queryable }
+        // Filter out any columns that may not exist in MediaStore
+        val projection = filteredAttributes.map { it.value } .toTypedArray()
+        val selection = "${MediaStore.MediaColumns._ID} = ?"
+        val selectionArgs = arrayOf(contentId)
 
+        val result = mutableMapOf<String, ConditionValue<*>>()
+
+        for (collection in mediaCollections) {
+            contentResolver.query(
+                collection,
+                projection,
+                selection,
+                selectionArgs,
+                null
+            )?.use { cursor ->
+
+                if (cursor.moveToNext()) {
+                    filteredAttributes.forEach { attribute ->
+                        val index = cursor.getColumnIndexOrThrow(attribute.value)
+
+                        result[attribute.value] = when (attribute.valueType) {
+                            is StringValue -> StringValue.RawStringValue(cursor.getString(index))
+                            is LongValue -> LongValue(cursor.getLong(index))
+                            is BoolValue -> BoolValue()
+                            is SpecialValue -> throw Exception() //todo make more verbose
+                        }
+                    }
+                }
+            }
+        }
+
+        return result
     }
 
     /**
@@ -102,14 +147,22 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
      *  @param rule A rule that filter's content at the relative path of contentIds
      *  @param contentIds The content group, which is a list of content ids.
      */
-    private fun filterContentGroup(rule: FilterRule, contentIds: List<String>) {
+    private fun filterContentGroup(rule: FilterRule, contentIds: List<String>): List<String> {
+        val conditions = rule.conditions
+
+        if (conditions.isEmpty()) {
+            return emptyList()
+        }
+
         val filteredIds = mutableListOf<String>()
-        val contentAttributes = rule.conditions.map { it.attribute }.filter { it.queryable }
-        contentIds.forEach {
-            // 1. Gets all the content id attributes defined by the conditions
-            // 2. Check if rule matches
+
+        contentIds.forEach { id ->
+            val idAttributes = fetchContentIdAttributes(id, conditions.map { it.attribute })
+            // 2. Check if rule matches todo where to put this functionality? In the FilterRule class as a method?
             // 3. add to filteredIds else discard
             // 4. return filteredids
         }
+
+        return filteredIds
     }
 }
