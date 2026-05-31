@@ -23,7 +23,7 @@ fun ValueField(
 
     when (selectedValue) {
         is StringValue -> StringValueField(selectedValue, setAppPickerState, onSelect)
-        is SpecialValue -> SpecialValueField(selectedValue, canSave, onCanSave)
+        is SpecialValue -> SpecialValueField(selectedValue, onSelect)
         is LongValue -> LongValueField(selectedValue, onSelect)
         is BoolValue -> BoolValueField(selectedValue, onSelect)
     }
@@ -97,18 +97,17 @@ fun StringValueField(
 @Composable
 fun SpecialValueField(
     selectedValue: SpecialValue,
-    canSave: Boolean,
-    onCanSave: (Boolean) -> Unit
+    onSelect: (ConditionValue<*>) -> Unit
 ) {
     when (selectedValue) {
         is SpecialValue.AllValue -> Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
-                checked = canSave,
-                onCheckedChange = { Log.d("SAVECONDITION", it.toString()); onCanSave(it) }
+                checked = selectedValue.permitted,
+                onCheckedChange = { onSelect(SpecialValue.AllValue(permitted = it))  }
             )
             Text("I understand that this option will unconditionally move EVERY media within this folder, regardless of any other conditions present.")
         }
 
-        is SpecialValue.NoneValue -> onCanSave(false)
+        is SpecialValue.NoneValue -> Unit
     }
 }

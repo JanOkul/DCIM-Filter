@@ -1,9 +1,11 @@
 package com.janokul.dcimfilter.ui.rule.dialog
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.*
 import com.janokul.dcimfilter.room.rule.*
@@ -71,14 +73,15 @@ private fun ConditionForm(
     dismissModal: () -> Unit
 
 ) {
+    val context = LocalContext.current
     var acceptEnabled = when (val value = selectedCondition.value) {
         is LongValue -> value.value.isNotEmpty() && value.value.toLongOrNull() != null
         is BoolValue -> false
         is StringValue.RawStringValue -> value.value.any { !it.isWhitespace() }
         is StringValue.PackageValue -> value.value.isNotEmpty()
         is StringValue.DateValue -> value.value.isNotEmpty() //todo fill in rest
-        is SpecialValue.NoneValue -> false
-        is SpecialValue.AllValue -> false
+        is SpecialValue.NoneValue -> value.permitted
+        is SpecialValue.AllValue -> value.permitted
     }
 
     Column(
@@ -125,8 +128,21 @@ private fun ConditionForm(
             acceptEnabled = acceptEnabled,
             onDismiss = dismissModal
         ) {
-            saveCondition(selectedCondition)
-            dismissModal()
+            var condition = selectedCondition
+
+            // Remove any zeros from string on save,
+            if (condition.value is LongValue) {
+                val trimmedLongValue = condition.value.value.toLongOrNull()
+
+                // Double check if Long is valid.
+                if (trimmedLongValue == null) {
+                    Toast.makeText(context, "Empty or not a valid number.", Toast.LENGTH_LONG).show()
+                } else {
+                    condition = condition.copy(value = LongValue(value = trimmedLongValue.toString()))
+                    saveCondition(condition)
+                    dismissModal()
+                }
+            }
         }
     }
 }

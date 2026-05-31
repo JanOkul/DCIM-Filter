@@ -8,7 +8,6 @@ sealed class ConditionValue<T> {
     abstract var value: T
     abstract val validOps: List<ConditionOp>
     abstract val defaultOp: ConditionOp
-    abstract fun setImmutable(new: T): ConditionValue<T>
 
     @Serializable
     sealed class StringValue: ConditionValue<String>() {
@@ -23,23 +22,14 @@ sealed class ConditionValue<T> {
 
         @Serializable
         data class RawStringValue(override var value: String = "") : StringValue() {
-            override fun setImmutable(new: String): ConditionValue<String> {
-                return RawStringValue(value = new)
-            }
         }
 
         @Serializable
         data class DateValue(override var value: String = "") : StringValue() {
-            override fun setImmutable(new: String): ConditionValue<String> {
-                return DateValue(value = new)
-            }
         }
 
         @Serializable
         data class PackageValue(override var value: String = "") : StringValue() {
-            override fun setImmutable(new: String): ConditionValue<String> {
-                return PackageValue(value = new)
-            }
         }
     }
 
@@ -50,29 +40,23 @@ sealed class ConditionValue<T> {
         abstract var permitted: Boolean
 
         @Serializable
-        data object NoneValue : SpecialValue() {
-            override var value: Unit = Unit
-            override var permitted = false
-
+        data class NoneValue(
+            override var value: Unit = Unit,
+            override var permitted: Boolean = false
+        ) : SpecialValue() {
             @Transient
             override val defaultOp: ConditionOp = ConditionOp.NO_OP
 
-            override fun setImmutable(new: Unit): ConditionValue<Unit> {
-                return NoneValue
-            }
         }
 
         @Serializable
-        data object AllValue : SpecialValue() {
-            override var value: Unit = Unit
-            override var permitted = false
-
+        data class AllValue(
+            override var value: Unit = Unit,
+            override var permitted: Boolean = false
+        ) : SpecialValue() {
             @Transient
             override val defaultOp: ConditionOp = ConditionOp.NO_OP
 
-            override fun setImmutable(new: Unit): ConditionValue<Unit> {
-                return AllValue
-            }
         }
     }
 
@@ -90,10 +74,6 @@ sealed class ConditionValue<T> {
 
         @Transient
         override val defaultOp: ConditionOp = ConditionOp.EQUALS
-
-        override fun setImmutable(new: String): ConditionValue<String> {
-            return LongValue(value = new)
-        }
     }
 
     @Serializable
@@ -103,9 +83,5 @@ sealed class ConditionValue<T> {
 
         @Transient
         override var defaultOp: ConditionOp = ConditionOp.EQUALS
-
-        override fun setImmutable(new: Boolean): ConditionValue<Boolean> {
-            return BoolValue(value = new)
-        }
     }
 }

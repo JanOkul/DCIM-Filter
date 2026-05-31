@@ -33,6 +33,7 @@ fun AttributeField(
             modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true),
             readOnly = true,
             value = selectedAttribute.displayName,
+            placeholder = { Text("Please Select An Attribute") },
             onValueChange = {},
             label = { Text("Attribute") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },

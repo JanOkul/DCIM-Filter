@@ -11,15 +11,15 @@ import kotlinx.serialization.Serializable
 enum class ConditionAttribute(val value: String, val displayName: String, val valueType: ConditionValue<*>, val queryable: Boolean) {
     FILTER_NONE(
         value = "filter_none",
-        displayName = "Filter None",
-        valueType = SpecialValue.NoneValue,
+        displayName = "",
+        valueType = SpecialValue.NoneValue(),
         queryable = false
     ),
 
     FILTER_ALL(
         value = "filter_all",
         displayName = "Filter All",
-        valueType = SpecialValue.AllValue,
+        valueType = SpecialValue.AllValue(),
         queryable = false
     ),
 
