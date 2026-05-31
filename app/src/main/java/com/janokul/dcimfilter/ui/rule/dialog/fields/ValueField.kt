@@ -1,6 +1,5 @@
 package com.janokul.dcimfilter.ui.rule.dialog.fields
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,14 +12,8 @@ import com.janokul.dcimfilter.room.rule.types.ConditionValue.*
 fun ValueField(
     selectedValue: ConditionValue<*>,
     setAppPickerState: (Boolean) -> Unit,
-    onSelect: (ConditionValue<*>) -> Unit,
-    canSave: Boolean,
-    onCanSave: (Boolean) -> Unit
+    onSelect: (ConditionValue<*>) -> Unit
 ) {
-    LaunchedEffect(selectedValue) {
-        onCanSave(true)
-    }
-
     when (selectedValue) {
         is StringValue -> StringValueField(selectedValue, setAppPickerState, onSelect)
         is SpecialValue -> SpecialValueField(selectedValue, onSelect)
