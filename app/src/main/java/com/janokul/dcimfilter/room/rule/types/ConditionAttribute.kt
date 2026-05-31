@@ -23,6 +23,13 @@ enum class ConditionAttribute(val value: String, val displayName: String, val va
         queryable = false
     ),
 
+    DISPLAY_NAME(
+        value = MediaStore.MediaColumns.DISPLAY_NAME,
+        displayName = "Display Name (Filename)",
+        valueType = StringValue.RawStringValue(),
+        queryable = true
+    ),
+
     OWNER_PACKAGE_NAME(
         value = MediaStore.MediaColumns.OWNER_PACKAGE_NAME,
         displayName = "Owner Package Name",

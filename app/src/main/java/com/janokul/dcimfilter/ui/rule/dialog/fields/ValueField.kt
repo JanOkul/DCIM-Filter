@@ -1,25 +1,12 @@
 package com.janokul.dcimfilter.ui.rule.dialog.fields
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import android.util.Log
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import com.janokul.dcimfilter.room.rule.types.ConditionValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.BoolValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.LongValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.SpecialValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.StringValue
+import com.janokul.dcimfilter.room.rule.types.ConditionValue.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,50 +14,46 @@ fun ValueField(
     selectedValue: ConditionValue<*>,
     setAppPickerState: (Boolean) -> Unit,
     onSelect: (ConditionValue<*>) -> Unit,
+    canSave: Boolean,
     onCanSave: (Boolean) -> Unit
 ) {
-    var canSave by remember { mutableStateOf(true) }
-    LaunchedEffect(canSave) {
-        onCanSave(canSave)
+    LaunchedEffect(selectedValue) {
+        onCanSave(true)
     }
-
-
 
     when (selectedValue) {
         is StringValue -> StringValueField(selectedValue, setAppPickerState, onSelect)
-        is SpecialValue -> SpecialValueField(selectedValue, canSave, { canSave = it })
+        is SpecialValue -> SpecialValueField(selectedValue, canSave, onCanSave)
+        is LongValue -> LongValueField(selectedValue, onSelect)
+        is BoolValue -> BoolValueField(selectedValue, onSelect)
+    }
+}
 
-        is LongValue -> {
-            var text by remember(selectedValue) { mutableStateOf(selectedValue.value.toString()) }
-
-            TextField(
-                value = text,
-                onValueChange = { input ->
-                    text = input
-                    input.toLongOrNull()?.let { onSelect(LongValue(it)) }
-                },
-                isError = text.isNotEmpty() && text.toLongOrNull() == null,
-                supportingText = {
-                    if (text.isNotEmpty() && text.toLongOrNull() == null) {
-                        Text("Must be a valid number")
-                    }
-                },
-                label = { Text("Number Value") },
-                singleLine = true
-            )
-        }
-        is BoolValue -> {
-            val message = if (selectedValue.value) "will unconditionally move EVERY media within this folder" else "will not have any effect on the media within this folder"
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = canSave,
-                    onCheckedChange = { canSave = it }
-                )
-                Text("I understand that this option $message, regardless of any other conditions present.")
+@Composable
+fun LongValueField(selectedValue: LongValue, onSelect: (ConditionValue<*>) -> Unit) {
+    TextField(
+        value = selectedValue.value,
+        onValueChange = { value: String -> onSelect(LongValue(value)) },
+        isError = selectedValue.value.isEmpty() || selectedValue.value.toLongOrNull() == null,
+        supportingText = {
+            if (selectedValue.value.isEmpty()) {
+                Text("Please enter a number")
+            } else if (selectedValue.value.toLongOrNull() == null) {
+                Text("Not a valid number (Characters, spaces, too large etc...)")
             }
-        }
+        },
+        label = { Text("Number Value") },
+        singleLine = true
+    )
+}
 
+@Composable
+fun BoolValueField(selectedValue: BoolValue, onSelect: (ConditionValue<*>) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(
+            checked = selectedValue.value,
+            onCheckedChange = { onSelect(BoolValue(it)) }
+        )
     }
 }
 
@@ -84,6 +67,12 @@ fun StringValueField(
         is StringValue.RawStringValue -> TextField(
             value = selectedStringValue.value,
             modifier = Modifier.fillMaxWidth(),
+            isError = selectedStringValue.value.none { !it.isWhitespace() },
+            supportingText = {
+                if (selectedStringValue.value.none { !it.isWhitespace() }) {
+                    Text("Must contain more than one character that isn't a space.")
+                }
+            },
             onValueChange = { value: String -> onSelect(StringValue.RawStringValue(value)) },
             label = { Text("Text Value") }
         )
@@ -111,22 +100,15 @@ fun SpecialValueField(
     canSave: Boolean,
     onCanSave: (Boolean) -> Unit
 ) {
-    onCanSave(false)
     when (selectedValue) {
         is SpecialValue.AllValue -> Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
                 checked = canSave,
-                onCheckedChange = { onCanSave(it) }
+                onCheckedChange = { Log.d("SAVECONDITION", it.toString()); onCanSave(it) }
             )
             Text("I understand that this option will unconditionally move EVERY media within this folder, regardless of any other conditions present.")
         }
 
-        is SpecialValue.NoneValue -> Row(verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(
-            checked = canSave,
-            onCheckedChange = { onCanSave(it) }
-        )
-        Text("I understand that this option will not have any effect on the media within this folder, regardless of any other conditions present.")
-    }
+        is SpecialValue.NoneValue -> onCanSave(false)
     }
 }

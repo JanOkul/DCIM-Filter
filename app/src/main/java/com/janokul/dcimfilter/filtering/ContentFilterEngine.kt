@@ -130,8 +130,8 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
 
                         result[attribute.value] = when (attribute.valueType) {
                             is StringValue -> StringValue.RawStringValue(cursor.getString(index))
-                            is LongValue -> LongValue(cursor.getLong(index))
-                            is BoolValue -> BoolValue()
+                            is LongValue -> LongValue(cursor.getString(index))
+                            is BoolValue -> BoolValue() //TODO make it bool
                             is SpecialValue -> throw Exception() //todo make more verbose
                         }
                     }

@@ -74,7 +74,7 @@ sealed class ConditionValue<T> {
     }
 
     @Serializable
-    data class LongValue(override var value: Long = 0) : ConditionValue<Long>() {
+    data class LongValue(override var value: String = "0") : ConditionValue<String>() {
         @Transient
         override val validOps = listOf(
             ConditionOp.EQUALS,
@@ -88,7 +88,7 @@ sealed class ConditionValue<T> {
         @Transient
         override val defaultOp: ConditionOp = ConditionOp.EQUALS
 
-        override fun setImmutable(new: Long): ConditionValue<Long> {
+        override fun setImmutable(new: String): ConditionValue<String> {
             return LongValue(value = new)
         }
     }

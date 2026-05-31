@@ -1,32 +1,20 @@
 package com.janokul.dcimfilter.ui.rule.dialog
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import com.janokul.dcimfilter.room.rule.Condition
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.window.*
+import com.janokul.dcimfilter.room.rule.*
 import com.janokul.dcimfilter.room.rule.types.ConditionAttribute
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.StringValue
-import com.janokul.dcimfilter.ui.rule.dialog.fields.AppPicker
-import com.janokul.dcimfilter.ui.rule.dialog.fields.AttributeField
-import com.janokul.dcimfilter.ui.rule.dialog.fields.OpField
-import com.janokul.dcimfilter.ui.rule.dialog.fields.ValueField
+import com.janokul.dcimfilter.room.rule.types.ConditionValue.*
 
+import com.janokul.dcimfilter.ui.rule.dialog.fields.*
+
+/**
+ * Creates the selected condition when the select box first loads.
+ */
 private fun createDefaultCondition(): Condition {
     val attribute = ConditionAttribute.FILTER_NONE
     return Condition(
@@ -83,7 +71,15 @@ private fun ConditionForm(
     dismissModal: () -> Unit
 
 ) {
-    var acceptEnabled by remember { mutableStateOf(true) }
+    var acceptEnabled = when (val value = selectedCondition.value) {
+        is LongValue -> value.value.isNotEmpty() && value.value.toLongOrNull() != null
+        is BoolValue -> false
+        is StringValue.RawStringValue -> value.value.any { !it.isWhitespace() }
+        is StringValue.PackageValue -> value.value.isNotEmpty()
+        is StringValue.DateValue -> value.value.isNotEmpty() //todo fill in rest
+        is SpecialValue.NoneValue -> false
+        is SpecialValue.AllValue -> false
+    }
 
     Column(
         Modifier
@@ -121,12 +117,13 @@ private fun ConditionForm(
                     selectedCondition.copy(value = it)
                 )
             },
+            canSave = acceptEnabled,
             onCanSave = { acceptEnabled = it }
         )
 
         AcceptOrDismiss(
-            onDismiss = dismissModal,
-            acceptEnabled = acceptEnabled
+            acceptEnabled = acceptEnabled,
+            onDismiss = dismissModal
         ) {
             saveCondition(selectedCondition)
             dismissModal()
@@ -135,7 +132,7 @@ private fun ConditionForm(
 }
 
 @Composable
-private fun AcceptOrDismiss(onDismiss: () -> Unit, acceptEnabled: Boolean, onAccept: () -> Unit) {
+private fun AcceptOrDismiss(acceptEnabled: Boolean, onDismiss: () -> Unit, onAccept: () -> Unit) {
     Row{
         TextButton(onClick = onDismiss) {
             Text("Discard", style = MaterialTheme.typography.titleMedium)
