@@ -47,10 +47,12 @@ sealed class ConditionValue<T> {
     sealed class SpecialValue : ConditionValue<Unit>() {
         @Transient
         override val validOps = emptyList<ConditionOp>()
+        abstract var permitted: Boolean
 
         @Serializable
         data object NoneValue : SpecialValue() {
             override var value: Unit = Unit
+            override var permitted = false
 
             @Transient
             override val defaultOp: ConditionOp = ConditionOp.NO_OP
@@ -63,6 +65,7 @@ sealed class ConditionValue<T> {
         @Serializable
         data object AllValue : SpecialValue() {
             override var value: Unit = Unit
+            override var permitted = false
 
             @Transient
             override val defaultOp: ConditionOp = ConditionOp.NO_OP
