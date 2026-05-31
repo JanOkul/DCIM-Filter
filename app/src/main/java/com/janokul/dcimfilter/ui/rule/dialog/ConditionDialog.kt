@@ -74,7 +74,7 @@ private fun ConditionForm(
 
 ) {
     val context = LocalContext.current
-    var acceptEnabled = when (val value = selectedCondition.value) {
+    val acceptEnabled = when (val value = selectedCondition.value) {
         is LongValue -> value.value.isNotEmpty() && value.value.toLongOrNull() != null
         is BoolValue -> false
         is StringValue.RawStringValue -> value.value.any { !it.isWhitespace() }
