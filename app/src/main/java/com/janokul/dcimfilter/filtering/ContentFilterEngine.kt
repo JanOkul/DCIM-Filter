@@ -6,7 +6,10 @@ import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.compose.runtime.mutableStateListOf
+import com.janokul.dcimfilter.Attribute
+import com.janokul.dcimfilter.ContentId
 import com.janokul.dcimfilter.DCIM_REL_PATH_SQL
+import com.janokul.dcimfilter.RelativePath
 import com.janokul.dcimfilter.room.rule.FilterRule
 import com.janokul.dcimfilter.room.rule.types.ConditionAttribute
 import com.janokul.dcimfilter.room.rule.types.value.ConditionValue
@@ -26,19 +29,28 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
     /**
      *
      */
-    fun filterUris(contentUris: Array<Uri>): Array<Uri> {
+    fun filterUris(contentUris: Array<Uri>): List<ContentId> {
         // 1. Fetch the relative paths of all the content URIs received.
         // 2. Filter any URIs not in /DCIM/, then group all the URIs by their relative path.
         // 3. Use the keys of the grouped URIs to get all the active rules, drop any groups without a corresponding rule,
         // 4. Apply each rule to it's group, combine into one array and return
 
-        val uriIdToPath = fetchContentRelativePaths(contentUris)
-        val groupedIds = groupUris(uriIdToPath)
-
+        val contentPaths = fetchContentPaths(contentUris)
+        val groupedContentByPath = groupContentByPath(contentPaths)
         val rulePaths = rules.map { it.fromRelativePath }.toHashSet()
-        val groupedActivePaths = groupedIds.filterKeys { path -> rulePaths.contains(path) }
 
-        return emptyArray<Uri>()
+        // Filters out any content groups that doesn't have any rules corresponding to the content group
+        val filterableContent = groupedContentByPath.filterKeys { path -> rulePaths.contains(path) }
+
+        val toFilter = ArrayList<ContentId>()
+
+        rules.forEach { rule ->
+            toFilter.addAll(
+                filterContentGroup(rule, filterableContent[rule.fromRelativePath] ?: emptyList())
+            )
+        }
+
+        return toFilter.toList()
     }
 
     /**
@@ -46,7 +58,7 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
      * @param contentUris An array of content Uris, typically obtained from a content uri trigger.
      * @return A map from the content id to its relative path
      */
-    private fun fetchContentRelativePaths(contentUris: Array<Uri>): Map<String, String> {
+    private fun fetchContentPaths(contentUris: Array<Uri>): Map<ContentId, RelativePath> {
         val queryIds = contentUris.map{ ContentUris.parseId(it) }
         val questionMarks = queryIds.joinToString(",") { "?" }
 
@@ -85,11 +97,11 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
      *  @param idToRelPath a map of a content id to the relative path it resides in.
      *  @return A map which groups content ids by relative path (relative path -> list(ids))
      */
-    private fun groupUris(idToRelPath: Map<String, String>): Map<String, List<String>> {
+    private fun groupContentByPath(idToRelPath: Map<ContentId, RelativePath>): Map<RelativePath, List<ContentId>> {
         val groupedUris = mutableMapOf<String, MutableList<String>>()
 
         idToRelPath.forEach { (id, path) ->
-            groupedUris.getOrPut(path) { mutableStateListOf() }
+            groupedUris.getOrPut(path) { mutableListOf() }
                 .add(id)
         }
 
@@ -103,9 +115,9 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
      *  @return A map from each attribute to it's corresponding value.
      */
     private fun fetchContentIdAttributes(
-        contentId: String,
+        contentId: ContentId,
         attributes: List<ConditionAttribute>
-    ): Map<String, ConditionValue<*>> {
+    ): Map<Attribute, ConditionValue<*>> {
         //todo - (Whole function optimisation), should take in a list of contentId's, and get the attributes for each content Id, in one query rather than n queries.
         val filteredAttributes = attributes.filter { it.queryable }
         // Filter out any columns that may not exist in MediaStore
@@ -147,20 +159,20 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
      *  @param rule A rule that filter's content at the relative path of contentIds
      *  @param contentIds The content group, which is a list of content ids.
      */
-    private fun filterContentGroup(rule: FilterRule, contentIds: List<String>): List<String> {
+    private fun filterContentGroup(rule: FilterRule, contentIds: List<ContentId>): List<ContentId> {
         val conditions = rule.conditions
 
-        if (conditions.isEmpty()) {
+        if (conditions.isEmpty() || contentIds.isEmpty()) {
             return emptyList()
         }
 
         val filteredIds = mutableListOf<String>()
 
         contentIds.forEach { id ->
-            val idAttributes = fetchContentIdAttributes(id, conditions.map { it.attribute })
-            // 2. Check if rule matches todo where to put this functionality? In the FilterRule class as a method?
-            // 3. add to filteredIds else discard
-            // 4. return filteredids
+            val contentAttributes = fetchContentIdAttributes(id, conditions.map { it.attribute })
+            if (rule.matches(contentAttributes)) {
+                filteredIds.add(id)
+            }
         }
 
         return filteredIds

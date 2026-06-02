@@ -1,6 +1,8 @@
 package com.janokul.dcimfilter
 
 typealias Attribute = String
+typealias ContentId = String
+typealias RelativePath = String
 
 const val DCIM_REL_PATH_SQL = "DCIM/%"
 
