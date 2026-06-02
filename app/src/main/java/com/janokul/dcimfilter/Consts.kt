@@ -1,5 +1,7 @@
 package com.janokul.dcimfilter
 
+typealias Attribute = String
+
 const val DCIM_REL_PATH_SQL = "DCIM/%"
 
 const val NOTIFICATION_CHANNEL = "DCIM_FILTER_CHANNEL"

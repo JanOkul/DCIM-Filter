@@ -1,9 +1,10 @@
 package com.janokul.dcimfilter.room.rule.types
 
 import android.provider.MediaStore
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.LongValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.SpecialValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.StringValue
+import com.janokul.dcimfilter.room.rule.types.value.ConditionValue
+import com.janokul.dcimfilter.room.rule.types.value.LongValue
+import com.janokul.dcimfilter.room.rule.types.value.SpecialValue
+import com.janokul.dcimfilter.room.rule.types.value.StringValue
 import kotlinx.serialization.Serializable
 
 //todo add all the columns appropriate for the app

@@ -10,7 +10,10 @@ import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.*
 import com.janokul.dcimfilter.room.rule.*
 import com.janokul.dcimfilter.room.rule.types.ConditionAttribute
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.*
+import com.janokul.dcimfilter.room.rule.types.value.BoolValue
+import com.janokul.dcimfilter.room.rule.types.value.LongValue
+import com.janokul.dcimfilter.room.rule.types.value.SpecialValue
+import com.janokul.dcimfilter.room.rule.types.value.StringValue
 
 import com.janokul.dcimfilter.ui.rule.dialog.fields.*
 
@@ -128,6 +131,7 @@ private fun ConditionForm(
         ) {
             var condition = selectedCondition
 
+            // todo: Consider this type of additional validation check for all types
             // Remove any zeros from string on save,
             if (condition.value is LongValue) {
                 val trimmedLongValue = condition.value.value.toLongOrNull()

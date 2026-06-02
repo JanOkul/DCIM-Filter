@@ -9,11 +9,11 @@ import androidx.compose.runtime.mutableStateListOf
 import com.janokul.dcimfilter.DCIM_REL_PATH_SQL
 import com.janokul.dcimfilter.room.rule.FilterRule
 import com.janokul.dcimfilter.room.rule.types.ConditionAttribute
-import com.janokul.dcimfilter.room.rule.types.ConditionValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.BoolValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.LongValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.SpecialValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.StringValue
+import com.janokul.dcimfilter.room.rule.types.value.ConditionValue
+import com.janokul.dcimfilter.room.rule.types.value.BoolValue
+import com.janokul.dcimfilter.room.rule.types.value.LongValue
+import com.janokul.dcimfilter.room.rule.types.value.SpecialValue
+import com.janokul.dcimfilter.room.rule.types.value.StringValue
 
 class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
     val contentResolver: ContentResolver = context.contentResolver!!

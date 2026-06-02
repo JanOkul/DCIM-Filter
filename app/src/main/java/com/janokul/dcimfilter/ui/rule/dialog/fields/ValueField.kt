@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import com.janokul.dcimfilter.room.rule.types.ConditionValue
-import com.janokul.dcimfilter.room.rule.types.ConditionValue.*
+import com.janokul.dcimfilter.room.rule.types.value.BoolValue
+import com.janokul.dcimfilter.room.rule.types.value.ConditionValue
+import com.janokul.dcimfilter.room.rule.types.value.LongValue
+import com.janokul.dcimfilter.room.rule.types.value.SpecialValue
+import com.janokul.dcimfilter.room.rule.types.value.StringValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
