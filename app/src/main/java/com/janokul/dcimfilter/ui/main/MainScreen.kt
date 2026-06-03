@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +53,8 @@ import androidx.navigation.NavController
 import com.janokul.dcimfilter.NavNames
 import com.janokul.dcimfilter.R
 import com.janokul.dcimfilter.room.rule.FilterRule
+import com.janokul.dcimfilter.settings.SettingsViewModel
+import kotlinx.coroutines.flow.stateIn
 
 
 /**
@@ -59,7 +62,7 @@ import com.janokul.dcimfilter.room.rule.FilterRule
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen(navController: NavController, mainViewModel: MainViewModel = hiltViewModel(), settingsViewModel: SettingsViewModel = hiltViewModel()) {
     val context = LocalContext.current
     var allFileAccess by remember { mutableStateOf(Environment.isExternalStorageManager()) }
 
@@ -89,12 +92,12 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltView
             ExtendedFloatingActionButton(
                 text = { Text("New Rule") },
                 icon = { Icon( Icons.Default.Add, contentDescription = "Create new rule") },
-                onClick = { viewModel.createNewRulePage(navController) }
+                onClick = { mainViewModel.createNewRulePage(navController) }
             )
         }
     ) { innerPadding ->
         if (Environment.isExternalStorageManager()) {
-            MainBody(innerPadding, navController, viewModel)
+            MainBody(innerPadding, navController, mainViewModel, settingsViewModel)
         } else {
             InsufficientPermissionsCard(innerPadding)
         }
@@ -127,9 +130,10 @@ private fun AppBar(navController: NavController) {
 private fun MainBody(
     innerPadding: PaddingValues,
     navController: NavController,
-    viewModel: MainViewModel
+    mainViewModel: MainViewModel,
+    settingsViewModel: SettingsViewModel
 ) {
-    val rules by viewModel.rules.collectAsStateWithLifecycle()
+    val rules by mainViewModel.rules.collectAsStateWithLifecycle()
 
 
     Column(
@@ -139,13 +143,13 @@ private fun MainBody(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        BatchFilterAllCard()
+        BatchFilterAllCard(settingsViewModel)
         Spacer(Modifier.size(8.dp))
         Text("Rules", style = MaterialTheme.typography.titleLarge)
         if (rules.isEmpty()) {
-            NoRules(viewModel, navController)
+            NoRules(mainViewModel, navController)
         } else {
-            Rules(navController, viewModel, rules)
+            Rules(navController, mainViewModel, rules)
         }
 
 
@@ -153,7 +157,8 @@ private fun MainBody(
 }
 
 @Composable
-fun BatchFilterAllCard() {
+fun BatchFilterAllCard(settingsViewModel: SettingsViewModel) {
+    val enabled by settingsViewModel.isEnabled.collectAsState(false)
     Card(
         Modifier.fillMaxWidth()
     ) {
@@ -168,6 +173,27 @@ fun BatchFilterAllCard() {
                 Text("Filter All")
             }
 
+        }
+
+        Column(
+            Modifier.padding(16.dp)
+        ) {
+            Text("Filter Service", style = MaterialTheme.typography.titleLarge)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "Enable or disable the automatic file moving service.",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(Modifier.size(16.dp))
+
+                Switch(
+                    enabled,
+                    onCheckedChange = { settingsViewModel.setIsEnabled(it) }
+
+                )
+            }
         }
     }
 

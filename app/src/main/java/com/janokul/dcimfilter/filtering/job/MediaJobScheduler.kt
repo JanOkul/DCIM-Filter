@@ -6,15 +6,22 @@ import android.content.ComponentName
 import android.content.Context
 import android.provider.MediaStore
 import android.util.Log
+import dagger.hilt.android.AndroidEntryPoint
 
-private val TAG = "MediaJobScheduler"
+private const val TAG = "MediaJobScheduler"
+
 
 class MediaJobScheduler(private val context: Context) {
     private val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
     private val jobId = 0
 
     fun buildAndStartJob() {
-        jobScheduler.schedule(buildJobInfo())
+        val jobInfo = buildJob()
+        startJob(jobInfo)
+    }
+
+    fun startJob(jobInfo: JobInfo) {
+        jobScheduler.schedule(jobInfo)
         Log.d(TAG, "Scheduled Job")
     }
 
@@ -23,8 +30,7 @@ class MediaJobScheduler(private val context: Context) {
         Log.d(TAG, "Cancelled Job")
     }
 
-    private fun buildJobInfo(): JobInfo {
-
+    fun buildJob(): JobInfo {
         val componentName = ComponentName(context, MediaJobService::class.java)
         val jobInfo = JobInfo.Builder(jobId, componentName)
             .addTriggerContentUri(
@@ -39,8 +45,8 @@ class MediaJobScheduler(private val context: Context) {
                     JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS
                 )
             )
-            //todo add .extras for dest folder
 
+        Log.d(TAG, "Built Job")
         return jobInfo.build()
     }
 }

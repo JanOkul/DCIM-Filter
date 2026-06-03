@@ -1,11 +1,10 @@
-package com.janokul.dcimfilter.filtering
+package com.janokul.dcimfilter.filtering.movers
 
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import androidx.compose.runtime.mutableStateListOf
 import com.janokul.dcimfilter.Attribute
 import com.janokul.dcimfilter.ContentId
 import com.janokul.dcimfilter.DCIM_REL_PATH_SQL
@@ -27,9 +26,11 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
     )
 
     /**
-     *
+     *  Filters a set of content URI's against a rule against the content's relative path. Rules have a 1 to 1 relation to each path.
+     *  @param contentUris A list of MediaStore content to filter.
+     *  @return A map of each rule to a list of content that needs moving to the rule's destination path.
      */
-    fun filterUris(contentUris: Array<Uri>): List<ContentId> {
+    fun filterUris(contentUris: Array<Uri>): Map<FilterRule, List<ContentId>> {
         // 1. Fetch the relative paths of all the content URIs received.
         // 2. Filter any URIs not in /DCIM/, then group all the URIs by their relative path.
         // 3. Use the keys of the grouped URIs to get all the active rules, drop any groups without a corresponding rule,
@@ -42,15 +43,16 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
         // Filters out any content groups that doesn't have any rules corresponding to the content group
         val filterableContent = groupedContentByPath.filterKeys { path -> rulePaths.contains(path) }
 
-        val toFilter = ArrayList<ContentId>()
+        val toFilter = mutableMapOf<FilterRule, List<ContentId>>()
 
-        rules.forEach { rule ->
-            toFilter.addAll(
-                filterContentGroup(rule, filterableContent[rule.fromRelativePath] ?: emptyList())
+        rules.forEach { rule -> toFilter[rule] =
+            filterContentGroup(
+                rule,
+                filterableContent[rule.fromRelativePath] ?: emptyList()
             )
         }
 
-        return toFilter.toList()
+        return toFilter
     }
 
     /**
@@ -143,7 +145,7 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
                         result[attribute.value] = when (attribute.valueType) {
                             is StringValue -> StringValue.RawStringValue(cursor.getString(index))
                             is LongValue -> LongValue(cursor.getString(index))
-                            is BoolValue -> BoolValue() //TODO make it bool
+                            is BoolValue -> BoolValue(cursor.getString(index))
                             is SpecialValue -> throw Exception() //todo make more verbose
                         }
                     }

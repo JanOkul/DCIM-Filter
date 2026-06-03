@@ -47,8 +47,8 @@ fun LongValueField(selectedValue: LongValue, onSelect: (ConditionValue<*>) -> Un
 fun BoolValueField(selectedValue: BoolValue, onSelect: (ConditionValue<*>) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Checkbox(
-            checked = selectedValue.value,
-            onCheckedChange = { onSelect(BoolValue(it)) }
+            checked = selectedValue.asSelf(),
+            onCheckedChange = { onSelect(BoolValue(it.toString())) }
         )
     }
 }

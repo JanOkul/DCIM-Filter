@@ -6,6 +6,7 @@ import androidx.navigation.NavController
 import com.janokul.dcimfilter.NavNames
 import com.janokul.dcimfilter.room.rule.FilterRule
 import com.janokul.dcimfilter.room.rule.FilterRuleDao
+import com.janokul.dcimfilter.settings.SettingsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,7 +18,6 @@ import kotlinx.coroutines.launch
 class MainViewModel @Inject constructor (
     val filterRuleDao: FilterRuleDao
 ): ViewModel() {
-
     val rules = filterRuleDao.getAll()
         .stateIn(
             scope = viewModelScope,

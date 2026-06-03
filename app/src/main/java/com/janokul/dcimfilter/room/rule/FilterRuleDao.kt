@@ -12,6 +12,9 @@ interface FilterRuleDao {
     @Query("SELECT * FROM FilterRule")
     fun getAll(): Flow<List<FilterRule>>
 
+    @Query("SELECT * FROM FilterRule WHERE enabled = 1")
+    fun getAllEnabled(): List<FilterRule>
+
     @Query("SELECT * FROM FilterRule WHERE id = :id")
     fun getById(id: Long?): Flow<FilterRule?>
 
