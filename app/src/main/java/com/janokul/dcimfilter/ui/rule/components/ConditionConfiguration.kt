@@ -3,8 +3,10 @@ package com.janokul.dcimfilter.ui.rule.components
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,41 +39,39 @@ fun ConditionSelection(
         )
     }
 
-    CollapsibleCard(
-        initiallyCollapsed = false,
-        title = { Text("Rule Selection", style = MaterialTheme.typography.titleLarge) },
-        collapsedContent = {
-        },
-        expandedContent = {
-            Column {
-                Text(
-                    "Media can only be moved if the following below conditions are ALL met. If there are no conditions then nothing will be moved.",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+    Card {
+        Column(
+            Modifier.padding(16.dp)
+        ) {
+            Text("Condition Selection", style = MaterialTheme.typography.titleLarge)
+            Text(
+                "Media can only be moved if the following below conditions are ALL met. If there are no conditions then nothing will be moved.",
+                style = MaterialTheme.typography.bodyMedium
+            )
 
-                Spacer(Modifier.size(16.dp))
+            Spacer(Modifier.size(16.dp))
 
-                if (conditions.isEmpty()) {
-                    Text("No Conditions yet!")
-                } else {
-                    conditions.forEachIndexed { index, condition ->
-                        ListItem(
-                            headlineContent = { Text(condition.attribute.displayName) },
-                            supportingContent = { Text(condition.op.op) },
-                            trailingContent = { Text(condition.value.value.toString()) },
-                            modifier = Modifier
-                                .clip(MaterialTheme.shapes.medium)
-                                .combinedClickable(
-                                    onClick = { onShortClick(index) },
-                                    onLongClick = { pendingDeletion = index }
-                                )
-                        )
-                        if (index < conditions.lastIndex) Spacer(Modifier.size(4.dp))
-                    }
+            if (conditions.isEmpty()) {
+                Text("No Conditions yet!")
+            } else {
+                conditions.forEachIndexed { index, condition ->
+                    ListItem(
+                        headlineContent = { Text(condition.attribute.displayName) },
+                        supportingContent = { Text(condition.op.op) },
+                        trailingContent = { Text(condition.value.value.toString()) },
+                        modifier = Modifier
+                            .clip(MaterialTheme.shapes.medium)
+                            .combinedClickable(
+                                onClick = { onShortClick(index) },
+                                onLongClick = { pendingDeletion = index }
+                            )
+                    )
+                    if (index < conditions.lastIndex) Spacer(Modifier.size(4.dp))
                 }
             }
         }
-    )
+    }
+
 }
 
 @Composable
