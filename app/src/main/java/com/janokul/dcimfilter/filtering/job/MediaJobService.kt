@@ -41,10 +41,10 @@ class MediaJobService: JobService() {
             val engine = ContentFilterEngine(context, enabledRules)
             Log.d(TAG, "Filtering the following ${uris.size} URIS.")
             val filteredUris = engine.filterUris(uris)
-            Log.d(TAG, "There are ${filteredUris.size} URIs that need to be filtered.")
+            Log.d(TAG, "There are ${filteredUris.size} URI groups that need to be filtered.")
 
             filteredUris.forEach { (rule, ids) ->
-                Log.d(TAG, "Moving ${ids.size} content to the path ${rule.toRelativePath}.")
+                Log.d(TAG, "Moving ${ids.size} in content group ${rule.fromRelativePath} to the path ${rule.toRelativePath}.")
                 moveContent(rule, ids)
             }
 

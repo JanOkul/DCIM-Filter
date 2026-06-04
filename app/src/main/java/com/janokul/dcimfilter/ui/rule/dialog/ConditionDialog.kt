@@ -139,12 +139,13 @@ private fun ConditionForm(
                 // Double check if Long is valid.
                 if (trimmedLongValue == null) {
                     Toast.makeText(context, "Empty or not a valid number.", Toast.LENGTH_LONG).show()
-                } else {
-                    condition = condition.copy(value = LongValue(value = trimmedLongValue.toString()))
-                    saveCondition(condition)
-                    dismissModal()
+                    return@AcceptOrDismiss
                 }
+                condition = condition.copy(value = LongValue(value = trimmedLongValue.toString()))
             }
+
+            saveCondition(condition)
+            dismissModal()
         }
     }
 }

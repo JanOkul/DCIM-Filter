@@ -5,6 +5,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import com.janokul.dcimfilter.Attribute
 import com.janokul.dcimfilter.ContentId
 import com.janokul.dcimfilter.DCIM_REL_PATH_SQL
@@ -16,6 +17,8 @@ import com.janokul.dcimfilter.room.rule.types.value.BoolValue
 import com.janokul.dcimfilter.room.rule.types.value.LongValue
 import com.janokul.dcimfilter.room.rule.types.value.SpecialValue
 import com.janokul.dcimfilter.room.rule.types.value.StringValue
+
+private const val TAG = "ContentFilterEngine"
 
 class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
     val contentResolver: ContentResolver = context.contentResolver!!
@@ -40,16 +43,20 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
         val groupedContentByPath = groupContentByPath(contentPaths)
         val rulePaths = rules.map { it.fromRelativePath }.toHashSet()
 
+
+
         // Filters out any content groups that doesn't have any rules corresponding to the content group
         val filterableContent = groupedContentByPath.filterKeys { path -> rulePaths.contains(path) }
+        Log.d(TAG, filterableContent.toString())
 
         val toFilter = mutableMapOf<FilterRule, List<ContentId>>()
 
-        rules.forEach { rule -> toFilter[rule] =
-            filterContentGroup(
-                rule,
-                filterableContent[rule.fromRelativePath] ?: emptyList()
-            )
+        rules.forEach { rule ->
+            val contentIds = filterableContent[rule.fromRelativePath] ?: emptyList()
+            Log.d(TAG, "There are ${contentIds.size} ids to filter for group ${rule.fromRelativePath}: $contentIds ")
+            val filteredContentIds = filterContentGroup(rule, contentIds)
+            Log.d(TAG, "${filteredContentIds.size} Ids need filtered: $filteredContentIds")
+            toFilter[rule] = filteredContentIds
         }
 
         return toFilter
@@ -141,13 +148,16 @@ class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
                 if (cursor.moveToNext()) {
                     filteredAttributes.forEach { attribute ->
                         val index = cursor.getColumnIndexOrThrow(attribute.value)
-
                         result[attribute.value] = when (attribute.valueType) {
-                            is StringValue -> StringValue.RawStringValue(cursor.getString(index))
+                            is StringValue.RawStringValue -> StringValue.RawStringValue(cursor.getString(index))
+                            is StringValue.PackageValue -> StringValue.PackageValue(cursor.getString(index))
+                            is StringValue.DateValue -> StringValue.DateValue(cursor.getString(index))
                             is LongValue -> LongValue(cursor.getString(index))
                             is BoolValue -> BoolValue(cursor.getString(index))
                             is SpecialValue -> throw Exception() //todo make more verbose
                         }
+
+                        Log.d(TAG, "Fetched attribute: ${attribute.value} with value ${result[attribute.value]}")
                     }
                 }
             }

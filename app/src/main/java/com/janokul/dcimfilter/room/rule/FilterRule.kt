@@ -41,18 +41,20 @@ data class FilterRule(
         }
     }
 
-    private fun match(op: ConditionOp, targetValue: ConditionValue<*>,  actualValue: ConditionValue<*>): Boolean {
+    private fun match(op: ConditionOp, targetValue: ConditionValue<*>, actualValue: ConditionValue<*>): Boolean {
         if (targetValue::class != actualValue::class) {
             Log.d(TAG, "Type mismatch between target and actual values. Target: ${targetValue::class}, Actual: ${actualValue::class}")
             return false
         }
-
-        return when (targetValue) {
+        Log.d(TAG, "Matching the following: ${targetValue.value} ${op.op} ${actualValue.value}")
+        val matchResult = when (targetValue) {
             is LongValue    -> targetValue.matches(op, actualValue as LongValue)
             is BoolValue    -> targetValue.matches(op, actualValue as BoolValue)
             is StringValue  -> targetValue.matches(op, actualValue as StringValue)
             is SpecialValue -> targetValue.matches(op, actualValue as SpecialValue)
         }
+        Log.d(TAG, "Matches result: $matchResult")
+        return matchResult
     }
 }
 
