@@ -1,29 +1,27 @@
 package com.janokul.dcimfilter
 
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.os.Build
-import android.os.Bundle
+import android.app.*
+import android.app.job.JobScheduler
+import android.os.*
 import android.util.Log
-import androidx.activity.ComponentActivity
+import androidx.activity.*
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.EaseOutQuart
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.*
+import androidx.navigation.compose.*
+import com.janokul.dcimfilter.filtering.job.MediaJobScheduler
+import com.janokul.dcimfilter.settings.SettingsViewModel
 import com.janokul.dcimfilter.ui.history.HistoryScreen
 import com.janokul.dcimfilter.ui.main.MainScreen
 import com.janokul.dcimfilter.ui.rule.RuleScreen
 import com.janokul.dcimfilter.ui.theme.DCIMFilterTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -35,6 +33,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val viewModel: SettingsViewModel by viewModels()
+    private val jobScheduler by lazy {
+        getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+    }
+
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL,
@@ -42,6 +45,23 @@ class MainActivity : ComponentActivity() {
             NotificationManager.IMPORTANCE_LOW
         )
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val context = this
+        lifecycleScope.launch {
+            val isEnabled = viewModel.isEnabled.first()
+            val isJobScheduled = jobScheduler.getPendingJob(JOB_ID) != null
+
+            if (isEnabled && !isJobScheduled) {
+                MediaJobScheduler(context).buildAndStartJob()
+            }
+
+            if (!isEnabled && isJobScheduled) {
+                MediaJobScheduler(context).stopJob()
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

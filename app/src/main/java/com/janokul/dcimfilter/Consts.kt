@@ -17,6 +17,7 @@ const val PREFS_TIMEOUT_NOTIFICATION = "timeout_notification"
 const val WORKER_ID = "file_mover"
 const val WORK_DATA_ID = "uri_id"
 
+const val JOB_ID = 0
 const val DB_NAME = "dcimFilter.db"
 
 enum class NotificationIds(val id: Int) {

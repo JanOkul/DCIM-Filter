@@ -6,14 +6,13 @@ import android.content.ComponentName
 import android.content.Context
 import android.provider.MediaStore
 import android.util.Log
-import dagger.hilt.android.AndroidEntryPoint
+import com.janokul.dcimfilter.JOB_ID
 
 private const val TAG = "MediaJobScheduler"
 
 
 class MediaJobScheduler(private val context: Context) {
     private val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-    private val jobId = 0
 
     fun buildAndStartJob() {
         val jobInfo = buildJob()
@@ -26,13 +25,13 @@ class MediaJobScheduler(private val context: Context) {
     }
 
     fun stopJob() {
-        jobScheduler.cancel(jobId)
+        jobScheduler.cancel(JOB_ID)
         Log.d(TAG, "Cancelled Job")
     }
 
     fun buildJob(): JobInfo {
         val componentName = ComponentName(context, MediaJobService::class.java)
-        val jobInfo = JobInfo.Builder(jobId, componentName)
+        val jobInfo = JobInfo.Builder(JOB_ID, componentName)
             .addTriggerContentUri(
                 JobInfo.TriggerContentUri(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
