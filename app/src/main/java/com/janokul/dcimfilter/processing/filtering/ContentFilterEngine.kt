@@ -19,12 +19,8 @@ import com.janokul.dcimfilter.room.rule.types.value.StringValue
 
 private const val TAG = "ContentFilterEngine"
 
-class ContentFilterEngine(private val contentResolver: ContentResolver, rules: List<FilterRule>) {
-    val rules = rules.filter { it.enabled }
-    val mediaCollections = listOf(
-        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-    )
+class ContentFilterEngine(private val contentRepository: ContentRepository) {
+    val rules = contentRepository.fetchActiveRules().filter { it.enabled }
 
     /**
      *  Filters a set of content URI's against a rule against the content's relative path. Rules have a 1 to 1 relation to each path.
@@ -37,11 +33,9 @@ class ContentFilterEngine(private val contentResolver: ContentResolver, rules: L
         // 3. Use the keys of the grouped URIs to get all the active rules, drop any groups without a corresponding rule,
         // 4. Apply each rule to it's group, combine into one array and return
 
-        val contentPaths = fetchContentPaths(contentUris)
+        val contentPaths = contentRepository.fetchContentPaths(contentUris)
         val groupedContentByPath = groupContentByPath(contentPaths)
         val rulePaths = rules.map { it.fromRelativePath }.toHashSet()
-
-
 
         // Filters out any content groups that doesn't have any rules corresponding to the content group
         val filterableContent = groupedContentByPath.filterKeys { path -> rulePaths.contains(path) }
@@ -58,44 +52,6 @@ class ContentFilterEngine(private val contentResolver: ContentResolver, rules: L
         }
 
         return toFilter
-    }
-
-    /**
-     * Fetches the relative path of all the content Uris given using Mediastore.
-     * @param contentUris An array of content Uris, typically obtained from a content uri trigger.
-     * @return A map from the content id to its relative path
-     */
-    private fun fetchContentPaths(contentUris: Array<Uri>): Map<ContentId, RelativePath> {
-        val queryIds = contentUris.map{ ContentUris.parseId(it) }
-        val questionMarks = queryIds.joinToString(",") { "?" }
-
-        val projection = arrayOf(
-            MediaStore.MediaColumns._ID,
-            MediaStore.MediaColumns.RELATIVE_PATH
-        )
-        val selection = "${MediaStore.MediaColumns._ID} IN ($questionMarks) AND ${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?" // Makes sure content id relative path is within /DCIM/
-        val selectionArgs = queryIds.map { it.toString() }.toTypedArray() + DCIM_REL_PATH_SQL
-        val sortOrder = "${MediaStore.MediaColumns.DATE_ADDED} DESC"
-
-        val results = mutableMapOf<String, String>()
-        for (collection in mediaCollections) {
-            contentResolver.query(
-                collection,
-                projection,
-                selection,
-                selectionArgs,
-                sortOrder
-            )?.use { cursor ->
-                val idIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-                val relPathIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
-
-                while (cursor.moveToNext()) {
-                    results[cursor.getString(idIndex)] = cursor.getString(relPathIndex)
-                }
-            }
-        }
-
-        return results
     }
 
 
@@ -116,55 +72,6 @@ class ContentFilterEngine(private val contentResolver: ContentResolver, rules: L
     }
 
     /**
-     *  Fetches a set of attributes for a piece of Media.
-     *  @param contentId The id of the media within MediaStore.
-     *  @param attributes The set of attributes to fetch the value of.
-     *  @return A map from each attribute to it's corresponding value.
-     */
-    private fun fetchContentIdAttributes(
-        contentId: ContentId,
-        attributes: List<ConditionAttribute>
-    ): Map<Attribute, ConditionValue<*>> {
-        //todo - (Whole function optimisation), should take in a list of contentId's, and get the attributes for each content Id, in one query rather than n queries.
-        val filteredAttributes = attributes.filter { it.queryable }
-        // Filter out any columns that may not exist in MediaStore
-        val projection = filteredAttributes.map { it.value } .toTypedArray()
-        val selection = "${MediaStore.MediaColumns._ID} = ?"
-        val selectionArgs = arrayOf(contentId)
-
-        val result = mutableMapOf<String, ConditionValue<*>>()
-
-        for (collection in mediaCollections) {
-            contentResolver.query(
-                collection,
-                projection,
-                selection,
-                selectionArgs,
-                null
-            )?.use { cursor ->
-
-                if (cursor.moveToNext()) {
-                    filteredAttributes.forEach { attribute ->
-                        val index = cursor.getColumnIndexOrThrow(attribute.value)
-                        result[attribute.value] = when (attribute.valueType) {
-                            is StringValue.RawStringValue -> StringValue.RawStringValue(cursor.getString(index))
-                            is StringValue.PackageValue -> StringValue.PackageValue(cursor.getString(index))
-                            is StringValue.DateValue -> StringValue.DateValue(cursor.getString(index))
-                            is LongValue -> LongValue(cursor.getString(index))
-                            is BoolValue -> BoolValue(cursor.getString(index))
-                            is SpecialValue -> throw Exception() //todo make more verbose
-                        }
-
-                        Log.d(TAG, "Fetched attribute: ${attribute.value} with value ${result[attribute.value]}")
-                    }
-                }
-            }
-        }
-
-        return result
-    }
-
-    /**
      *  Filters a list of content ids by its respective rule
      *  @param rule A rule that filter's content at the relative path of contentIds
      *  @param contentIds The content group, which is a list of content ids.
@@ -179,7 +86,7 @@ class ContentFilterEngine(private val contentResolver: ContentResolver, rules: L
         val filteredIds = mutableListOf<String>()
 
         contentIds.forEach { id ->
-            val contentAttributes = fetchContentIdAttributes(id, conditions.map { it.attribute })
+            val contentAttributes = contentRepository.fetchContentIdAttributes(id, conditions.map { it.attribute })
             if (rule.matches(contentAttributes)) {
                 filteredIds.add(id)
             }

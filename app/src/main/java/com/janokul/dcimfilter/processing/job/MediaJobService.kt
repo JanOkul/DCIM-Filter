@@ -3,6 +3,8 @@ package com.janokul.dcimfilter.processing.job
 import android.app.job.*
 import android.util.Log
 import com.janokul.dcimfilter.processing.filtering.ContentFilterEngine
+import com.janokul.dcimfilter.processing.filtering.ContentRepository
+import com.janokul.dcimfilter.processing.filtering.ContentRepositoryImpl
 import com.janokul.dcimfilter.processing.movers.*
 import com.janokul.dcimfilter.room.rule.FilterRuleDao
 import com.janokul.dcimfilter.room.target.FilterTargetDao
@@ -27,7 +29,10 @@ class MediaJobService: JobService() {
             val enabledRules = ruleDao.getAllEnabled()
             Log.d(TAG, "Fetched ${enabledRules.size} rules where ${enabledRules.count { it.enabled }}/${enabledRules.size} are enabled. (Must be 100%)")
 
-            val engine = ContentFilterEngine(context.contentResolver, enabledRules)
+            val engine = ContentFilterEngine(
+                ContentRepositoryImpl(contentResolver, ruleDao)
+            )
+
             Log.d(TAG, "Filtering the following ${uris.size} URIS.")
             val filteredUris = engine.filterUris(uris)
             Log.d(TAG, "There are ${filteredUris.size} URI groups that need to be filtered.")
