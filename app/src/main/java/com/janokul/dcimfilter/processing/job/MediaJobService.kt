@@ -1,8 +1,9 @@
-package com.janokul.dcimfilter.filtering.job
+package com.janokul.dcimfilter.processing.job
 
 import android.app.job.*
 import android.util.Log
-import com.janokul.dcimfilter.filtering.movers.*
+import com.janokul.dcimfilter.processing.filtering.ContentFilterEngine
+import com.janokul.dcimfilter.processing.movers.*
 import com.janokul.dcimfilter.room.rule.FilterRuleDao
 import com.janokul.dcimfilter.room.target.FilterTargetDao
 import dagger.hilt.android.AndroidEntryPoint

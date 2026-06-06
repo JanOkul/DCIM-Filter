@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.filtering.scanners
+package com.janokul.dcimfilter.processing.scanners
 
 
 import android.app.Notification
@@ -27,7 +27,7 @@ import com.janokul.dcimfilter.PREFS_TIMEOUT_NOTIFICATION
 import com.janokul.dcimfilter.R
 import com.janokul.dcimfilter.WORKER_ID
 import com.janokul.dcimfilter.WORK_DATA_ID
-import com.janokul.dcimfilter.filtering.workers.SingleFileMoverWorker
+import com.janokul.dcimfilter.processing.workers.SingleFileMoverWorker
 import com.janokul.dcimfilter.room.target.FilterTarget
 import com.janokul.dcimfilter.room.target.FilterTargetDao
 import jakarta.inject.Inject

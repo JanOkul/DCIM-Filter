@@ -13,7 +13,7 @@ import androidx.compose.animation.core.*
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.*
 import androidx.navigation.compose.*
-import com.janokul.dcimfilter.filtering.job.MediaJobScheduler
+import com.janokul.dcimfilter.processing.job.MediaJobScheduler
 import com.janokul.dcimfilter.settings.SettingsViewModel
 import com.janokul.dcimfilter.ui.history.HistoryScreen
 import com.janokul.dcimfilter.ui.main.MainScreen

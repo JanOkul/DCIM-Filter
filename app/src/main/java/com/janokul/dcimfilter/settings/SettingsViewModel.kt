@@ -1,13 +1,9 @@
 package com.janokul.dcimfilter.settings
 
 import android.app.Application
-import android.content.Context
-import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.janokul.dcimfilter.filtering.job.MediaJobScheduler
-import com.janokul.dcimfilter.filtering.scanners.FileScannerService
-import com.janokul.dcimfilter.ui.components.misc.AppSettings
+import com.janokul.dcimfilter.processing.job.MediaJobScheduler
 import kotlinx.coroutines.launch
 
 //todo fix all this

@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.filtering.scanners
+package com.janokul.dcimfilter.processing.scanners
 
 data class QueryResult(
     val owner: String,

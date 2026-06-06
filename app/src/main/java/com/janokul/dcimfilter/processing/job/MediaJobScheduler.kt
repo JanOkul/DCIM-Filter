@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.filtering.job
+package com.janokul.dcimfilter.processing.job
 
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
@@ -6,7 +6,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.provider.MediaStore
 import android.util.Log
-import androidx.work.Constraints
 import com.janokul.dcimfilter.JOB_ID
 
 private const val TAG = "MediaJobScheduler"

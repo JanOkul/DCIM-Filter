@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.filtering.workers
+package com.janokul.dcimfilter.processing.workers
 
 import android.content.Context
 import android.content.pm.ServiceInfo

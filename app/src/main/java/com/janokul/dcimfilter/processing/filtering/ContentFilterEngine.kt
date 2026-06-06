@@ -1,8 +1,7 @@
-package com.janokul.dcimfilter.filtering.movers
+package com.janokul.dcimfilter.processing.filtering
 
 import android.content.ContentResolver
 import android.content.ContentUris
-import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
@@ -20,8 +19,7 @@ import com.janokul.dcimfilter.room.rule.types.value.StringValue
 
 private const val TAG = "ContentFilterEngine"
 
-class ContentFilterEngine(context: Context, rules: List<FilterRule>) {
-    val contentResolver: ContentResolver = context.contentResolver!!
+class ContentFilterEngine(private val contentResolver: ContentResolver, rules: List<FilterRule>) {
     val rules = rules.filter { it.enabled }
     val mediaCollections = listOf(
         MediaStore.Video.Media.EXTERNAL_CONTENT_URI,

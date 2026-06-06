@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.filtering.scanners
+package com.janokul.dcimfilter.processing.scanners
 
 import android.content.Context
 import android.database.Cursor
@@ -10,7 +10,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.janokul.dcimfilter.WORKER_ID
-import com.janokul.dcimfilter.filtering.workers.BatchFileMoverWorker
+import com.janokul.dcimfilter.processing.workers.BatchFileMoverWorker
 import com.janokul.dcimfilter.room.target.FilterTarget
 import com.janokul.dcimfilter.room.target.FilterTargetDao
 import jakarta.inject.Inject

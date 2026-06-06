@@ -1,4 +1,4 @@
-package com.janokul.dcimfilter.filtering.scanners
+package com.janokul.dcimfilter.processing.scanners
 
 import android.os.Environment
 import android.os.FileObserver
