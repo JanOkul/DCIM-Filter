@@ -27,7 +27,7 @@ fun PathSelection(viewModel: RuleViewModel) {
         {
             Column {
                 Row {
-                    Text("From Path: ", style = MaterialTheme.typography.titleSmall,)
+                    Text("From Path: ", style = MaterialTheme.typography.titleSmall)
                     Text(fromPath, style = MaterialTheme.typography.bodyMedium)
                 }
 
@@ -42,24 +42,22 @@ fun PathSelection(viewModel: RuleViewModel) {
                 PathComponent(
                     fromPath,
                     "From Path",
-                    "All files within this path will be filtered to the destination path",
-                    {
-                        viewModel.updateCurrentRule(
-                            viewModel.currentFilterRule.copy(fromRelativePath = it)
-                        )
-                    }
-                )
+                    "All files within this path will be filtered to the destination path"
+                ) {
+                    viewModel.updateCurrentRule(
+                        viewModel.currentFilterRule.copy(fromRelativePath = it)
+                    )
+                }
 
                 PathComponent(
                     toPath,
                     "To Path",
-                    "Name of the folder you want to move files to. A folder will be created in Pictures/$toPath and Movies/$toPath for photo and video content.",
-                    {
-                        viewModel.updateCurrentRule(
-                            viewModel.currentFilterRule.copy(toRelativePath = it)
-                        )
-                    }
-                )
+                    "Name of the folder you want to move files to. A folder will be created in Pictures/$toPath and Movies/$toPath for photo and video content."
+                ) {
+                    viewModel.updateCurrentRule(
+                        viewModel.currentFilterRule.copy(toRelativePath = it)
+                    )
+                }
             }
         }
     )

@@ -1,27 +1,15 @@
 package com.janokul.dcimfilter.filtering.job
 
-import android.annotation.SuppressLint
-import android.app.job.JobParameters
-import android.app.job.JobService
+import android.app.job.*
 import android.util.Log
-import androidx.work.Constraints
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import com.janokul.dcimfilter.WORKER_ID
-import com.janokul.dcimfilter.filtering.movers.ContentFilterEngine
-import com.janokul.dcimfilter.filtering.movers.moveContent
-import com.janokul.dcimfilter.filtering.workers.BatchFileMoverWorker
-import com.janokul.dcimfilter.room.rule.FilterRule
+import com.janokul.dcimfilter.filtering.movers.*
 import com.janokul.dcimfilter.room.rule.FilterRuleDao
 import com.janokul.dcimfilter.room.target.FilterTargetDao
 import dagger.hilt.android.AndroidEntryPoint
 import jakarta.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
-private val TAG = "MediaJobService"
+private const val TAG = "MediaJobService"
 @AndroidEntryPoint
 class MediaJobService: JobService() {
 
@@ -38,7 +26,7 @@ class MediaJobService: JobService() {
             val enabledRules = ruleDao.getAllEnabled()
             Log.d(TAG, "Fetched ${enabledRules.size} rules where ${enabledRules.count { it.enabled }}/${enabledRules.size} are enabled. (Must be 100%)")
 
-            val engine = ContentFilterEngine(context, enabledRules)
+            val engine = ContentFilterEngine(context.contentResolver, enabledRules)
             Log.d(TAG, "Filtering the following ${uris.size} URIS.")
             val filteredUris = engine.filterUris(uris)
             Log.d(TAG, "There are ${filteredUris.size} URI groups that need to be filtered.")

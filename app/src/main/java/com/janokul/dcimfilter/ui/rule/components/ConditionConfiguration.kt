@@ -58,7 +58,7 @@ fun ConditionSelection(
                     ListItem(
                         headlineContent = { Text(condition.attribute.displayName) },
                         supportingContent = { Text(condition.op.op) },
-                        trailingContent = { Text(condition.value.value.toString()) },
+                        trailingContent = { Text(condition.value.value) },
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.medium)
                             .combinedClickable(

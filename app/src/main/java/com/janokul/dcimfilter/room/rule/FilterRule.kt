@@ -57,5 +57,3 @@ data class FilterRule(
         return matchResult
     }
 }
-
-//

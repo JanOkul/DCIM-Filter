@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.provider.MediaStore
 import android.util.Log
+import androidx.work.Constraints
 import com.janokul.dcimfilter.JOB_ID
 
 private const val TAG = "MediaJobScheduler"
@@ -31,6 +32,7 @@ class MediaJobScheduler(private val context: Context) {
 
     fun buildJob(): JobInfo {
         val componentName = ComponentName(context, MediaJobService::class.java)
+
         val jobInfo = JobInfo.Builder(JOB_ID, componentName)
             .addTriggerContentUri(
                 JobInfo.TriggerContentUri(
