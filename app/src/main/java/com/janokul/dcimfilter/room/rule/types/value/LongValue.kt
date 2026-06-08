@@ -27,10 +27,10 @@ data class LongValue(override var value: String = "0") : ConditionValue<Long>() 
         return when (op) {
             ConditionOp.EQUALS                 -> selfValue == otherValue
             ConditionOp.NOT_EQUALS             -> selfValue != otherValue
-            ConditionOp.GREATER_THAN           -> selfValue > otherValue
-            ConditionOp.GREATER_THAN_OR_EQUAL  -> selfValue >= otherValue
-            ConditionOp.LESS_THAN              -> selfValue < otherValue
-            ConditionOp.LESS_THAN_OR_EQUAL     -> selfValue <= otherValue
+            ConditionOp.GREATER_THAN           -> selfValue < otherValue
+            ConditionOp.GREATER_THAN_OR_EQUAL  -> selfValue <= otherValue
+            ConditionOp.LESS_THAN              -> selfValue > otherValue
+            ConditionOp.LESS_THAN_OR_EQUAL     -> selfValue >= otherValue
             else -> throw IllegalArgumentException("Operand: $op is not valid for long operations.")
         }
     }
