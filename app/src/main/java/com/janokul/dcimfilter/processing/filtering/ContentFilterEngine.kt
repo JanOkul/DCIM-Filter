@@ -1,21 +1,9 @@
 package com.janokul.dcimfilter.processing.filtering
 
-import android.content.ContentResolver
-import android.content.ContentUris
 import android.net.Uri
-import android.provider.MediaStore
 import android.util.Log
-import com.janokul.dcimfilter.Attribute
-import com.janokul.dcimfilter.ContentId
-import com.janokul.dcimfilter.DCIM_REL_PATH_SQL
-import com.janokul.dcimfilter.RelativePath
+import com.janokul.dcimfilter.*
 import com.janokul.dcimfilter.room.rule.FilterRule
-import com.janokul.dcimfilter.room.rule.types.ConditionAttribute
-import com.janokul.dcimfilter.room.rule.types.value.ConditionValue
-import com.janokul.dcimfilter.room.rule.types.value.BoolValue
-import com.janokul.dcimfilter.room.rule.types.value.LongValue
-import com.janokul.dcimfilter.room.rule.types.value.SpecialValue
-import com.janokul.dcimfilter.room.rule.types.value.StringValue
 
 private const val TAG = "ContentFilterEngine"
 

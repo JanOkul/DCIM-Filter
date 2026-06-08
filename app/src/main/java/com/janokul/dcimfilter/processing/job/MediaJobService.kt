@@ -2,10 +2,8 @@ package com.janokul.dcimfilter.processing.job
 
 import android.app.job.*
 import android.util.Log
-import com.janokul.dcimfilter.processing.filtering.ContentFilterEngine
-import com.janokul.dcimfilter.processing.filtering.ContentRepository
-import com.janokul.dcimfilter.processing.filtering.ContentRepositoryImpl
-import com.janokul.dcimfilter.processing.movers.*
+import com.janokul.dcimfilter.processing.filtering.*
+import com.janokul.dcimfilter.processing.movers.moveContent
 import com.janokul.dcimfilter.room.rule.FilterRuleDao
 import com.janokul.dcimfilter.room.target.FilterTargetDao
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,7 +22,7 @@ class MediaJobService: JobService() {
 
     override fun onStartJob(params: JobParameters?): Boolean {
         val uris = params?.triggeredContentUris ?: emptyArray()
-        val context = this
+        this
         CoroutineScope(Dispatchers.IO).launch {
             val enabledRules = ruleDao.getAllEnabled()
             Log.d(TAG, "Fetched ${enabledRules.size} rules where ${enabledRules.count { it.enabled }}/${enabledRules.size} are enabled. (Must be 100%)")
