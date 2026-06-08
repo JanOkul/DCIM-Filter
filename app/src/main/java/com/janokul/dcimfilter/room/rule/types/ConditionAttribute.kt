@@ -1,6 +1,7 @@
 package com.janokul.dcimfilter.room.rule.types
 
 import android.provider.MediaStore
+import com.janokul.dcimfilter.room.rule.types.value.BoolValue
 import com.janokul.dcimfilter.room.rule.types.value.ConditionValue
 import com.janokul.dcimfilter.room.rule.types.value.LongValue
 import com.janokul.dcimfilter.room.rule.types.value.SpecialValue
@@ -35,6 +36,13 @@ enum class ConditionAttribute(val value: String, val displayName: String, val va
         value = MediaStore.MediaColumns.OWNER_PACKAGE_NAME,
         displayName = "Owner Package Name",
         valueType = StringValue.PackageValue(),
+        queryable = true
+    ),
+
+    IS_FAVOURITE(
+        value = MediaStore.MediaColumns.IS_FAVORITE,
+        displayName = "Is Favourite",
+        valueType = BoolValue(),
         queryable = true
     ),
 

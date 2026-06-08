@@ -20,19 +20,21 @@ import com.janokul.dcimfilter.room.rule.types.value.StringValue
 private const val TAG = "ContentFilterEngine"
 
 class ContentFilterEngine(private val contentRepository: ContentRepository) {
-    val rules = contentRepository.fetchActiveRules().filter { it.enabled }
-
     /**
      *  Filters a set of content URI's against a rule against the content's relative path. Rules have a 1 to 1 relation to each path.
      *  @param contentUris A list of MediaStore content to filter.
      *  @return A map of each rule to a list of content that needs moving to the rule's destination path.
      */
     fun filterUris(contentUris: Array<Uri>): Map<FilterRule, List<ContentId>> {
+        if (contentUris.isEmpty()) {
+            return emptyMap()
+        }
+
         // 1. Fetch the relative paths of all the content URIs received.
         // 2. Filter any URIs not in /DCIM/, then group all the URIs by their relative path.
         // 3. Use the keys of the grouped URIs to get all the active rules, drop any groups without a corresponding rule,
         // 4. Apply each rule to it's group, combine into one array and return
-
+        val rules = contentRepository.fetchActiveRules().filter { it.enabled }
         val contentPaths = contentRepository.fetchContentPaths(contentUris)
         val groupedContentByPath = groupContentByPath(contentPaths)
         val rulePaths = rules.map { it.fromRelativePath }.toHashSet()

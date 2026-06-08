@@ -19,6 +19,7 @@ mockitoKotlin = "6.3.0"
 navigationCompose = "2.9.7"
 pagingRuntime = "3.4.2"
 roomRuntime = "2.8.4"
+truth = "1.4.5"
 workRuntimeKtx = "2.11.2"
 material = "1.13.0"
 runtimeLivedata = "1.10.6"
@@ -57,6 +58,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockitoAndroid" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
 
 
 [plugins]
