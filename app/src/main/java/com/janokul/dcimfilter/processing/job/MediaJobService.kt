@@ -22,7 +22,7 @@ class MediaJobService: JobService() {
 
     override fun onStartJob(params: JobParameters?): Boolean {
         val uris = params?.triggeredContentUris ?: emptyArray()
-        this
+
         CoroutineScope(Dispatchers.IO).launch {
             val enabledRules = ruleDao.getAllEnabled()
             Log.d(TAG, "Fetched ${enabledRules.size} rules where ${enabledRules.count { it.enabled }}/${enabledRules.size} are enabled. (Must be 100%)")
