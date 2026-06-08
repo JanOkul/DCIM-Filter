@@ -1,9 +1,9 @@
 # DCIM Filter 
 ![Tests](https://github.com/JanOkul/DCIM-Filter/actions/workflows/test.yml/badge.svg)
 
-DCIM-Filter is an automatic media management application that actively scans your DCIM folder and selectively moves media files to an appopriate folder in Pictures/, and Movies/.
-The purpose of this is to cut down on the limited quota you get with photo backup applications like Google Photos, as well as to cut down on a messy photo album by cleanly seperating apps that write to DCIM/Camera and Screenshots/Screen recordings.
-Currently, the app only supports filtering out files from DCIM/Camera as that was the inital goal with the application, but a future end goal is to be able to have per subfolder control. The app is currently not on the Play Store but I do eventually plan on submitting,
+DCIM-Filter is an automatic media management application that actively scans your DCIM folder and selectively moves media files to an appropriate folder in Pictures/, and Movies/.
+The purpose of this is to cut down on the limited quota you get with photo backup applications like Google Photos, as well as to cut down on a messy photo album by cleanly separating apps that write to DCIM/Camera and Screenshots/Screen recordings.
+Currently, the app only supports filtering out files from DCIM/Camera as that was the initial goal with the application, but a future end goal is to be able to have per subfolder control. The app is currently not on the Play Store, but I do eventually plan on submitting,
 once I think it's in a ready state.
 
 
