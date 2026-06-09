@@ -1,26 +1,11 @@
-package com.janokul.dcimfilter
+package com.janokul.dcimfilter.contentfilterengine
 
 import android.net.Uri
-import com.janokul.dcimfilter.processing.filtering.ContentRepository
-import com.janokul.dcimfilter.room.rule.*
-import com.janokul.dcimfilter.room.rule.types.*
+import com.janokul.dcimfilter.*
+import com.janokul.dcimfilter.processing.filtering.*
+import com.janokul.dcimfilter.room.rule.FilterRule
+import com.janokul.dcimfilter.room.rule.types.ConditionAttribute
 import com.janokul.dcimfilter.room.rule.types.value.*
-
-/* Default rule that can be copy pasted if needed
-    FilterRule(
-        id = 0,
-        enabled = true,
-        fromRelativePath = "DCIM/Camera/",
-        toRelativePath = "app0",
-        conditions = listOf(
-            Condition(
-                ConditionAttribute.OWNER_PACKAGE_NAME,
-                ConditionOp.EQUALS,
-                StringValue.PackageValue("com.pub0.app0")
-            )
-        )
-    )
-*/
 
 class MockContentRepository(private val rules: List<FilterRule>): ContentRepository {
     val pathMap = mapOf(
@@ -39,49 +24,49 @@ class MockContentRepository(private val rules: List<FilterRule>): ContentReposit
             ConditionAttribute.DISPLAY_NAME to "image0.png",
             ConditionAttribute.OWNER_PACKAGE_NAME to "com.pub0.app0",
             ConditionAttribute.SIZE to "1000",
-            ConditionAttribute.IS_FAVOURITE to "true"
+            ConditionAttribute.IS_FAVOURITE to "1"
         ),
         "1" to mapOf(
             ConditionAttribute.DISPLAY_NAME to "video1.mp4",
             ConditionAttribute.OWNER_PACKAGE_NAME to "com.pub0.app0",
             ConditionAttribute.SIZE to "5000",
-            ConditionAttribute.IS_FAVOURITE to "false"
+            ConditionAttribute.IS_FAVOURITE to "0"
         ),
         "2" to mapOf(
             ConditionAttribute.DISPLAY_NAME to "video2.mp4",
             ConditionAttribute.OWNER_PACKAGE_NAME to "com.pub1.app1",
             ConditionAttribute.SIZE to "8000",
-            ConditionAttribute.IS_FAVOURITE to "true"
+            ConditionAttribute.IS_FAVOURITE to "1"
         ),
         "3" to mapOf(
             ConditionAttribute.DISPLAY_NAME to "screenshot3.png",
             ConditionAttribute.OWNER_PACKAGE_NAME to "com.pub1.app1",
             ConditionAttribute.SIZE to "500",
-            ConditionAttribute.IS_FAVOURITE to "false"
+            ConditionAttribute.IS_FAVOURITE to "0"
         ),
         "4" to mapOf(
             ConditionAttribute.DISPLAY_NAME to "screenshot4.png",
             ConditionAttribute.OWNER_PACKAGE_NAME to "com.pub0.app0",
             ConditionAttribute.SIZE to "5000",
-            ConditionAttribute.IS_FAVOURITE to "true"
+            ConditionAttribute.IS_FAVOURITE to "1"
         ),
         "5" to mapOf(
             ConditionAttribute.DISPLAY_NAME to "screenshot5.png",
             ConditionAttribute.OWNER_PACKAGE_NAME to "com.pub1.app1",
             ConditionAttribute.SIZE to "600",
-            ConditionAttribute.IS_FAVOURITE to "false"
+            ConditionAttribute.IS_FAVOURITE to "0"
         ),
         "6" to mapOf(
             ConditionAttribute.DISPLAY_NAME to "photo6.jpg",
             ConditionAttribute.OWNER_PACKAGE_NAME to "com.pub0.app2",
             ConditionAttribute.SIZE to "3000",
-            ConditionAttribute.IS_FAVOURITE to "false"
+            ConditionAttribute.IS_FAVOURITE to "0"
         ),
         "7" to mapOf(
             ConditionAttribute.DISPLAY_NAME to "photo7.jpg",
             ConditionAttribute.OWNER_PACKAGE_NAME to "com.pub0.app2",
             ConditionAttribute.SIZE to "5000",
-            ConditionAttribute.IS_FAVOURITE to "true"
+            ConditionAttribute.IS_FAVOURITE to "1"
         )
     )
 
@@ -107,11 +92,21 @@ class MockContentRepository(private val rules: List<FilterRule>): ContentReposit
         val result = mutableMapOf<Attribute, ConditionValue<*>>()
 
         attributes.forEach { attribute ->
+            if (!attribute.queryable) {
+                result[attribute.value] = when (attribute.valueType) {
+                    is SpecialValue.AllValue -> SpecialValue.AllValue()
+                    is SpecialValue.NoneValue -> SpecialValue.NoneValue()
+                    else -> throw IllegalArgumentException("Attribute value type ${attribute.valueType} IS queryable")
+                }
+
+                return@forEach
+            }
+
             val rawAttribute = attributeMapForId[attribute] ?: throw IllegalArgumentException("Attribute $attribute not in test set")
 
             result[attribute.value] = when (attribute.valueType) {
                 is LongValue -> LongValue(rawAttribute)
-                is BoolValue -> BoolValue(rawAttribute)
+                is BoolValue -> BoolValue(rawAttribute.toInt().toBooleanOrNull().toString()) // To replicate the actual impl
                 is StringValue.PackageValue -> StringValue.PackageValue(rawAttribute)
                 is StringValue.RawStringValue -> StringValue.RawStringValue(rawAttribute)
                 is StringValue.DateValue -> StringValue.DateValue(rawAttribute)

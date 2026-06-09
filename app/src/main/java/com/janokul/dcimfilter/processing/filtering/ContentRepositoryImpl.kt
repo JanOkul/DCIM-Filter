@@ -1,24 +1,23 @@
 package com.janokul.dcimfilter.processing.filtering
 
-import android.content.ContentResolver
-import android.content.ContentUris
+import android.content.*
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
-import com.janokul.dcimfilter.Attribute
-import com.janokul.dcimfilter.ContentId
-import com.janokul.dcimfilter.DCIM_REL_PATH_SQL
-import com.janokul.dcimfilter.RelativePath
-import com.janokul.dcimfilter.room.rule.FilterRule
-import com.janokul.dcimfilter.room.rule.FilterRuleDao
+import com.janokul.dcimfilter.*
+import com.janokul.dcimfilter.room.rule.*
 import com.janokul.dcimfilter.room.rule.types.ConditionAttribute
-import com.janokul.dcimfilter.room.rule.types.value.BoolValue
-import com.janokul.dcimfilter.room.rule.types.value.ConditionValue
-import com.janokul.dcimfilter.room.rule.types.value.LongValue
-import com.janokul.dcimfilter.room.rule.types.value.SpecialValue
-import com.janokul.dcimfilter.room.rule.types.value.StringValue
+import com.janokul.dcimfilter.room.rule.types.value.*
 
 private const val TAG = "ContentRepositoryImpl"
+
+fun Int.toBooleanOrNull(): Boolean? {
+    return when (this) {
+        1 -> true
+        0 -> false
+        else -> null
+    }
+}
 
 class ContentRepositoryImpl(
     private val contentResolver: ContentResolver,
@@ -103,8 +102,9 @@ class ContentRepositoryImpl(
                             is StringValue.PackageValue -> StringValue.PackageValue(cursor.getString(index))
                             is StringValue.DateValue -> StringValue.DateValue(cursor.getString(index))
                             is LongValue -> LongValue(cursor.getString(index))
-                            is BoolValue -> BoolValue(cursor.getString(index))
-                            is SpecialValue -> throw Exception() //todo make more verbose
+                            is BoolValue -> BoolValue(cursor.getInt(index).toBooleanOrNull()!!.toString())
+                            is SpecialValue.AllValue -> SpecialValue.AllValue()
+                            is SpecialValue.NoneValue -> SpecialValue.NoneValue()
                         }
 
                         Log.d(TAG, "Fetched attribute: ${attribute.value} with value ${result[attribute.value]}")

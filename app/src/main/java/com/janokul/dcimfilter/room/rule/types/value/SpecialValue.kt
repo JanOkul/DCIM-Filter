@@ -1,8 +1,7 @@
 package com.janokul.dcimfilter.room.rule.types.value
 
 import com.janokul.dcimfilter.room.rule.types.ConditionOp
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
+import kotlinx.serialization.*
 
 @Serializable
 sealed class SpecialValue : ConditionValue<Unit>() {
@@ -20,7 +19,7 @@ sealed class SpecialValue : ConditionValue<Unit>() {
 
         override fun asSelf(): Unit = Unit
         override fun matches(op: ConditionOp, other: ConditionValue<Unit>): Boolean {
-            return permitted
+            return false
         }
     }
 

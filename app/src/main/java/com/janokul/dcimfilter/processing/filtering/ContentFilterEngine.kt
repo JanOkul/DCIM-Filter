@@ -18,11 +18,7 @@ class ContentFilterEngine(private val contentRepository: ContentRepository) {
             return emptyMap()
         }
 
-        // 1. Fetch the relative paths of all the content URIs received.
-        // 2. Filter any URIs not in /DCIM/, then group all the URIs by their relative path.
-        // 3. Use the keys of the grouped URIs to get all the active rules, drop any groups without a corresponding rule,
-        // 4. Apply each rule to it's group, combine into one array and return
-        val rules = contentRepository.fetchActiveRules().filter { it.enabled }
+        val rules = fetchRules()
         val contentPaths = contentRepository.fetchContentPaths(contentUris)
         val groupedContentByPath = groupContentByPath(contentPaths)
         val rulePaths = rules.map { it.fromRelativePath }.toHashSet()
@@ -38,12 +34,25 @@ class ContentFilterEngine(private val contentRepository: ContentRepository) {
             Log.d(TAG, "There are ${contentIds.size} ids to filter for group ${rule.fromRelativePath}: $contentIds ")
             val filteredContentIds = filterContentGroup(rule, contentIds)
             Log.d(TAG, "${filteredContentIds.size} Ids need filtered: $filteredContentIds")
-            toFilter[rule] = filteredContentIds
+            if (filteredContentIds.isNotEmpty()) {
+                toFilter[rule] = filteredContentIds
+            }
         }
 
         return toFilter
     }
 
+    private fun fetchRules(): List<FilterRule> {
+        val rules = contentRepository.fetchActiveRules()
+
+        val rulePaths = rules.map { it.fromRelativePath }
+
+        if (rulePaths.distinct().size < rulePaths.size) {
+            throw IllegalArgumentException("Multiple rules with the same fromRelativePath parameter.")
+        }
+
+        return rules.filter { it.enabled }
+    }
 
     /**
      * Flips map from a map of content id -> path, to a map of a path to a list of ids, which contain the same path
@@ -77,8 +86,12 @@ class ContentFilterEngine(private val contentRepository: ContentRepository) {
 
         contentIds.forEach { id ->
             val contentAttributes = contentRepository.fetchContentIdAttributes(id, conditions.map { it.attribute })
+            println("$id with attribute: $contentAttributes")
             if (rule.matches(contentAttributes)) {
                 filteredIds.add(id)
+                println("adding $id")
+            } else {
+                println("$id did not match")
             }
         }
 
